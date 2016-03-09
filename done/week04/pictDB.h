@@ -49,22 +49,22 @@ extern "C" {
     // default int size is 4 bytes or 32 bits
     struct pictdb_header {
         char db_name[MAX_DB_NAME + 1];
-        unsigned int db_version;
-        unsigned int num_files;
-        unsigned int max_files;
-        unsigned int res_resized[2 * (NB_RES - 1)];
-        unsigned int unused_32;
-        unsigned long int unused_64;
+        uint32_t db_version;
+        uint32_t num_files;
+        uint32_t max_files;
+        uint16_t res_resized[2 * (NB_RES - 1)];
+        uint32_t unused_32;
+        uint64_t unused_64;
     };
     
     struct pict_metadata {
         char pict_id[MAX_PIC_ID + 1];
         unsigned char SHA[SHA256_DIGEST_LENGTH];
-        unsigned int res_origin[2];
-        unsigned int size[NB_RES];
-        unsigned int offset[NB_RES];
-        unsigned short int is_valid;
-        unsigned short int unused_16;
+        uint32_t res_origin[2];
+        uint32_t size[NB_RES];
+        uint32_t offset[NB_RES];
+        uint16_t is_valid;
+        uint16_t unused_16;
     };
     
     struct pictdb_file {
@@ -78,10 +78,7 @@ extern "C" {
  *
  * @param header The header to be displayed.
  */
-/* **********************************************************************
- * TODO WEEK 04: ADD THE PROTOTYPE OF print_header HERE.
- * **********************************************************************
- */
+void print_header (const struct pictdb_header header);
 
 /**
  * @brief Prints picture metadata informations.
