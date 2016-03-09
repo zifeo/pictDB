@@ -49,7 +49,6 @@ void print_header (const struct pictdb_header header){
     printf("DB VERSION: %" PRIu32 "\n", header.db_version);
     printf("IMAGE COUNT: %" PRIu32 "\t\tMAX IMAGES: %" PRIu32 "\n", header.num_files, header.max_files);
     printf("THUMBAIL: %" PRIu16 " x %" PRIu16 "\tSMALL: %" PRIu16 " x %" PRIu16"\n", header.res_resized[0],header.res_resized[1], header.res_resized[2],header.res_resized[3]);
-    printf("\n");
     printNtimes('*', 11);
     printf("DATABASE HEADER END");
     printNtimes('*', 11);
@@ -72,7 +71,8 @@ void print_metadata (const struct pict_metadata metadata)
     printf("UNUSED: %" PRIu16 "\n", metadata.unused_16);
     printf("OFFSET ORIG. : %" PRIu32 "\t\tSIZE ORIG. : %" PRIu32 "\n", metadata.offset[RES_ORIG], metadata.size[RES_ORIG]);
     printf("OFFSET THUMB. : %" PRIu32 "\t\tSIZE THUMB. : %" PRIu32 "\n", metadata.offset[RES_THUMB], metadata.size[RES_THUMB]);
-    printf("OFFSET SMALL. : %" PRIu32 "\t\tSIZE SMALL. : %" PRIu32 "\n", metadata.offset[RES_SMALL], metadata.size[RES_SMALL]);
+    printf("OFFSET SMALL : %" PRIu32 "\t\tSIZE SMALL : %" PRIu32 "\n", metadata.offset[RES_SMALL], metadata.size[RES_SMALL]);
     printf("ORIGINAL : %" PRIu32 " x %" PRIu32 "\n", metadata.res_origin[0], metadata.res_origin[1]);
     printNtimes('*', 40);
+    printf("\n");
 }
