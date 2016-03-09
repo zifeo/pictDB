@@ -62,7 +62,7 @@ extern "C" {
         unsigned char SHA[SHA256_DIGEST_LENGTH];
         uint32_t res_origin[2];
         uint32_t size[NB_RES];
-        uint32_t offset[NB_RES];
+        uint64_t offset[NB_RES];
         uint16_t is_valid;
         uint16_t unused_16;
     };

@@ -15,7 +15,7 @@ void do_list (const struct pictdb_file file){
     // empty is set to non zero if there is no valid image (set to 0 once one is valid)
     int empty = 1;
     for (int i=0;i<MAX_MAX_FILES;++i){
-        if (!file.metadata[i].is_valid){
+        if (file.metadata[i].is_valid == NON_EMPTY){
             print_metadata(file.metadata[i]);
             empty = 0;
         }
