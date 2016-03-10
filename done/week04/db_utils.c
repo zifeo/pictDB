@@ -72,7 +72,7 @@ void print_metadata (const struct pict_metadata metadata)
     printf("OFFSET ORIG. : %" PRIu64 "\t\tSIZE ORIG. : %" PRIu32 "\n", metadata.offset[RES_ORIG], metadata.size[RES_ORIG]);
     printf("OFFSET THUMB. : %" PRIu64 "\t\tSIZE THUMB. : %" PRIu32 "\n", metadata.offset[RES_THUMB], metadata.size[RES_THUMB]);
     printf("OFFSET SMALL : %" PRIu64 "\t\tSIZE SMALL : %" PRIu32 "\n", metadata.offset[RES_SMALL], metadata.size[RES_SMALL]);
-    printf("ORIGINAL : %" PRIu32 " x %" PRIu32 "\n", metadata.res_origin[0], metadata.res_origin[1]);
+    printf("ORIGINAL : %" PRIu32 " x %" PRIu32 "\n", metadata.res_orig[0], metadata.res_orig[1]);
     printNtimes('*', 40);
     printf("\n");
 }
