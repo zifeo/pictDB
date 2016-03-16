@@ -73,14 +73,14 @@ struct pictdb_file {
 };
 
 /**
- * @brief Prints database header informations.
+ * @brief Prints database header information.
  *
  * @param header The header to be displayed.
  */
 void print_header (const struct pictdb_header header);
 
 /**
- * @brief Prints picture metadata informations.
+ * @brief Prints picture metadata information.
  *
  * @param metadata The metadata of one picture.
  */
