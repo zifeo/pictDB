@@ -65,10 +65,10 @@ int do_create_cmd (const char* filename)
  ********************************************************************** */
 int help (void)
 {
-    /* **********************************************************************
-     * TODO WEEK 05: WRITE YOUR CODE HERE (and change the return if needed).
-     * **********************************************************************
-     */
+    puts("pictDBM [COMMAND] [ARGUMENTS]");
+    puts("  help: displays this help.");
+    puts("  list <dbfilename>: list pictDB content.");
+    puts("  create <dbfilename>: create a new pictDB.");
     return 0;
 }
 
