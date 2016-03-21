@@ -14,20 +14,20 @@
                                                                        * Creates the database called db_filename. Writes the header and the
                                                                        * preallocated empty metadata array to database file.
                                                                        */
-/* **********************************************************************
- * TODO: ADD THE PROTOTYPE OF do_create HERE.
- * **********************************************************************
- */
 int do_create (const char* filename, struct pictdb_file db_file)
 {
     // Sets the DB header name
     strncpy(db_file.header.db_name, CAT_TXT,  MAX_DB_NAME);
     db_file.header.db_name[MAX_DB_NAME] = '\0';
     
-    /* **********************************************************************
-     * TODO: WRITE YOUR CODE HERE
-     * **********************************************************************
-     */
+    // we initialize here all the other fields of the header that were not set explicitely before
+    db_file.header.db_version = 0;
+    db_file.header.num_files = 0;
+    db_file.header.unused_32 = 0;
+    db_file.header.unused_64 = 0;
+
+    // now we set all the metadatas to 0 so we don't have any surprise and all isValid fields are set to 0
+    memset(db_file.metadata, 1, MAX_MAX_FILES*sizeof(struct pict_metadata));
     
     if (filename == NULL) {
         
