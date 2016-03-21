@@ -18,7 +18,7 @@
  * TODO: ADD THE PROTOTYPE OF do_create HERE.
  * **********************************************************************
  */
-int db_create (const char* filename, struct pictdb_file db_file)
+int do_create (const char* filename, struct pictdb_file db_file)
 {
     // Sets the DB header name
     strncpy(db_file.header.db_name, CAT_TXT,  MAX_DB_NAME);

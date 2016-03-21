@@ -99,7 +99,7 @@ void do_list (const struct pictdb_file file);
  *
  * @param db_file In memory structure with header and metadata.
  */
-    int db_create (const char* filename, struct pictdb_file db_file);
+int do_create (const char* filename, struct pictdb_file db_file);
 
 /* **********************************************************************
  * TODO WEEK 06: ADD THE PROTOTYPE OF do_delete HERE.

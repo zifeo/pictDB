@@ -51,11 +51,13 @@ int do_create_cmd (const char* filename)
     const uint16_t small_res = 256;
 
     puts("Create");
-    /* **********************************************************************
-     * TODO WEEK 05: WRITE YOUR CODE HERE (and change the return if needed).
-     * **********************************************************************
-     */
-    return 0;
+    struct pictdb_file myfile;
+    
+    myfile.header.max_files = max_files;
+    myfile.header.res_resized[RES_THUMB] = thumb_res;
+    myfile.header.res_resized[RES_SMALL] = small_res;
+    
+    return do_create(filename, myfile);
 }
 
 /********************************************************************//**
