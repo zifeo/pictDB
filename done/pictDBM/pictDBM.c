@@ -56,9 +56,9 @@ int do_create_cmd (const char* filename)
     myfile.header.max_files = max_files;
     
     myfile.header.res_resized[RES_THUMB] = thumb_res;
-    myfile.header.res_resized[RES_THUMB+1] = thumb_res;
-    myfile.header.res_resized[2*RES_SMALL] = small_res;
-    myfile.header.res_resized[2*RES_SMALL+1] = small_res;
+    myfile.header.res_resized[RES_THUMB + 1] = thumb_res;
+    myfile.header.res_resized[2 * RES_SMALL] = small_res;
+    myfile.header.res_resized[2 * RES_SMALL + 1] = small_res;
     
     return do_create(filename, myfile);
 }
