@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.4)
 project(pps_team_kernel_panic)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
@@ -17,10 +17,6 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunreachable-code")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/usr/local/opt/openssl/include")
 
-set(WEEK "week04")
-
-file(GLOB SOURCE_FILES "done/${WEEK}/*.h" "done/${WEEK}/*.c")
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "done/${WEEK}/")
+file(GLOB SOURCE_FILES "done/pictDBM/*.h" "done/pictDBM/*.c")
 
 add_executable(pps_team_kernel_panic ${SOURCE_FILES})
