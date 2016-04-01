@@ -110,6 +110,22 @@ void do_list (const struct pictdb_file* file);
  */
 int do_create (const char* filename, struct pictdb_file* db_file);
 
+/**
+ * @brief Opens given file, reads header and metadata.
+ *
+ * @param filename Name of file to be open.
+ * @param mode File mode to be used (e.g. "rb", "wb").
+ * @param db_file In memory structure with header and metadata.
+ */
+int do_open (const char* filename, const char* mode, struct pictdb_file* db_file);
+
+/**
+ * @brief Closes file included in db_file.
+ *
+ * @param db_file In memory structure with header and metadata.
+ */
+void do_close (struct pictdb_file* db_file);
+
 /* **********************************************************************
  * TODO WEEK 06: ADD THE PROTOTYPE OF do_delete HERE.
  * **********************************************************************
