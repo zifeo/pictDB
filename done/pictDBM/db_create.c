@@ -47,7 +47,7 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     
     if (1 != fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) ||
             db_file->header.max_files !=
-            fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file.fpdb)) {
+            fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file->fpdb)) {
         errorCode = ERR_IO;
     }
 
