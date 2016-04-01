@@ -37,10 +37,10 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     // now we set all the metadata to 0 so we don't have any surprise and all isValid fields are set to 0
     memset(db_file->metadata, 0, MAX_MAX_FILES * sizeof(struct pict_metadata));
 
-    db_file->fpdb = fopen(filename, "wb");
-    
-    if (db_file->fpdb == NULL) {
-        return ERR_FILE_NOT_FOUND;
+    int open_status = do_open(filename, "wb", db_file);
+
+    if (0 != open_status) {
+        return open_status;
     }
     
     // Since now the file is open, we need to close it before returning anything
@@ -51,10 +51,8 @@ int do_create (const char* filename, struct pictdb_file* db_file)
             fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file.fpdb)) {
         errorCode = ERR_IO;
     }
-    
-    if (0 != fclose(db_file->fpdb)) {
-        return ERR_IO;
-    }
+
+    do_close(db_file);
     
     // The stream is closed, we don't want to print anything in case of an error
     if (errorCode == 0) {
