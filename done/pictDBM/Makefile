@@ -4,7 +4,7 @@ LDLIBS += -lssl -lcrypto
 
 all: pictDBM
 
-pictDBM: db_list.c db_create.c db_utils.c error.c pictDBM.c
+pictDBM: db_delete.c db_list.c db_create.c db_utils.c error.c pictDBM.c
 
 clean:
 	rm -f pictDBM

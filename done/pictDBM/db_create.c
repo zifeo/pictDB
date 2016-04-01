@@ -38,7 +38,6 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     memset(db_file->metadata, 0, MAX_MAX_FILES * sizeof(struct pict_metadata));
 
     int open_status = do_open(filename, "wb", db_file);
-
     if (0 != open_status) {
         return open_status;
     }

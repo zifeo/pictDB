@@ -132,7 +132,7 @@ void do_close (struct pictdb_file* db_file);
  * @param filename Name of file to be deleted.
  * @param db_file In memory structure with header and metadata.
  */
-int do_delete (const char* filename, struct pictdb_file* db_file);
+int do_delete (const char* pict_id, struct pictdb_file* db_file);
 
 /* **********************************************************************
  * TODO WEEK 09: ADD THE PROTOTYPE OF resolution_atoi HERE.
