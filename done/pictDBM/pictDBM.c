@@ -20,23 +20,13 @@ int do_list_cmd (const char* filename)
 {
     struct pictdb_file myfile;
 
-    /* This is a quick and dirty way of reading the file.
-     * It's provided here as such to avoid solution leak.
-     * You shall NOT proceed as such in your future open function
-     * (in week 6).
-     */
-    /* **********************************************************************
-     * TODO WEEK 06: REPLACE THE PROVIDED CODE BY YOUR OWN CODE HERE
-     * **********************************************************************
-     */
-    myfile.fpdb = fopen(filename, "rb");
-    if (myfile.fpdb == NULL) {
-        return ERR_IO;
+    int open_status = do_open(filename, "rb", &myfile);
+    if (0 != open_status) {
+        return open_status; // TODO
     }
-    fread(&myfile.header , sizeof(struct pictdb_header),             1, myfile.fpdb);
-    fread(myfile.metadata, sizeof(struct pict_metadata), MAX_MAX_FILES, myfile.fpdb);
 
-    do_list(myfile);
+    do_list(&myfile);
+    do_close(&myfile); // TODO
     return 0;
 }
 
@@ -59,8 +49,13 @@ int do_create_cmd (const char* filename)
     myfile.header.res_resized[RES_THUMB + 1] = thumb_res;
     myfile.header.res_resized[2 * RES_SMALL] = small_res;
     myfile.header.res_resized[2 * RES_SMALL + 1] = small_res;
-    
-    return do_create(filename, myfile);
+
+    int create_status = do_create(filename, &myfile);
+    if (0 == create_status) {
+        print_header(&myfile.header);
+    }
+
+    return create_status;
 }
 
 /********************************************************************//**
@@ -72,6 +67,7 @@ int help (void)
     puts("  help: displays this help.");
     puts("  list <dbfilename>: list pictDB content.");
     puts("  create <dbfilename>: create a new pictDB.");
+    puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     return 0;
 }
 
@@ -80,11 +76,16 @@ int help (void)
  */
 int do_delete_cmd (const char* filename, const char* pictID)
 {
-    /* **********************************************************************
-     * TODO WEEK 06: WRITE YOUR CODE HERE (and change the return if needed).
-     * **********************************************************************
-     */
-    return 0;
+
+    if (filename == NULL) {
+        return ERR_INVALID_FILENAME;
+    }
+
+    if (pictID == NULL || strlen(pictID) > MAX_PIC_ID) {
+        return ERR_INVALID_PICID;
+    }
+
+    return do_delete(pictID, );
 }
 
 /********************************************************************//**
