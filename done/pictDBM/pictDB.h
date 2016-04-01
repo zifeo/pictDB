@@ -113,7 +113,7 @@ int do_create (const char* filename, struct pictdb_file* db_file);
 /**
  * @brief Opens given file, reads header and metadata.
  *
- * @param filename Name of file to be open.
+ * @param filename Name of file to be opened.
  * @param mode File mode to be used (e.g. "rb", "wb").
  * @param db_file In memory structure with header and metadata.
  */
@@ -126,10 +126,13 @@ int do_open (const char* filename, const char* mode, struct pictdb_file* db_file
  */
 void do_close (struct pictdb_file* db_file);
 
-/* **********************************************************************
- * TODO WEEK 06: ADD THE PROTOTYPE OF do_delete HERE.
- * **********************************************************************
+/**
+ * @brief Deletes an image.
+ *
+ * @param filename Name of file to be deleted.
+ * @param db_file In memory structure with header and metadata.
  */
+int do_delete (const char* filename, struct pictdb_file* db_file);
 
 /* **********************************************************************
  * TODO WEEK 09: ADD THE PROTOTYPE OF resolution_atoi HERE.
