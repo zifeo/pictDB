@@ -42,9 +42,9 @@ int do_create_cmd (const char* filename)
 
     puts("Create");
     struct pictdb_file myfile;
-    
+
     myfile.header.max_files = max_files;
-    
+
     myfile.header.res_resized[RES_THUMB] = thumb_res;
     myfile.header.res_resized[RES_THUMB + 1] = thumb_res;
     myfile.header.res_resized[2 * RES_SMALL] = small_res;
@@ -102,7 +102,8 @@ int main (int argc, char* argv[])
          * TODO WEEK 08: THIS PART SHALL BE REVISED THEN (WEEK 09) EXTENDED.
          * **********************************************************************
          */
-        argc--; argv++; // skips command call name
+        argc--;
+        argv++; // skips command call name
         if (!strcmp("list", argv[0])) {
             if (argc < 2) {
                 ret = ERR_NOT_ENOUGH_ARGUMENTS;

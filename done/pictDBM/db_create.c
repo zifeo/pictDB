@@ -42,24 +42,24 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     if (db_file->fpdb == NULL) {
         return ERR_FILE_NOT_FOUND;
     }
-    
+
     // Since now the file is open, we need to close it before returning anything
     int errorCode = 0;
-    
+
     if (1 != fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) ||
-            db_file->header.max_files !=
-            fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file->fpdb)) {
+        db_file->header.max_files !=
+        fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file->fpdb)) {
         errorCode = ERR_IO;
     }
 
     if (0 != fclose(db_file->fpdb)) {
         return ERR_IO;
     }
-    
+
     // The stream is closed, we don't want to print anything in case of an error
     if (errorCode == 0) {
         printf("%d item(s) written\n", 1 + db_file->header.max_files);
     }
-    
+
     return errorCode;
 }

@@ -8,7 +8,8 @@
 
 #include "pictDB.h"
 
-int do_delete (const char* pict_id, struct pictdb_file* db_file) {
+int do_delete (const char* pict_id, struct pictdb_file* db_file)
+{
 
     if (pict_id == NULL || strlen(pict_id) > MAX_PIC_ID) {
         return ERR_INVALID_PICID;

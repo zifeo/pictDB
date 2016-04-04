@@ -8,7 +8,8 @@
 
 #include "pictDB.h"
 
-void do_list (const struct pictdb_file* file) {
+void do_list (const struct pictdb_file* file)
+{
 
     if (file != NULL) {
         print_header(&file->header); // TODO
