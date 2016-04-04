@@ -18,16 +18,19 @@
  ********************************************************************** */
 int do_list_cmd (const char* filename)
 {
-    struct pictdb_file myfile;
-
-    int open_status = do_open(filename, "rb", &myfile);
-    if (0 != open_status) {
-        return open_status; // TODO
+    if (filename == NULL) {
+        return ERR_INVALID_ARGUMENT;
     }
 
-    do_list(&myfile);
-    do_close(&myfile); // TODO
-    return 0;
+    struct pictdb_file myfile;
+    int status = do_open(filename, "rb", &myfile);
+
+    if (0 == status) {
+        status = do_list(&myfile);
+    }
+
+    do_close(&myfile);
+    return status;
 }
 
 /********************************************************************//**
@@ -85,7 +88,15 @@ int do_delete_cmd (const char* filename, const char* pictID)
         return ERR_INVALID_PICID;
     }
 
-    return do_delete(pictID, );
+    struct pictdb_file myfile;
+    int status = do_open(filename, "rb", &myfile);
+
+    if (0 == status) {
+        status = do_delete(pictID, &myfile);
+    }
+
+    do_close(&myfile);
+    return status;
 }
 
 /********************************************************************//**

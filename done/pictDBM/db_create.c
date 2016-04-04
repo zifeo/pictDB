@@ -21,7 +21,7 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     }
 
     if (db_file == NULL) {
-        return ERR_INVALID_ARGUMENT; // TODO
+        return ERR_INVALID_ARGUMENT;
     }
 
     // Sets the DB header name
@@ -44,12 +44,12 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     }
 
     // Since now the file is open, we need to close it before returning anything
-    int errorCode = 0;
+    int status = 0;
 
     if (1 != fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) ||
         db_file->header.max_files !=
         fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file->fpdb)) {
-        errorCode = ERR_IO;
+        status = ERR_IO;
     }
 
     if (0 != fclose(db_file->fpdb)) {
@@ -57,9 +57,9 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     }
 
     // The stream is closed, we don't want to print anything in case of an error
-    if (errorCode == 0) {
+    if (status == 0) {
         printf("%d item(s) written\n", 1 + db_file->header.max_files);
     }
 
-    return errorCode;
+    return status;
 }

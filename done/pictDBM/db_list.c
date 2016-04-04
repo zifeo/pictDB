@@ -8,22 +8,25 @@
 
 #include "pictDB.h"
 
-void do_list (const struct pictdb_file* file)
+int do_list (const struct pictdb_file* file)
 {
 
-    if (file != NULL) {
-        print_header(&file->header); // TODO
+    if (file == NULL) {
+        return ERR_INVALID_ARGUMENT;
     }
 
+    print_header(&file->header);
     size_t count = 0;
-    for (size_t i = 0; file != NULL && i < MAX_MAX_FILES; ++i) { // TODO
-
+    for (size_t i = 0; i < MAX_MAX_FILES; ++i) {
         if (file->metadata[i].is_valid == NON_EMPTY) {
             print_metadata(&file->metadata[i]);
             count += 1;
         }
     }
+
     if (count == 0) {
         printf("<< empty database >>\n");
     }
+
+    return 0;
 }
