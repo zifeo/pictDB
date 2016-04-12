@@ -10,15 +10,16 @@
 
 void do_list (const struct pictdb_file file) {
     print_header(file.header);
-    size_t count = 0;
-    for (size_t i = 0; i < MAX_MAX_FILES; ++i) {
-        //
-        if (file.metadata[i].is_valid == NON_EMPTY) {
-            print_metadata(file.metadata[i]);
-            count += 1;
+
+    if (file.header.num_files > 0) {
+
+        for (size_t i = 0; i < MAX_MAX_FILES; ++i) {
+            if (file.metadata[i].is_valid == NON_EMPTY) {
+                print_metadata(file.metadata[i]);
+            }
         }
-    }
-    if (count == 0) {
+
+    } else {
         printf("<< empty database >>\n");
     }
 }
