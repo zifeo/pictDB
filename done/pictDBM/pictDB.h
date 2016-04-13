@@ -86,21 +86,21 @@ struct pictdb_file {
  *
  * @param header The header to be displayed.
  */
-void print_header (const struct pictdb_header header);
+void print_header (const struct pictdb_header* header);
 
 /**
  * @brief Prints picture metadata information.
  *
  * @param metadata The metadata of one picture.
  */
-void print_metadata (const struct pict_metadata metadata);
+void print_metadata (const struct pict_metadata* metadata);
 
 /**
  * @brief Displays (on stdout) pictDB metadata.
  *
  * @param db_file In memory structure with header and metadata.
  */
-void do_list (const struct pictdb_file file);
+int do_list (const struct pictdb_file* file);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
@@ -108,12 +108,31 @@ void do_list (const struct pictdb_file file);
  *
  * @param db_file In memory structure with header and metadata.
  */
-int do_create (const char* filename, struct pictdb_file db_file);
+int do_create (const char* filename, struct pictdb_file* db_file);
 
-/* **********************************************************************
- * TODO WEEK 06: ADD THE PROTOTYPE OF do_delete HERE.
- * **********************************************************************
+/**
+ * @brief Opens given file, reads header and metadata.
+ *
+ * @param filename Name of file to be opened.
+ * @param mode File mode to be used (e.g. "rb", "wb").
+ * @param db_file In memory structure with header and metadata.
  */
+int do_open (const char* filename, const char* mode, struct pictdb_file* db_file);
+
+/**
+ * @brief Closes file included in db_file.
+ *
+ * @param db_file In memory structure with header and metadata.
+ */
+void do_close (struct pictdb_file* db_file);
+
+/**
+ * @brief Deletes an image.
+ *
+ * @param filename Name of file to be deleted.
+ * @param db_file In memory structure with header and metadata.
+ */
+int do_delete (const char* pict_id, struct pictdb_file* db_file);
 
 /* **********************************************************************
  * TODO WEEK 09: ADD THE PROTOTYPE OF resolution_atoi HERE.
