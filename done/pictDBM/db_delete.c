@@ -20,28 +20,28 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
     }
 
     if (db_file->fpdb == NULL) {
-        return ERR_FILE_NOT_FOUND;
+        return ERR_IO;
     }
 
+    size_t pict_delete_offset = 0;
     struct pict_metadata* pict_to_delete = NULL;
-    size_t pict_position = 0;
 
     for (size_t i = 0; pict_to_delete == NULL && i < MAX_MAX_FILES; ++i) {
         if (db_file->metadata[i].is_valid == NON_EMPTY &&
             db_file->metadata[i].pict_id == pict_id) {
             pict_to_delete = &db_file->metadata[i];
-            pict_position = i;
+            pict_delete_offset = i * sizeof(struct pictdb_header);
         }
     }
 
     if (pict_to_delete == NULL) {
-        return ERR_INVALID_PICID;
+        return ERR_FILE_NOT_FOUND;
     }
     pict_to_delete->is_valid = EMPTY;
 
     int status = 0;
 
-    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_position, SEEK_SET) != 0) {
+    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_delete_offset, SEEK_SET) != 0) {
         status = ERR_IO;
     } else {
         if (fwrite(pict_to_delete, sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
@@ -50,12 +50,13 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
             db_file->header.db_version += 1;
             db_file->header.num_files -= 1;
 
-            if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
+            if (fseek(db_file->fpdb, 0, SEEK_SET) != 0) {
+                status = ERR_IO;
+            } else if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
                 status = ERR_IO;
             }
         }
     }
 
     return status;
-
 }

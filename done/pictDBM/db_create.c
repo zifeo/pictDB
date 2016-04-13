@@ -40,7 +40,7 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     db_file->fpdb = fopen(filename, "wb");
 
     if (db_file->fpdb == NULL) {
-        return ERR_FILE_NOT_FOUND;
+        return ERR_IO;
     }
 
     // Since now the file is open, we need to close it before returning anything
