@@ -81,10 +81,10 @@ int help (void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd (const char* filename, const char* pictID)
+int do_delete_cmd (const char* filename, const char* pict_id)
 {
 
-    if (filename == NULL || pictID == NULL) {
+    if (filename == NULL || pict_id == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -92,7 +92,7 @@ int do_delete_cmd (const char* filename, const char* pictID)
         return ERR_INVALID_FILENAME;
     }
 
-    if (strlen(pictID) > MAX_PIC_ID) {
+    if (strlen(pict_id) == 0 || strlen(pict_id) > MAX_PIC_ID) {
         return ERR_INVALID_PICID;
     }
 
@@ -100,7 +100,7 @@ int do_delete_cmd (const char* filename, const char* pictID)
     int status = do_open(filename, "wb", &myfile);
 
     if (status == 0) {
-        status = do_delete(pictID, &myfile);
+        status = do_delete(pict_id, &myfile);
     }
 
     do_close(&myfile);
