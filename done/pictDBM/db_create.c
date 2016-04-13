@@ -16,12 +16,12 @@
  */
 int do_create (const char* filename, struct pictdb_file* db_file)
 {
-    if (filename == NULL) {
-        return ERR_INVALID_FILENAME;
+    if (filename == NULL || db_file == NULL) {
+        return ERR_INVALID_ARGUMENT;
     }
 
-    if (db_file == NULL) {
-        return ERR_INVALID_ARGUMENT;
+    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
+        return ERR_INVALID_FILENAME;
     }
 
     // Sets the DB header name
@@ -46,13 +46,13 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     // Since now the file is open, we need to close it before returning anything
     int status = 0;
 
-    if (1 != fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) ||
-        db_file->header.max_files !=
-        fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file->fpdb)) {
+    if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1 ||
+        fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file->fpdb)
+        != db_file->header.max_files) {
         status = ERR_IO;
     }
 
-    if (0 != fclose(db_file->fpdb)) {
+    if (fclose(db_file->fpdb) != 0) {
         return ERR_IO;
     }
 

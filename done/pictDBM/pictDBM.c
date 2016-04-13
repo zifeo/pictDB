@@ -38,6 +38,10 @@ int do_list_cmd (const char* filename)
 ********************************************************************** */
 int do_create_cmd (const char* filename)
 {
+    if (filename == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
     // This will later come from the parsing of command line arguments
     const uint32_t max_files =  10;
     const uint16_t thumb_res =  64;
@@ -80,16 +84,20 @@ int help (void)
 int do_delete_cmd (const char* filename, const char* pictID)
 {
 
-    if (filename == NULL) {
+    if (filename == NULL || pictID == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
         return ERR_INVALID_FILENAME;
     }
 
-    if (pictID == NULL || strlen(pictID) > MAX_PIC_ID) {
+    if (strlen(pictID) > MAX_PIC_ID) {
         return ERR_INVALID_PICID;
     }
 
     struct pictdb_file myfile;
-    int status = do_open(filename, "rb", &myfile);
+    int status = do_open(filename, "wb", &myfile);
 
     if (0 == status) {
         status = do_delete(pictID, &myfile);

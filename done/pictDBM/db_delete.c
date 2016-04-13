@@ -11,17 +11,16 @@
 
 int do_delete (const char* pict_id, struct pictdb_file* db_file)
 {
-
-    if (pict_id == NULL || strlen(pict_id) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
-
-    if (db_file == NULL) {
+    if (pict_id == NULL || db_file == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
+    if (strlen(pict_id) == 0 || strlen(pict_id) > MAX_PIC_ID) {
+        return ERR_INVALID_PICID;
+    }
+
     if (db_file->fpdb == NULL) {
-        return ERR_IO;
+        return ERR_FILE_NOT_FOUND;
     }
 
     struct pict_metadata* pict_to_delete = NULL;
@@ -42,14 +41,18 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
 
     int status = 0;
 
-    if (0 != fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_position, SEEK_SET)) {
+    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_position, SEEK_SET) != 0) {
         status = ERR_IO;
-    } else if (1 != fwrite(pict_to_delete, sizeof(struct pict_metadata), 1, db_file->fpdb)) {
-        db_file->header.db_version += 1;
-        db_file->header.num_files -= 1;
-
-        if (1 != fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb)) {
+    } else {
+        if (fwrite(pict_to_delete, sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
             status = ERR_IO;
+        } else {
+            db_file->header.db_version += 1;
+            db_file->header.num_files -= 1;
+
+            if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
+                status = ERR_IO;
+            }
         }
     }
 
