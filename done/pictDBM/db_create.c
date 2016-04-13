@@ -43,7 +43,6 @@ int do_create (const char* filename, struct pictdb_file* db_file)
         return ERR_IO;
     }
 
-    // Since now the file is open, we need to close it before returning anything
     int status = 0;
 
     if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1 ||

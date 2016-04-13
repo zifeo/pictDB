@@ -25,7 +25,7 @@ int do_list_cmd (const char* filename)
     struct pictdb_file myfile;
     int status = do_open(filename, "rb", &myfile);
 
-    if (0 == status) {
+    if (status == 0) {
         status = do_list(&myfile);
     }
 
@@ -57,12 +57,12 @@ int do_create_cmd (const char* filename)
     myfile.header.res_resized[2 * RES_SMALL] = small_res;
     myfile.header.res_resized[2 * RES_SMALL + 1] = small_res;
 
-    int create_status = do_create(filename, &myfile);
-    if (0 == create_status) {
+    int status = do_create(filename, &myfile);
+    if (status == 0) {
         print_header(&myfile.header);
     }
 
-    return create_status;
+    return status;
 }
 
 /********************************************************************//**
@@ -99,7 +99,7 @@ int do_delete_cmd (const char* filename, const char* pictID)
     struct pictdb_file myfile;
     int status = do_open(filename, "wb", &myfile);
 
-    if (0 == status) {
+    if (status == 0) {
         status = do_delete(pictID, &myfile);
     }
 
