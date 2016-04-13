@@ -1,5 +1,5 @@
 
-CFLAGS += -std=c99 -I/usr/local/opt/openssl/include
+CFLAGS += -std=c99 -I/usr/local/opt/openssl/include -Wall -Wpedantic
 LDLIBS += -lssl -lcrypto
 
 all: pictDBM
@@ -7,4 +7,4 @@ all: pictDBM
 pictDBM: db_delete.c db_list.c db_create.c db_utils.c error.c pictDBM.c
 
 clean:
-	rm -f pictDBM
+	rm -f pictDBM *.o
