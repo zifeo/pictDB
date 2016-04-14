@@ -25,7 +25,7 @@ int do_list_cmd (const char* filename)
     struct pictdb_file myfile;
     int status = do_open(filename, "rb", &myfile);
 
-    if (0 == status) {
+    if (status == 0) {
         status = do_list(&myfile);
     }
 
@@ -38,12 +38,16 @@ int do_list_cmd (const char* filename)
 ********************************************************************** */
 int do_create_cmd (const char* filename)
 {
+    if (filename == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
     // This will later come from the parsing of command line arguments
     const uint32_t max_files =  10;
     const uint16_t thumb_res =  64;
     const uint16_t small_res = 256;
 
-    puts("Create");
+    puts("Create"); // TODO still needed?
     struct pictdb_file myfile;
 
     myfile.header.max_files = max_files;
@@ -53,12 +57,12 @@ int do_create_cmd (const char* filename)
     myfile.header.res_resized[2 * RES_SMALL] = small_res;
     myfile.header.res_resized[2 * RES_SMALL + 1] = small_res;
 
-    int create_status = do_create(filename, &myfile);
-    if (0 == create_status) {
+    int status = do_create(filename, &myfile);
+    if (status == 0) {
         print_header(&myfile.header);
     }
 
-    return create_status;
+    return status;
 }
 
 /********************************************************************//**
@@ -77,22 +81,26 @@ int help (void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd (const char* filename, const char* pictID)
+int do_delete_cmd (const char* filename, const char* pict_id)
 {
 
-    if (filename == NULL) {
+    if (filename == NULL || pict_id == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
         return ERR_INVALID_FILENAME;
     }
 
-    if (pictID == NULL || strlen(pictID) > MAX_PIC_ID) {
+    if (strlen(pict_id) == 0 || strlen(pict_id) > MAX_PIC_ID) {
         return ERR_INVALID_PICID;
     }
 
     struct pictdb_file myfile;
-    int status = do_open(filename, "rb", &myfile);
+    int status = do_open(filename, "r+b", &myfile);
 
-    if (0 == status) {
-        status = do_delete(pictID, &myfile);
+    if (status == 0) {
+        status = do_delete(pict_id, &myfile);
     }
 
     do_close(&myfile);

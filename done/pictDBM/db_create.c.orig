@@ -25,24 +25,25 @@ int do_create (const char* filename, struct pictdb_file* db_file)
         return ERR_INVALID_FILENAME;
     }
 
-    // Sets the DB header name
-    strncpy(db_file->header.db_name, CAT_TXT, MAX_DB_NAME);
-    db_file->header.db_name[MAX_DB_NAME] = '\0';
+  // Sets the DB header name
+  strncpy(db_file->header.db_name, CAT_TXT, MAX_DB_NAME);
+  db_file->header.db_name[MAX_DB_NAME] = '\0';
 
-    // we initialize here all the other fields of the header that were not set explicitly before
-    db_file->header.db_version = 0;
-    db_file->header.num_files = 0;
-    db_file->header.unused_32 = 0;
-    db_file->header.unused_64 = 0;
+  // we initialize here all the other fields of the header that were not set
+  // explicitly before
+  db_file->header.db_version = 0;
+  db_file->header.num_files = 0;
+  db_file->header.unused_32 = 0;
+  db_file->header.unused_64 = 0;
 
-    // now we set all the metadata to 0 so we don't have any surprise and all
-    // isValid fields are set to 0
-    db_file->metadata = (struct pict_metadata*) calloc(db_file->header.num_files, sizeof(struct pict_metadata));
-    if (db_file->metadata == NULL) {
-        return ERR_OUT_OF_MEMORY;
-    }
+  // now we set all the metadata to 0 so we don't have any surprise and all
+  // isValid fields are set to 0
+  if ((db_file->metadata = (struct pict_metadata*)calloc(
+           db_file->header.num_files, sizeof(struct pict_metadata))) == NULL) {
+    return ERR_OUT_OF_MEMORY;
+  }
 
-    db_file->fpdb = fopen(filename, "wb");
+  db_file->fpdb = fopen(filename, "wb");
 
     if (db_file->fpdb == NULL) {
         return ERR_IO;
@@ -60,10 +61,10 @@ int do_create (const char* filename, struct pictdb_file* db_file)
         return ERR_IO;
     }
 
-    // The stream is closed, we don't want to print anything in case of an error
-    if (status == 0) {
-        printf("%d item(s) written\n", 1 + db_file->header.max_files);
-    }
+  // The stream is closed, we don't want to print anything in case of an error
+  if (status == 0) {
+    printf("%d item(s) written\n", 1 + db_file->header.max_files);
+  }
 
-    return status;
+  return status;
 }
