@@ -17,27 +17,29 @@ int lazy_resize(unsigned int res, struct pictdb_file* file, size_t index)
         return 0;
     }
 
-    if (res != RES_THUMB || res != RES_SMALL) {
+    if ((res != RES_THUMB && res != RES_SMALL) ||
+        file == NULL ||
+        index > file->header.num_files) {
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (file == NULL) {
-        return ERR_FILE_NOT_FOUND;
+    if (file->fpdb == NULL) {
+        return ERR_IO;
     }
 
     if (index > file->header.num_files) {
         return ERR_INVALID_ARGUMENT;
     }
 
-    size_t imgSize = file->metadata->size[res];
-    long int offset = file->metadata->offset[res];
-    void* image = (void*)malloc(imgSize);
+    size_t image_size = file->metadata->size[res];
+    size_t offset = file->metadata->offset[res];
+    void* image = malloc(image_size);
 
     if (image == NULL) {
-        return ERR_IO;
+        return ERR_OUT_OF_MEMORY;
     }
 
-    if (fseek(file->fpdb, offset, SEEK_SET) != offset) {
+    if (fseek(file->fpdb, offset, SEEK_SET) != 0) {
         return ERR_IO;
     }
 
@@ -48,6 +50,7 @@ int lazy_resize(unsigned int res, struct pictdb_file* file, size_t index)
 
 
     free(image);
+    image = NULL;
 
     return 0;
 }

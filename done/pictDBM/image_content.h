@@ -9,6 +9,8 @@
 #ifndef IMAGE_CONTENT_H
 #define IMAGE_CONTENT_H
 
-int lazy_resize(unsigned int res, struct pictdb_file* file, size_t index);
+#include <stdio.h>
 
-#endif /* image_content_h */
+int lazy_resize (unsigned int res, struct pictdb_file* file, size_t index);
+
+#endif
