@@ -78,7 +78,7 @@ struct pict_metadata {
 struct pictdb_file {
     FILE* fpdb; /**< disk file */
     struct pictdb_header header; /**< database header */
-    struct pict_metadata metadata[MAX_MAX_FILES]; /**< images metadata */
+    struct pict_metadata* metadata; /**< images metadata */
 };
 
 /**
