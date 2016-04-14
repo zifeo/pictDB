@@ -11,7 +11,7 @@
 
 int do_delete (const char* pict_id, struct pictdb_file* db_file)
 {
-    if (pict_id == NULL || db_file == NULL) {
+    if (pict_id == NULL || db_file == NULL || db_file->metadata == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 

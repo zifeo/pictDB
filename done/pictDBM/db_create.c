@@ -25,6 +25,8 @@ int do_create (const char* filename, struct pictdb_file* db_file)
         return ERR_INVALID_FILENAME;
     }
 
+    // TODO should we check file is not created yet
+
     // Sets the DB header name
     strncpy(db_file->header.db_name, CAT_TXT, MAX_DB_NAME);
     db_file->header.db_name[MAX_DB_NAME] = '\0';
@@ -37,26 +39,28 @@ int do_create (const char* filename, struct pictdb_file* db_file)
 
     // now we set all the metadata to 0 so we don't have any surprise and all
     // isValid fields are set to 0
-    db_file->metadata = (struct pict_metadata*) calloc(db_file->header.num_files, sizeof(struct pict_metadata));
+    db_file->metadata = (struct pict_metadata*) calloc(db_file->header.max_files, sizeof(struct pict_metadata));
     if (db_file->metadata == NULL) {
         return ERR_OUT_OF_MEMORY;
     }
 
+    int status = 0;
     db_file->fpdb = fopen(filename, "wb");
 
     if (db_file->fpdb == NULL) {
-        return ERR_IO;
-    }
-
-    int status = 0;
-
-    if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1 ||
-        fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file->fpdb)
-        != db_file->header.max_files) {
         status = ERR_IO;
+    } else {
+        if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1 ||
+            fwrite(db_file->metadata, sizeof(struct pict_metadata), db_file->header.max_files, db_file->fpdb)
+            != db_file->header.max_files) {
+            status = ERR_IO;
+        }
     }
 
-    if (fclose(db_file->fpdb) != 0) {
+    free(db_file->metadata);
+    db_file->metadata = NULL;
+
+    if (fclose(db_file->fpdb) != 0 && status == 0) {
         return ERR_IO;
     }
 

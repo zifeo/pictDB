@@ -10,7 +10,7 @@
 
 int do_list (const struct pictdb_file* file)
 {
-    if (file == NULL) {
+    if (file == NULL || file->metadata == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
