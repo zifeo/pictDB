@@ -28,9 +28,9 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
 
     for (size_t i = 0; pict_to_delete == NULL && i < MAX_MAX_FILES; ++i) {
         if (db_file->metadata[i].is_valid == NON_EMPTY &&
-            db_file->metadata[i].pict_id == pict_id) {
+            strncmp(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID) == 0) {
             pict_to_delete = &db_file->metadata[i];
-            pict_delete_offset = i * sizeof(struct pictdb_header);
+            pict_delete_offset = i * sizeof(struct pict_metadata);
         }
     }
 

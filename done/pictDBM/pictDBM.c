@@ -47,7 +47,7 @@ int do_create_cmd (const char* filename)
     const uint16_t thumb_res =  64;
     const uint16_t small_res = 256;
 
-    puts("Create");
+    puts("Create"); // TODO still needed?
     struct pictdb_file myfile;
 
     myfile.header.max_files = max_files;
@@ -97,7 +97,7 @@ int do_delete_cmd (const char* filename, const char* pict_id)
     }
 
     struct pictdb_file myfile;
-    int status = do_open(filename, "wb", &myfile);
+    int status = do_open(filename, "r+b", &myfile);
 
     if (status == 0) {
         status = do_delete(pict_id, &myfile);
