@@ -26,6 +26,8 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
     size_t pict_delete_offset = 0;
     struct pict_metadata* pict_to_delete = NULL;
 
+    // The ending condition also ensures that once we found the correct metadata
+    // we do not iterate over the others
     for (size_t i = 0; pict_to_delete == NULL && i < MAX_MAX_FILES; ++i) {
         if (db_file->metadata[i].is_valid == NON_EMPTY &&
             strncmp(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID) == 0) {
@@ -39,24 +41,31 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
     }
     pict_to_delete->is_valid = EMPTY;
 
-    int status = 0;
+    // The writing step is done in two parts :
+    // 1) Set the new metadata accordingly to what we've done before
+    // 2) Update the header
 
+    // By default fwrite start writing at the begining of the stream. Therefore, we
+    // need to move the cursor to the position of where we want to delete
     if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_delete_offset, SEEK_SET) != 0) {
-        status = ERR_IO;
+        return ERR_IO;
     } else {
+        // Here we ask ourselves what to do if one fwrite succeeds and one doesn't :
+        // this is going to lead to a corruption of the database but TAs say we do not
+        // need to handle this corner case : therefore we directly return
         if (fwrite(pict_to_delete, sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
-            status = ERR_IO;
+            return ERR_IO;
         } else {
             db_file->header.db_version += 1;
             db_file->header.num_files -= 1;
 
             if (fseek(db_file->fpdb, 0, SEEK_SET) != 0) {
-                status = ERR_IO;
+                return ERR_IO;
             } else if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
-                status = ERR_IO;
+                return ERR_IO;
             }
         }
     }
 
-    return status;
+    return 0;
 }
