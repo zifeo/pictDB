@@ -47,23 +47,18 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
 
     // By default fwrite start writing at the begining of the stream. Therefore, we
     // need to move the cursor to the position of where we want to delete
-    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_delete_offset, SEEK_SET) != 0) {
+    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_delete_offset, SEEK_SET) != 0
+        || fwrite(pict_to_delete, sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
         return ERR_IO;
     } else {
         // Here we ask ourselves what to do if one fwrite succeeds and one doesn't :
         // this is going to lead to a corruption of the database but TAs say we do not
         // need to handle this corner case : therefore we directly return
-        if (fwrite(pict_to_delete, sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
+        db_file->header.db_version += 1;
+        db_file->header.num_files -= 1;
+        if (fseek(db_file->fpdb, 0, SEEK_SET) != 0
+            || fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
             return ERR_IO;
-        } else {
-            db_file->header.db_version += 1;
-            db_file->header.num_files -= 1;
-
-            if (fseek(db_file->fpdb, 0, SEEK_SET) != 0) {
-                return ERR_IO;
-            } else if (fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
-                return ERR_IO;
-            }
         }
     }
 
