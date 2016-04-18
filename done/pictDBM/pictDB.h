@@ -98,7 +98,7 @@ void print_metadata (const struct pict_metadata* metadata);
 /**
  * @brief Displays (on stdout) pictDB metadata.
  *
- * @param db_file In memory structure with header and metadata.
+ * @param file In memory structure with header and metadata.
  */
 int do_list (const struct pictdb_file* file);
 
