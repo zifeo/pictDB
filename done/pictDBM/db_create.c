@@ -25,8 +25,6 @@ int do_create (const char* filename, struct pictdb_file* db_file)
         return ERR_INVALID_FILENAME;
     }
 
-    // TODO should we check file is not created yet
-
     // Sets the DB header name
     strncpy(db_file->header.db_name, CAT_TXT, MAX_DB_NAME);
     db_file->header.db_name[MAX_DB_NAME] = '\0';

@@ -30,6 +30,11 @@ int lazy_resize(unsigned int res, struct pictdb_file *file, size_t index) {
         return ERR_INVALID_ARGUMENT;
     }
 
+    // If the image already exists just returns
+    if (file->metadata[index].is_valid == EMPTY) {
+        return 0;
+    }
+
     size_t image_size = file->metadata[index].size[res];
     size_t offset = file->metadata[index].offset[res];
     void *image = malloc(image_size);
@@ -49,19 +54,35 @@ int lazy_resize(unsigned int res, struct pictdb_file *file, size_t index) {
     VipsObject *process = VIPS_OBJECT(vips_image_new());
 
     // we want 1 new image
-    VipsImage **vips_image = (VipsImage **) vips_object_local_array(process, 1);
+    VipsImage **vips_in_image = (VipsImage **) vips_object_local_array(process, 1);
+    VipsImage **vips_out_image = (VipsImage **) vips_object_local_array(process, 1);
 
-    if (vips_jpegload_buffer(image, image_size, vips_image) != 0) {
+    if (vips_jpegload_buffer(image, image_size, vips_in_image) != 0) {
         // error
     }
 
-    double ratio = file->header.res_resized[res] / file->header.res_resized[RES_ORIG];
+    double ratio = file->header.res_resized[res] / (double) file->header.res_resized[RES_ORIG];
 
-    vips_resize(NULL, 0, ratio, NULL);
+    if (vips_resize(*vips_in_image, vips_out_image, ratio) != 0) {
 
+    }
+
+    if (fseek(file->fpdb, 0, SEEK_END) != 0) {
+
+    }
+
+    if (vips_jpegsave_buffer(*vips_out_image, NULL, sizeof(image)) != 0) {
+
+    }
+
+    if (fwrite(vips_out_image, sizeof(image), 1, file->fpdb) != 1) {
+
+    }
 
     free(image);
     image = NULL;
+
+    g_object_unref(process);
 
     return 0;
 }

@@ -47,7 +47,7 @@ int do_create_cmd (const char* filename)
     const uint16_t thumb_res =  64;
     const uint16_t small_res = 256;
 
-    puts("Create"); // TODO still needed?
+    puts("Create");
     struct pictdb_file myfile;
 
     myfile.header.max_files = max_files;
