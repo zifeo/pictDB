@@ -20,16 +20,16 @@
  * @param max_goal_width The maximum goal width.
  * @param max_goal_height The maximum goal height.
  */
-double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height)
+double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height);
 
 // ======================================================================
 /**
  * @brief Computes the resize factor by keeping aspect ratio
  *
  * @param res The resize resolution.
- * @param file In memory structure with header and metadata.
+ * @param db_file In memory structure with header and metadata.
  * @param index The picture db index.
  */
-int lazy_resize (unsigned int res, struct pictdb_file* file, size_t index);
+int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index);
 
 #endif

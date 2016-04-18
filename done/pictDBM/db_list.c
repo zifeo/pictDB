@@ -7,13 +7,12 @@
  */
 
 #include "pictDB.h"
+#include "image_content.h"
 
-int do_list (const struct pictdb_file* file)
-{
+int do_list(const struct pictdb_file *file) {
     if (file == NULL || file->metadata == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
-
     print_header(&file->header);
 
     if (file->header.num_files > 0) {
@@ -22,6 +21,8 @@ int do_list (const struct pictdb_file* file)
                 print_metadata(&file->metadata[i]);
             }
         }
+        printf("HERE");
+        lazy_resize(RES_SMALL, file, 1);
     } else {
         printf("<< empty database >>\n");
     }
