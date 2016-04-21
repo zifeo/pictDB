@@ -137,3 +137,4 @@ install_manifest.txt
 # Created by .ignore support plugin (hsz.mobi)
 
 done/pictDBM/pictDBM
+*.orig

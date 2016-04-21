@@ -9,14 +9,14 @@
  */
 
 #include "pictDB.h"
+#include "image_content.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd (const char* filename)
+int do_list_cmd(const char *filename)
 {
     if (filename == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -33,18 +33,35 @@ int do_list_cmd (const char* filename)
     return status;
 }
 
+int do_resize_cmd(const char *filename)
+{
+    if (filename == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    struct pictdb_file myfile;
+    int status = do_open(filename, "r+", &myfile);
+
+    if (status == 0) {
+        status = lazy_resize(RES_THUMB, &myfile, 0);
+    }
+
+    do_close(&myfile);
+    return status;
+}
+
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int do_create_cmd (const char* filename)
+int do_create_cmd(const char *filename)
 {
     if (filename == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
     // This will later come from the parsing of command line arguments
-    const uint32_t max_files =  10;
-    const uint16_t thumb_res =  64;
+    const uint32_t max_files = 10;
+    const uint16_t thumb_res = 64;
     const uint16_t small_res = 256;
 
     puts("Create");
@@ -68,7 +85,7 @@ int do_create_cmd (const char* filename)
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help (void)
+int help(void)
 {
     puts("pictDBM [COMMAND] [ARGUMENTS]");
     puts("  help: displays this help.");
@@ -81,7 +98,7 @@ int help (void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd (const char* filename, const char* pict_id)
+int do_delete_cmd(const char *filename, const char *pict_id)
 {
 
     if (filename == NULL || pict_id == NULL) {
@@ -110,7 +127,7 @@ int do_delete_cmd (const char* filename, const char* pict_id)
 /********************************************************************//**
  * MAIN
  */
-int main (int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int ret = 0;
 
@@ -128,6 +145,12 @@ int main (int argc, char* argv[])
                 ret = ERR_NOT_ENOUGH_ARGUMENTS;
             } else {
                 ret = do_list_cmd(argv[1]);
+            }
+        } else if (!strcmp("resize", argv[0])) {
+            if (argc < 2) {
+                ret = ERR_NOT_ENOUGH_ARGUMENTS;
+            } else {
+                ret = do_resize_cmd(argv[1]);
             }
         } else if (!strcmp("create", argv[0])) {
             if (argc < 2) {
@@ -150,7 +173,7 @@ int main (int argc, char* argv[])
 
     if (ret) {
         fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[ret]);
-        (void)help();
+        (void) help();
     }
 
     return ret;
