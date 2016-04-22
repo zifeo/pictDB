@@ -20,15 +20,15 @@
  * @param max_goal_width The maximum goal width.
  * @param max_goal_height The maximum goal height.
  */
-double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height)
-{
+double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height) {
     const double h_shrink = (double) current_width / (double) max_goal_width;
     const double v_shrink = (double) current_height / (double) max_goal_height;
-    return h_shrink > v_shrink ? v_shrink : h_shrink;
+    printf("CUR_WIDTH = %d\tCUR_HEIGHT = %d\tMAX_WIDTH = %d\tMAX_HEIGHT = %d\n", current_width, current_height,
+           max_goal_width, max_goal_width);
+    return h_shrink < v_shrink ? v_shrink : h_shrink;
 }
 
-int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
-{
+int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
     if (res == RES_ORIG) {
         return 0;
     }
@@ -61,16 +61,17 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 
     int status = 0;
 
+
     if (fseek(db_file->fpdb, (long) db_file->metadata[index].offset[RES_ORIG], SEEK_SET) != 0 ||
         fread(image, image_size, 1, db_file->fpdb) != 1) {
         status = ERR_IO;
     } else {
 
         VipsObject *process = VIPS_OBJECT(vips_image_new());
-        double ratio = resize_ratio(db_file->header.res_resized[RES_ORIG],
-                                    db_file->header.res_resized[RES_ORIG + 1],
-                                    db_file->header.res_resized[res],
-                                    db_file->header.res_resized[res + 1]);
+        double ratio = resize_ratio(db_file->metadata[index].res_orig[0],
+                                    db_file->metadata[index].res_orig[1],
+                                    db_file->header.res_resized[2 * res],
+                                    db_file->header.res_resized[2 * res + 1]);
 
         VipsImage **vips_in_image = (VipsImage **) vips_object_local_array(process, 1);
         VipsImage **vips_out_image = (VipsImage **) vips_object_local_array(process, 1);
@@ -79,6 +80,8 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 
         size_t res_len;
 
+        // Careful here it is 1/ratio, we do not need to check if the new resolution is less than the
+        // original since we are always going to reduce the size of the image
         if (vips_jpegload_buffer(image, image_size, vips_in_image, NULL) != 0 ||
             vips_resize(*vips_in_image, vips_out_image, 1 / ratio, NULL) != 0 ||
             vips_jpegsave_buffer(*vips_out_image, &image, &res_len, NULL) != 0) {
@@ -112,7 +115,57 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
             };
         }
 
-        //printf("code = %d", vips_image_write_to_file(*vips_out_image, "image.jpg", NULL));
+        g_object_unref(process);
+    }
+
+    free(image);
+    image = NULL;
+    return status;
+}
+
+int write_image(unsigned int res, struct pictdb_file *db_file, const char *filename, unsigned int index) {
+    if (db_file == NULL || index > db_file->header.num_files) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    if (db_file->fpdb == NULL) {
+        return ERR_IO;
+    }
+
+    if (index > db_file->header.num_files) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    // If the image already exists just returns
+    if (db_file->metadata[index].offset[res] == 0) {
+        return 0;
+    }
+
+    size_t image_size = db_file->metadata[index].size[res];
+
+    void *image = malloc(image_size);
+
+    if (image == NULL) {
+        return ERR_OUT_OF_MEMORY;
+    }
+
+    int status = 0;
+
+    if (fseek(db_file->fpdb, (long) db_file->metadata[index].offset[res], SEEK_SET) != 0 ||
+        fread(image, image_size, 1, db_file->fpdb) != 1) {
+        status = ERR_IO;
+    } else {
+
+        VipsObject *process = VIPS_OBJECT(vips_image_new());
+
+        VipsImage **vips_image = (VipsImage **) vips_object_local_array(process, 1);
+
+        if (vips_jpegload_buffer(image, image_size, vips_image, NULL) != 0) {
+            status = ERR_VIPS;
+
+        } else if (vips_image_write_to_file(*vips_image, filename, NULL) != 0) {
+            status = ERR_VIPS;
+        }
 
         g_object_unref(process);
     }

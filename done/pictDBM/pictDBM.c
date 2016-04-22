@@ -12,12 +12,12 @@
 #include "image_content.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd(const char *filename)
-{
+int do_list_cmd(const char *filename) {
     if (filename == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
@@ -33,8 +33,7 @@ int do_list_cmd(const char *filename)
     return status;
 }
 
-int do_resize_cmd(const char *filename)
-{
+int do_resize_cmd(const char *filename, unsigned int idx, unsigned int res) {
     if (filename == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
@@ -42,8 +41,27 @@ int do_resize_cmd(const char *filename)
     struct pictdb_file myfile;
     int status = do_open(filename, "r+", &myfile);
 
+    printf("IDX = %lu\n", idx);
+
+
     if (status == 0) {
-        status = lazy_resize(RES_THUMB, &myfile, 0);
+        status = lazy_resize(res, &myfile, idx);
+    }
+
+    do_close(&myfile);
+    return status;
+}
+
+int do_write_cmd(const char *db_name, const char *filename, unsigned int idx, unsigned int res) {
+    if (db_name == NULL || filename == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    struct pictdb_file myfile;
+    int status = do_open(db_name, "r+", &myfile);
+
+    if (status == 0) {
+        status = write_image(res, &myfile, filename, idx);
     }
 
     do_close(&myfile);
@@ -53,8 +71,7 @@ int do_resize_cmd(const char *filename)
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int do_create_cmd(const char *filename)
-{
+int do_create_cmd(const char *filename) {
     if (filename == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
@@ -85,8 +102,7 @@ int do_create_cmd(const char *filename)
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help(void)
-{
+int help(void) {
     puts("pictDBM [COMMAND] [ARGUMENTS]");
     puts("  help: displays this help.");
     puts("  list <dbfilename>: list pictDB content.");
@@ -98,8 +114,7 @@ int help(void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd(const char *filename, const char *pict_id)
-{
+int do_delete_cmd(const char *filename, const char *pict_id) {
 
     if (filename == NULL || pict_id == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -127,8 +142,7 @@ int do_delete_cmd(const char *filename, const char *pict_id)
 /********************************************************************//**
  * MAIN
  */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int ret = 0;
 
     if (argc < 2) {
@@ -147,10 +161,20 @@ int main(int argc, char *argv[])
                 ret = do_list_cmd(argv[1]);
             }
         } else if (!strcmp("resize", argv[0])) {
-            if (argc < 2) {
+            if (argc < 4) {
                 ret = ERR_NOT_ENOUGH_ARGUMENTS;
             } else {
-                ret = do_resize_cmd(argv[1]);
+                int index = atoi(argv[2]);
+                int res =  atoi(argv[3]);
+                ret = do_resize_cmd(argv[1], index, res);
+            }
+        } else if (!strcmp("write", argv[0])) {
+            if (argc < 5) {
+                ret = ERR_NOT_ENOUGH_ARGUMENTS;
+            } else {
+                int index = atoi(argv[3]);
+                int res =  atoi(argv[4]);
+                ret = do_write_cmd(argv[1], argv[2], index, res);
             }
         } else if (!strcmp("create", argv[0])) {
             if (argc < 2) {

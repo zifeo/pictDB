@@ -32,4 +32,6 @@ double resize_ratio(int current_width, int current_height, int max_goal_width, i
  */
 int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index);
 
+int write_image(unsigned int res, struct pictdb_file *db_file, const char *filename, unsigned int index);
+
 #endif
