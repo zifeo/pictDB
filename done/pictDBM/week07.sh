@@ -6,7 +6,7 @@ make
 rm img0_*.jpg
 rm img1_*.jpg
 
-cp .././../provided/week07/testDB02.pictdb_dynamic testDB10.pictdb_dynamic
+cp ../../provided/week07/testDB02.pictdb_dynamic testDB10.pictdb_dynamic
 
 ./pictDBM list testDB10.pictdb_dynamic
 ./pictDBM resize testDB10.pictdb_dynamic 0 0

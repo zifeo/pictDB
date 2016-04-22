@@ -11,22 +11,15 @@
 
 #include "pictDB.h"
 
-// ======================================================================
-/**
- * @brief Computes the resize factor by keeping aspect ratio
- *
- * @param current_width The current width.
- * @param current_height The current height.
- * @param max_goal_width The maximum goal width.
- * @param max_goal_height The maximum goal height.
- */
-double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height) {
-    const double h_shrink = (double) current_width / (double) max_goal_width;
-    const double v_shrink = (double) current_height / (double) max_goal_height;
+double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height)
+{
+    const double h_shrink = (double) max_goal_width / (double) current_width;
+    const double v_shrink = (double) max_goal_height / (double) current_height;
     return h_shrink < v_shrink ? v_shrink : h_shrink;
 }
 
-int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
+int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
+{
     if (res == RES_ORIG) {
         return 0;
     }
@@ -43,9 +36,12 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
         return ERR_INVALID_ARGUMENT;
     }
 
+    if (db_file->metadata[index].is_valid == EMPTY) {
+        return ERR_INVALID_PICID;
+    }
+
     // If the image already exists just returns
-    if (db_file->metadata[index].is_valid == NON_EMPTY &&
-        db_file->metadata[index].offset[res] != 0) {
+    if (db_file->metadata[index].offset[res] != 0) {
         return 0;
     }
 
@@ -59,43 +55,43 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
 
     int status = 0;
 
-
     if (fseek(db_file->fpdb, (long) db_file->metadata[index].offset[RES_ORIG], SEEK_SET) != 0 ||
         fread(image, image_size, 1, db_file->fpdb) != 1) {
+
         status = ERR_IO;
+
     } else {
 
-        VipsObject *process = VIPS_OBJECT(vips_image_new());
+        VipsObject* process = VIPS_OBJECT(vips_image_new());
         double ratio = resize_ratio(db_file->metadata[index].res_orig[0],
                                     db_file->metadata[index].res_orig[1],
                                     db_file->header.res_resized[2 * res],
                                     db_file->header.res_resized[2 * res + 1]);
 
-        VipsImage **vips_in_image = (VipsImage **) vips_object_local_array(process, 1);
-        VipsImage **vips_out_image = (VipsImage **) vips_object_local_array(process, 1);
+        VipsImage** vips_in_image = (VipsImage **) vips_object_local_array(process, 1);
+        VipsImage** vips_out_image = (VipsImage **) vips_object_local_array(process, 1);
 
-        long endOffset;
-
-        size_t res_len;
+        long end_offset = 0;
+        size_t res_len = 0;
 
         // Careful here it is 1/ratio, we do not need to check if the new resolution is less than the
         // original since we are always going to reduce the size of the image
         if (vips_jpegload_buffer(image, image_size, vips_in_image, NULL) != 0 ||
-            vips_resize(*vips_in_image, vips_out_image, 1 / ratio, NULL) != 0 ||
+            vips_resize(*vips_in_image, vips_out_image, ratio, NULL) != 0 ||
             vips_jpegsave_buffer(*vips_out_image, &image, &res_len, NULL) != 0) {
 
             status = ERR_VIPS;
 
-        } else if (fseek(db_file->fpdb, 0, SEEK_END) != 0
-                   || (endOffset = ftell(db_file->fpdb)) == -1
-                   || fwrite(image, res_len, 1, db_file->fpdb) != 1) {
+        } else if (fseek(db_file->fpdb, 0, SEEK_END) != 0 ||
+                   (end_offset = ftell(db_file->fpdb)) == -1 ||
+                   fwrite(image, res_len, 1, db_file->fpdb) != 1) {
 
             status = ERR_IO;
 
         } else {
 
             db_file->header.db_version += 1;
-            db_file->metadata[index].offset[res] = (uint64_t) endOffset;
+            db_file->metadata[index].offset[res] = (uint64_t) end_offset;
             db_file->metadata[index].size[res] = (uint32_t) res_len;
 
             if (fseek(db_file->fpdb, 0, SEEK_SET) != 0 ||
@@ -121,7 +117,8 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
     return status;
 }
 
-int write_image(unsigned int res, struct pictdb_file *db_file, const char *filename, unsigned int index) {
+int write_image(unsigned int res, struct pictdb_file *db_file, const char *filename, unsigned int index)
+{
     if (db_file == NULL || index > db_file->header.num_files) {
         return ERR_INVALID_ARGUMENT;
     }
