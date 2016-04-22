@@ -41,9 +41,6 @@ int do_resize_cmd(const char *filename, unsigned int idx, unsigned int res) {
     struct pictdb_file myfile;
     int status = do_open(filename, "r+", &myfile);
 
-    printf("IDX = %lu\n", idx);
-
-
     if (status == 0) {
         status = lazy_resize(res, &myfile, idx);
     }

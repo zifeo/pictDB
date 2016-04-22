@@ -23,8 +23,6 @@
 double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height) {
     const double h_shrink = (double) current_width / (double) max_goal_width;
     const double v_shrink = (double) current_height / (double) max_goal_height;
-    printf("CUR_WIDTH = %d\tCUR_HEIGHT = %d\tMAX_WIDTH = %d\tMAX_HEIGHT = %d\n", current_width, current_height,
-           max_goal_width, max_goal_width);
     return h_shrink < v_shrink ? v_shrink : h_shrink;
 }
 
