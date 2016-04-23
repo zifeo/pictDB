@@ -35,40 +35,6 @@ int do_list_cmd(const char* filename)
     return status;
 }
 
-int do_resize_cmd(const char *filename, unsigned int idx, unsigned int res)
-{
-    if (filename == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    struct pictdb_file myfile;
-    int status = do_open(filename, "r+b", &myfile);
-
-    if (status == 0) {
-        status = lazy_resize(res, &myfile, idx);
-    }
-
-    do_close(&myfile);
-    return status;
-}
-
-int do_write_cmd(const char *db_name, const char *filename, unsigned int idx, unsigned int res)
-{
-    if (db_name == NULL || filename == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    struct pictdb_file myfile;
-    int status = do_open(db_name, "r+b", &myfile);
-
-    if (status == 0) {
-        status = write_image(res, &myfile, filename, idx);
-    }
-
-    do_close(&myfile);
-    return status;
-}
-
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
@@ -167,22 +133,6 @@ int main(int argc, char *argv[])
                 ret = ERR_NOT_ENOUGH_ARGUMENTS;
             } else {
                 ret = do_list_cmd(argv[1]);
-            }
-        } else if (!strcmp("resize", argv[0])) {
-            if (argc < 4) {
-                ret = ERR_NOT_ENOUGH_ARGUMENTS;
-            } else {
-                int index = atoi(argv[2]);
-                int res =  atoi(argv[3]);
-                ret = do_resize_cmd(argv[1], index, res);
-            }
-        } else if (!strcmp("write", argv[0])) {
-            if (argc < 5) {
-                ret = ERR_NOT_ENOUGH_ARGUMENTS;
-            } else {
-                int index = atoi(argv[3]);
-                int res =  atoi(argv[4]);
-                ret = do_write_cmd(argv[1], argv[2], index, res);
             }
         } else if (!strcmp("create", argv[0])) {
             if (argc < 2) {
