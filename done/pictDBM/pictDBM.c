@@ -9,12 +9,17 @@
  */
 
 #include "pictDB.h"
+#include "pictDBM_tools.h"
 
 #include <string.h>
 #include <vips/vips.h>
 
 #define CMDNAME_MAX 32
 #define NB_CMD 4
+
+#define CREATE_MAX_FILES "-max_files"
+#define CREATE_THUMB_RES "-thumb_res"
+#define CREATE_SMALL_RES "-small_res"
 
 typedef int (*command)(int args, char *argv[]);
 
@@ -59,23 +64,70 @@ int do_create_cmd(int argc, char *argv[]) {
         return ERR_INVALID_ARGUMENT;
     }
 
-    // This will later come from the parsing of command line arguments
-    const uint32_t max_files = 10;
-    const uint16_t thumb_res = 64;
-    const uint16_t small_res = 256;
+    uint32_t max_files = DEFAULT_MAX_FILES;
+    uint16_t thumb_resX = DEFAULT_THUMB_RES;
+    uint16_t thumb_resY = DEFAULT_THUMB_RES;
+    uint16_t small_resX = DEFAULT_SMALL_RES;
+    uint16_t small_resY = DEFAULT_SMALL_RES;
 
-    struct pictdb_file myfile;
+    int i = 2;
+    // we skip the first argument
+    while (i < argc) {
+        if (!strcmp(argv[i], CREATE_MAX_FILES)) {
+            if (i + 1 >= argc) {
+                return ERR_NOT_ENOUGH_ARGUMENTS;
+            } else {
+                uint32_t tmp_max = atouint32(argv[i + 1]);
+                if (tmp_max == 0 || tmp_max > MAX_MAX_FILES) {
+                    return ERR_MAX_FILES;
+                }
+                max_files = tmp_max;
+                i += 2;
+            }
+        } else if (!strcmp(argv[i], CREATE_THUMB_RES)) {
+            if (i + 2 >= argc) {
+                return ERR_NOT_ENOUGH_ARGUMENTS;
+            } else {
+                uint16_t tmp_thumb_resX = atouint16(argv[i + 1]);
+                uint16_t tmp_thumb_resY = atouint16(argv[i + 2]);
+                if (tmp_thumb_resX == 0 || tmp_thumb_resY == 0 ||
+                    tmp_thumb_resX > MAX_THUMB_RES || tmp_thumb_resY > MAX_THUMB_RES) {
+                    return ERR_RESOLUTIONS;
+                }
+                thumb_resX = tmp_thumb_resX;
+                thumb_resY = tmp_thumb_resY;
+                i += 3;
+            }
+        } else if (!strcmp(argv[i], CREATE_SMALL_RES)) {
+            if (i + 2 >= argc) {
+                return ERR_NOT_ENOUGH_ARGUMENTS;
+            } else {
+                uint16_t tmp_small_resX = atouint16(argv[i + 1]);
+                uint16_t tmp_small_resY = atouint16(argv[i + 2]);
+                if (tmp_small_resX == 0 || tmp_small_resY == 0 ||
+                    tmp_small_resX > MAX_SMALL_RES || tmp_small_resY > MAX_SMALL_RES) {
+                    return ERR_RESOLUTIONS;
+                }
+                small_resX = tmp_small_resX;
+                small_resY = tmp_small_resY;
+                i += 3;
+            }
+        } else {
+            return ERR_INVALID_ARGUMENT;
+        }
+    }
+    struct pictdb_file db_file;
 
-    myfile.header.max_files = max_files;
+    db_file.header.max_files = max_files;
 
-    myfile.header.res_resized[RES_THUMB] = thumb_res;
-    myfile.header.res_resized[RES_THUMB + 1] = thumb_res;
-    myfile.header.res_resized[2 * RES_SMALL] = small_res;
-    myfile.header.res_resized[2 * RES_SMALL + 1] = small_res;
+    db_file.header.res_resized[RES_THUMB] = thumb_resX;
+    db_file.header.res_resized[RES_THUMB + 1] = thumb_resY;
+    db_file.header.res_resized[2 * RES_SMALL] = small_resX;
+    db_file.header.res_resized[2 * RES_SMALL + 1] = small_resY;
 
-    int status = do_create(argv[1], &myfile);
+    int status = do_create(argv[1], &db_file);
     if (status == 0) {
-        print_header(&myfile.header);
+        print_header(&db_file.header);
     }
 
     return status;
@@ -89,6 +141,16 @@ int help(int argc, char *argv[]) {
     puts("  help: displays this help.");
     puts("  list <dbfilename>: list pictDB content.");
     puts("  create <dbfilename>: create a new pictDB.");
+    puts("    options are:");
+    printf("      %s <MAX_FILES>: maximum number of files.\n", CREATE_MAX_FILES);
+    printf("\t\t\t\tdefault value is %d\n", DEFAULT_MAX_FILES);
+    printf("\t\t\t\tmaximum value is %d\n", MAX_MAX_FILES);
+    printf("      %s <X_RES> <Y_RES>: resolution for thumbnail images.\n", CREATE_THUMB_RES);
+    printf("\t\t\t\tdefault value is %dx%d\n", DEFAULT_THUMB_RES, DEFAULT_THUMB_RES);
+    printf("\t\t\t\tmaximum value is %dx%d\n", MAX_THUMB_RES, MAX_THUMB_RES);
+    printf("      %s <X_RES> <Y_RES>: resolution for small images.\n", CREATE_SMALL_RES);
+    printf("\t\t\t\tdefault value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
+    printf("\t\t\t\tmaximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     return 0;
 }
@@ -156,6 +218,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        // In case we don't find the image, we throw this error code
         if (i == NB_CMD) {
             ret = ERR_INVALID_COMMAND;
         }
