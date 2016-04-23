@@ -31,6 +31,13 @@
 #define MAX_DB_NAME 31  // max. size of a PictDB name
 #define MAX_PIC_ID 127  // max. size of a picture id
 #define MAX_MAX_FILES 100000 // max. db files
+#define MAX_THUMB_RES 128
+#define MAX_SMALL_RES 512
+
+#define DEFAULT_MAX_FILES 10
+#define DEFAULT_THUMB_RES 64
+#define DEFAULT_SMALL_RES 256
+
 
 /* For is_valid in pictdb_metadata */
 #define EMPTY 0
