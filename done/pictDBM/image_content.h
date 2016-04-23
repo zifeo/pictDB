@@ -13,7 +13,7 @@
 
 // ======================================================================
 /**
- * @brief Computes the resize factor by keeping aspect ratio
+ * @brief Computes the aspect ratio
  *
  * @param current_width The current width.
  * @param current_height The current height.

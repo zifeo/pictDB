@@ -70,8 +70,9 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         long end_offset = 0;
         size_t res_len = 0;
 
-        // Careful here it is 1/ratio, we do not need to check if the new resolution is less than the
+        // We do not need to check if the new resolution is less than the
         // original since we are always going to reduce the size of the image
+        // TODO check assumption
         if (vips_jpegload_buffer(image, image_size, vips_in_image, NULL) != 0 ||
             vips_resize(*vips_in_image, vips_out_image, ratio, NULL) != 0 ||
             vips_jpegsave_buffer(*vips_out_image, &image, &res_len, NULL) != 0) {

@@ -111,7 +111,7 @@ int do_delete_cmd(const char* filename, const char* pict_id)
 /********************************************************************//**
  * MAIN
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("unable to start VIPS");
