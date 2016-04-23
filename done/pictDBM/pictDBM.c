@@ -9,23 +9,35 @@
  */
 
 #include "pictDB.h"
-#include "image_content.h"
 
 #include <string.h>
-#include <stdlib.h>
 #include <vips/vips.h>
+
+#define CMDNAME_MAX 32
+#define NB_CMD 4
+
+typedef int (*command)(int args, char *argv[]);
+
+typedef struct {
+    command function;
+    const char name[CMDNAME_MAX];
+} command_mapping;
+
 
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd(const char* filename)
-{
-    if (filename == NULL) {
+int do_list_cmd(int argc, char *argv[]) {
+    if (argc < 2) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
+
+    if (argv[1] == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
     struct pictdb_file myfile;
-    int status = do_open(filename, "rb", &myfile);
+    int status = do_open(argv[1], "rb", &myfile);
 
     if (status == 0) {
         status = do_list(&myfile);
@@ -38,9 +50,12 @@ int do_list_cmd(const char* filename)
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int do_create_cmd(const char* filename)
-{
-    if (filename == NULL) {
+int do_create_cmd(int argc, char *argv[]) {
+    if (argc < 2) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
+
+    if (argv[1] == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -58,7 +73,7 @@ int do_create_cmd(const char* filename)
     myfile.header.res_resized[2 * RES_SMALL] = small_res;
     myfile.header.res_resized[2 * RES_SMALL + 1] = small_res;
 
-    int status = do_create(filename, &myfile);
+    int status = do_create(argv[1], &myfile);
     if (status == 0) {
         print_header(&myfile.header);
     }
@@ -69,8 +84,7 @@ int do_create_cmd(const char* filename)
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help(void)
-{
+int help(int argc, char *argv[]) {
     puts("pictDBM [COMMAND] [ARGUMENTS]");
     puts("  help: displays this help.");
     puts("  list <dbfilename>: list pictDB content.");
@@ -82,26 +96,28 @@ int help(void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd(const char* filename, const char* pict_id)
-{
+int do_delete_cmd(int argc, char *argv[]) {
+    if (argc < 3) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
 
-    if (filename == NULL || pict_id == NULL) {
+    if (argv[1] == NULL || argv[2] == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
+    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
         return ERR_INVALID_FILENAME;
     }
 
-    if (strlen(pict_id) == 0 || strlen(pict_id) > MAX_PIC_ID) {
+    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
         return ERR_INVALID_PICID;
     }
 
     struct pictdb_file myfile;
-    int status = do_open(filename, "r+b", &myfile);
+    int status = do_open(argv[1], "r+b", &myfile);
 
     if (status == 0) {
-        status = do_delete(pict_id, &myfile);
+        status = do_delete(argv[2], &myfile);
     }
 
     do_close(&myfile);
@@ -111,51 +127,42 @@ int do_delete_cmd(const char* filename, const char* pict_id)
 /********************************************************************//**
  * MAIN
  */
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("unable to start VIPS");
     }
+
+    command_mapping commands[] = {
+            {do_list_cmd,   "list"},
+            {do_create_cmd, "create"},
+            {help,          "help"},
+            {do_delete_cmd, "delete"}
+    };
 
     int ret = 0;
 
     if (argc < 2) {
         ret = ERR_NOT_ENOUGH_ARGUMENTS;
     } else {
-        /* **********************************************************************
-         * TODO WEEK 08: THIS PART SHALL BE REVISED THEN (WEEK 09) EXTENDED.
-         * **********************************************************************
-         */
         argc--;
         argv++; // skips command call name
-        if (!strcmp("list", argv[0])) {
-            if (argc < 2) {
-                ret = ERR_NOT_ENOUGH_ARGUMENTS;
-            } else {
-                ret = do_list_cmd(argv[1]);
+
+        int i = 0;
+
+        for (i = 0; i < NB_CMD; ++i) {
+            if (!strcmp(commands[i].name, argv[0])) {
+                ret = commands[i].function(argc, argv);
+                break;
             }
-        } else if (!strcmp("create", argv[0])) {
-            if (argc < 2) {
-                ret = ERR_NOT_ENOUGH_ARGUMENTS;
-            } else {
-                ret = do_create_cmd(argv[1]);
-            }
-        } else if (!strcmp("delete", argv[0])) {
-            if (argc < 3) {
-                ret = ERR_NOT_ENOUGH_ARGUMENTS;
-            } else {
-                ret = do_delete_cmd(argv[1], argv[2]);
-            }
-        } else if (!strcmp("help", argv[0])) {
-            ret = help();
-        } else {
+        }
+
+        if (i == NB_CMD) {
             ret = ERR_INVALID_COMMAND;
         }
     }
-
     if (ret) {
         fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[ret]);
-        (void) help();
+        (void) help(argc, argv);
     }
 
     vips_shutdown();
