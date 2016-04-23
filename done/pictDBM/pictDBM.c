@@ -13,6 +13,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <vips/vips.h>
 
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
@@ -41,7 +42,7 @@ int do_resize_cmd(const char *filename, unsigned int idx, unsigned int res)
     }
 
     struct pictdb_file myfile;
-    int status = do_open(filename, "rb+", &myfile);
+    int status = do_open(filename, "r+b", &myfile);
 
     if (status == 0) {
         status = lazy_resize(res, &myfile, idx);
@@ -58,7 +59,7 @@ int do_write_cmd(const char *db_name, const char *filename, unsigned int idx, un
     }
 
     struct pictdb_file myfile;
-    int status = do_open(db_name, "rb+", &myfile);
+    int status = do_open(db_name, "r+b", &myfile);
 
     if (status == 0) {
         status = write_image(res, &myfile, filename, idx);
@@ -147,6 +148,10 @@ int do_delete_cmd(const char *filename, const char *pict_id)
  */
 int main(int argc, char *argv[])
 {
+    if (VIPS_INIT(argv[0])) {
+        vips_error_exit("unable to start VIPS");
+    }
+
     int ret = 0;
 
     if (argc < 2) {
@@ -203,6 +208,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[ret]);
         (void) help();
     }
+
+    vips_shutdown();
 
     return ret;
 }

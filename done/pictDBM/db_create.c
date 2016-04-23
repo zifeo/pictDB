@@ -37,6 +37,7 @@ int do_create (const char* filename, struct pictdb_file* db_file)
 
     // now we set all the metadata to 0 so we don't have any surprise and all
     // isValid fields are set to 0
+    // TODO calloc max_files or num_files
     db_file->metadata = (struct pict_metadata*) calloc(db_file->header.max_files, sizeof(struct pict_metadata));
     if (db_file->metadata == NULL) {
         return ERR_OUT_OF_MEMORY;
