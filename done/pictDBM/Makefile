@@ -4,7 +4,7 @@ LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) -lm
 
 all: pictDBM
 
-pictDBM: pictDBM_tools.c image_content.c db_delete.c db_list.c db_create.c db_utils.c error.c pictDBM.c
+pictDBM: dedup.c pictDBM_tools.c image_content.c db_delete.c db_list.c db_create.c db_utils.c error.c pictDBM.c
 
 clean:
 	rm -f pictDBM *.o
