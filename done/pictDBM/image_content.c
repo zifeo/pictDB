@@ -15,7 +15,7 @@ double resize_ratio(int current_width, int current_height, int max_goal_width, i
 {
     const double h_shrink = (double) max_goal_width / (double) current_width;
     const double v_shrink = (double) max_goal_height / (double) current_height;
-    return h_shrink < v_shrink ? v_shrink : h_shrink;
+    return h_shrink > v_shrink ? v_shrink : h_shrink;
 }
 
 int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
