@@ -8,17 +8,17 @@
 
 #include "pictDB.h"
 
-int do_list(const struct pictdb_file *file)
+int do_list(const struct pictdb_file* db_file)
 {
-    if (file == NULL || file->metadata == NULL) {
+    if (db_file == NULL || db_file->metadata == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
-    print_header(&file->header);
+    print_header(&db_file->header);
 
-    if (file->header.num_files > 0) {
-        for (size_t i = 0; i < file->header.max_files; ++i) {
-            if (file->metadata[i].is_valid == NON_EMPTY) {
-                print_metadata(&file->metadata[i]);
+    if (db_file->header.num_files > 0) {
+        for (size_t i = 0; i < db_file->header.max_files; ++i) {
+            if (db_file->metadata[i].is_valid == NON_EMPTY) {
+                print_metadata(&db_file->metadata[i]);
             }
         }
     } else {

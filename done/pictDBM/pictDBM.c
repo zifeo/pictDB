@@ -18,7 +18,7 @@
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd(const char *filename)
+int do_list_cmd(const char* filename)
 {
     if (filename == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -72,7 +72,7 @@ int do_write_cmd(const char *db_name, const char *filename, unsigned int idx, un
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int do_create_cmd(const char *filename)
+int do_create_cmd(const char* filename)
 {
     if (filename == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -83,7 +83,6 @@ int do_create_cmd(const char *filename)
     const uint16_t thumb_res = 64;
     const uint16_t small_res = 256;
 
-    puts("Create");
     struct pictdb_file myfile;
 
     myfile.header.max_files = max_files;
@@ -117,7 +116,7 @@ int help(void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd(const char *filename, const char *pict_id)
+int do_delete_cmd(const char* filename, const char* pict_id)
 {
 
     if (filename == NULL || pict_id == NULL) {
