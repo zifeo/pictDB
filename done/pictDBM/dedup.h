@@ -27,6 +27,6 @@ int SHA_equals(unsigned char SHA1[], unsigned char SHA2[]);
  * @param db_file In memory structure with header and metadata.
  * @param index The metadata index of the image
  */
-int do_name_and_dedup(struct pictdb_file *db_file, uint32_t index);
+int do_name_and_dedup(struct pictdb_file *db_file, const uint32_t index);
 
 #endif
