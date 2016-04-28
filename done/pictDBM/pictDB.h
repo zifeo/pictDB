@@ -57,12 +57,18 @@ extern "C" {
  * @brief Store database general information.
  */
 struct pictdb_header {
-    char db_name[MAX_DB_NAME + 1]; /**< database name */
-    uint32_t db_version; /**< database version */
-    uint32_t num_files; /**< database image count */
-    uint32_t max_files; /**< database max image count (constant) */
-    uint16_t res_resized[2 * (NB_RES - 1)]; /**< resolutions array (constant) */
-    uint32_t unused_32; /**< unused or temporary information */
+    char db_name[MAX_DB_NAME + 1];
+    /**< database name */
+    uint32_t db_version;
+    /**< database version */
+    uint32_t num_files;
+    /**< database image count */
+    uint32_t max_files;
+    /**< database max image count (constant) */
+    uint16_t res_resized[2 * (NB_RES - 1)];
+    /**< resolutions array (constant) */
+    uint32_t unused_32;
+    /**< unused or temporary information */
     uint64_t unused_64; /**< unused or temporary information */
 };
 
@@ -70,12 +76,18 @@ struct pictdb_header {
  * @brief Store an image metadata.
  */
 struct pict_metadata {
-    char pict_id[MAX_PIC_ID + 1]; /**< image unique identifier */
-    unsigned char SHA[SHA256_DIGEST_LENGTH]; /**< image hashcode */
-    uint32_t res_orig[2]; /**< original image resolution */
-    uint32_t size[NB_RES]; /**< byte sizes of different resolutions */
-    uint64_t offset[NB_RES]; /**< image positions of different resolutions */
-    uint16_t is_valid; /**< whether is image is used (NON_EMPTY) or not (EMPTY) */
+    char pict_id[MAX_PIC_ID + 1];
+    /**< image unique identifier */
+    unsigned char SHA[SHA256_DIGEST_LENGTH];
+    /**< image hashcode */
+    uint32_t res_orig[2];
+    /**< original image resolution */
+    uint32_t size[NB_RES];
+    /**< byte sizes of different resolutions */
+    uint64_t offset[NB_RES];
+    /**< image positions of different resolutions */
+    uint16_t is_valid;
+    /**< whether is image is used (NON_EMPTY) or not (EMPTY) */
     uint16_t unused_16; /**< unused or temporary information */
 };
 
@@ -83,9 +95,11 @@ struct pict_metadata {
  * @brief Store a database with its header and images.
  */
 struct pictdb_file {
-    FILE* fpdb; /**< disk file */
-    struct pictdb_header header; /**< database header */
-    struct pict_metadata* metadata; /**< images metadata */
+    FILE *fpdb;
+    /**< disk file */
+    struct pictdb_header header;
+    /**< database header */
+    struct pict_metadata *metadata; /**< images metadata */
 };
 
 /**
@@ -93,21 +107,21 @@ struct pictdb_file {
  *
  * @param header The header to be displayed.
  */
-void print_header (const struct pictdb_header* header);
+void print_header(const struct pictdb_header *header);
 
 /**
  * @brief Prints picture metadata information.
  *
  * @param metadata The metadata of one picture.
  */
-void print_metadata (const struct pict_metadata* metadata);
+void print_metadata(const struct pict_metadata *metadata);
 
 /**
  * @brief Displays (on stdout) pictDB metadata.
  *
  * @param db_file In memory structure with header and metadata.
  */
-int do_list (const struct pictdb_file* db_file);
+int do_list(const struct pictdb_file *db_file);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
@@ -115,7 +129,7 @@ int do_list (const struct pictdb_file* db_file);
  *
  * @param db_file In memory structure with header and metadata.
  */
-int do_create (const char* filename, struct pictdb_file* db_file);
+int do_create(const char *filename, struct pictdb_file *db_file);
 
 /**
  * @brief Opens given file, reads header and metadata.
@@ -124,14 +138,14 @@ int do_create (const char* filename, struct pictdb_file* db_file);
  * @param mode File mode to be used (e.g. "rb", "wb").
  * @param db_file In memory structure with header and metadata.
  */
-int do_open (const char* filename, const char* mode, struct pictdb_file* db_file);
+int do_open(const char *filename, const char *mode, struct pictdb_file *db_file);
 
 /**
  * @brief Closes file included in db_file.
  *
  * @param db_file In memory structure with header and metadata.
  */
-void do_close (struct pictdb_file* db_file);
+void do_close(struct pictdb_file *db_file);
 
 /**
  * @brief Deletes an image.
@@ -139,22 +153,35 @@ void do_close (struct pictdb_file* db_file);
  * @param filename Name of file to be deleted.
  * @param db_file In memory structure with header and metadata.
  */
-int do_delete (const char* pict_id, struct pictdb_file* db_file);
+int do_delete(const char *pict_id, struct pictdb_file *db_file);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF resolution_atoi HERE.
- * **********************************************************************
+/**
+ * @brief Converts a string of characters representing a resolution into a number
+ *
+ * @param resolution Name of of the resolution to be converted.
  */
+int resolution_atoi(const char *resolution);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF do_read HERE.
- * **********************************************************************
+/**
+ * @brief Reads an image.
+ *
+ * @param pict_id Name of image to be read.
+ * @param res Integer representing the resolution of the image.
+ * @param bytes Array of bytes of the image.
+ * @param img_size Size of the image to be read.
+ * @param db_file In memory structure with header and metadata.
  */
+int do_read(const char *pict_id, int res, const char **bytes, uint32_t img_size, struct pictdb_file *db_file);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF do_insert HERE.
- * **********************************************************************
+/**
+ * @brief Inserts an image.
+ *
+ * @param bytes Array of bytes of the image.
+ * @param img_size Size of the image to be read.
+ * @param pict_id Name of image to be read.
+ * @param db_file In memory structure with header and metadata.
  */
+int do_insert(const char **bytes, size_t img_size,const char *pict_id, struct pictdb_file *db_file);
 
 #ifdef __cplusplus
 }
