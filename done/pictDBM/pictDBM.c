@@ -21,6 +21,12 @@
 #define CREATE_THUMB_RES "-thumb_res"
 #define CREATE_SMALL_RES "-small_res"
 
+#define NAME_RES_THUMB "thumb"
+#define NAME_RES_THUMBNAIL "thumbnail"
+#define NAME_RES_SMALL "small"
+#define NAME_RES_ORIG "orig"
+#define NAME_RES_ORIGINAL "original"
+
 typedef int (*command)(int args, char *argv[]);
 
 typedef struct {
@@ -184,6 +190,23 @@ int do_delete_cmd(int argc, char *argv[]) {
 
     do_close(&myfile);
     return status;
+}
+
+
+int resolution_atoi(const char *resolution) {
+    if (resolution == NULL) {
+        return -1;
+    }
+    if (!strcmp(NAME_RES_THUMB, resolution) || !strcmp(NAME_RES_THUMBNAIL, resolution)) {
+        return RES_THUMB;
+    }
+    if (!strcmp(NAME_RES_SMALL, resolution)) {
+        return RES_SMALL;
+    }
+    if (!strcmp(NAME_RES_ORIG, resolution) || !strcmp(NAME_RES_ORIGINAL, resolution)) {
+        return RES_ORIG;
+    }
+    return -1;
 }
 
 /********************************************************************//**
