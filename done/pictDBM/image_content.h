@@ -10,6 +10,7 @@
 #define IMAGE_CONTENT_H
 
 #include <stdio.h>
+#include <stdint.h>
 
 // ======================================================================
 /**
@@ -31,5 +32,18 @@ double resize_ratio(int current_width, int current_height, int max_goal_width, i
  * @param index The picture db index.
  */
 int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index);
+
+// ======================================================================
+// TODO Dioxygen doc
+/**
+ * @brief Gets the resolution of a JPEG image
+ *
+ * @param height
+ * @param width
+ * @param image_buffer
+ * @param image_size
+ */
+int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer, size_t image_size);
+
 
 #endif

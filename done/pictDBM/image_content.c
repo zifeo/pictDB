@@ -11,15 +11,13 @@
 
 #include "pictDB.h"
 
-double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height)
-{
+double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height) {
     const double h_shrink = (double) max_goal_width / (double) current_width;
     const double v_shrink = (double) max_goal_height / (double) current_height;
     return h_shrink > v_shrink ? v_shrink : h_shrink;
 }
 
-int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
-{
+int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
     if (res == RES_ORIG) {
         return 0;
     }
@@ -58,14 +56,14 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 
     } else {
 
-        VipsObject* process = VIPS_OBJECT(vips_image_new());
+        VipsObject *process = VIPS_OBJECT(vips_image_new());
         double ratio = resize_ratio(db_file->metadata[index].res_orig[0],
                                     db_file->metadata[index].res_orig[1],
                                     db_file->header.res_resized[2 * res],
                                     db_file->header.res_resized[2 * res + 1]);
 
-        VipsImage** vips_in_image = (VipsImage **) vips_object_local_array(process, 1);
-        VipsImage** vips_out_image = (VipsImage **) vips_object_local_array(process, 1);
+        VipsImage **vips_in_image = (VipsImage **) vips_object_local_array(process, 1);
+        VipsImage **vips_out_image = (VipsImage **) vips_object_local_array(process, 1);
 
         long end_offset = 0;
         size_t res_len = 0;
@@ -115,3 +113,24 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
     return status;
 }
 
+int get_resolution(uint32_t *height, uint32_t *width, const char *image_buffer, size_t image_size) {
+    // TODO checks necessary ? what error ?
+    if (height == NULL || width == NULL || image_buffer == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    VipsObject *process = VIPS_OBJECT(vips_image_new());
+    VipsImage **vips_image = (VipsImage **) vips_object_local_array(process, 1);
+
+    int status = 0;
+
+    if (vips_jpegload_buffer((void *) image_buffer, image_size, vips_image, NULL) != 0) {
+        status = ERR_VIPS;
+    } else {
+        *width = (uint32_t) vips_image_get_width(*vips_image);
+        *height = (uint32_t) vips_image_get_height(*vips_image);
+    }
+
+    g_object_unref(process);
+    return status;
+}
