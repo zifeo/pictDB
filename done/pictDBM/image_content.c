@@ -86,7 +86,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
 
             // TODO approche modulaire
             db_file->header.db_version += 1;
-            // TODO num_files + 1 ?
             db_file->metadata[index].offset[res] = (uint64_t) end_offset;
             db_file->metadata[index].size[res] = (uint32_t) res_len;
 
