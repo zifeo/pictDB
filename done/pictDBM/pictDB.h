@@ -171,7 +171,8 @@ int resolution_atoi(const char *resolution);
  * @param image_size Size of the image to be read.
  * @param db_file In memory structure with header and metadata.
  */
-int do_read(const char *pict_id, int res, const char **image_buffer, uint32_t image_size, struct pictdb_file *db_file);
+int do_read(const char *pict_id, unsigned int res, const char **image_buffer, uint32_t *image_size,
+            struct pictdb_file *db_file);
 
 /**
  * @brief Inserts an image.
@@ -181,7 +182,7 @@ int do_read(const char *pict_id, int res, const char **image_buffer, uint32_t im
  * @param pict_id Name of image to be read.
  * @param db_file In memory structure with header and metadata.
  */
-int do_insert(const char **image_buffer, size_t image_size,const char *pict_id, struct pictdb_file *db_file);
+int do_insert(const char **image_buffer, size_t image_size, const char *pict_id, struct pictdb_file *db_file);
 
 #ifdef __cplusplus
 }
