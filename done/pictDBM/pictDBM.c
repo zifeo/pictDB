@@ -199,10 +199,10 @@ int main(int argc, char *argv[])
     }
 
     struct command_mapping commands[] = {
-            {"list", do_list_cmd},
-            {"create", do_create_cmd},
-            {"help", help},
-            {"delete", do_delete_cmd}
+        {"list", do_list_cmd},
+        {"create", do_create_cmd},
+        {"help", help},
+        {"delete", do_delete_cmd}
     };
     // TODO verifiy this
     const size_t NB_CMD = sizeof(commands) / sizeof(commands[0]);
