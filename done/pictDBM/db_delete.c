@@ -19,6 +19,10 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
         return ERR_INVALID_PICID;
     }
 
+    if (db_file->header.num_files == 0) {
+        return ERR_FILE_NOT_FOUND;
+    }
+
     if (db_file->fpdb == NULL) {
         return ERR_IO;
     }
@@ -28,7 +32,7 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
 
     // The ending condition also ensures that once we found the correct metadata
     // we do not iterate over the others
-    for (size_t i = 0; pict_to_delete == NULL && i < MAX_MAX_FILES; ++i) {
+    for (size_t i = 0; pict_to_delete == NULL && i < db_file->header.max_files; ++i) {
         if (db_file->metadata[i].is_valid == NON_EMPTY &&
             strncmp(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID) == 0) {
             pict_to_delete = &db_file->metadata[i];
