@@ -35,8 +35,9 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
     for (size_t i = 0; pict_to_delete == NULL && i < db_file->header.max_files; ++i) {
         if (db_file->metadata[i].is_valid == NON_EMPTY &&
             strncmp(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID) == 0) {
+
             pict_to_delete = &db_file->metadata[i];
-            pict_delete_offset = i * sizeof(struct pict_metadata);
+            pict_delete_offset = i;
         }
     }
 
@@ -51,7 +52,8 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
 
     // By default fwrite start writing at the begining of the stream. Therefore, we
     // need to move the cursor to the position of where we want to delete
-    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_delete_offset, SEEK_SET) != 0 ||
+    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_delete_offset * sizeof(struct pict_metadata), SEEK_SET)
+        != 0 ||
         fwrite(pict_to_delete, sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
         return ERR_IO;
     }

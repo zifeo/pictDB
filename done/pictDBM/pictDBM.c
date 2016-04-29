@@ -32,7 +32,8 @@ typedef struct {
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd(int argc, char *argv[]) {
+int do_list_cmd(int argc, char *argv[])
+{
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -55,7 +56,8 @@ int do_list_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int do_create_cmd(int argc, char *argv[]) {
+int do_create_cmd(int argc, char *argv[])
+{
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -136,7 +138,8 @@ int do_create_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help(int argc, char *argv[]) {
+int help(int argc, char *argv[])
+{
     puts("pictDBM [COMMAND] [ARGUMENTS]");
     puts("  help: displays this help.");
     puts("  list <dbfilename>: list pictDB content.");
@@ -158,7 +161,8 @@ int help(int argc, char *argv[]) {
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd(int argc, char *argv[]) {
+int do_delete_cmd(int argc, char *argv[])
+{
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -189,16 +193,17 @@ int do_delete_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * MAIN
  */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("unable to start VIPS");
     }
 
     command_mapping commands[] = {
-            {do_list_cmd,   "list"},
-            {do_create_cmd, "create"},
-            {help,          "help"},
-            {do_delete_cmd, "delete"}
+        {do_list_cmd,   "list"},
+        {do_create_cmd, "create"},
+        {help,          "help"},
+        {do_delete_cmd, "delete"}
     };
 
     int ret = 0;

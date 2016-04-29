@@ -9,7 +9,8 @@
 #include "dedup.h"
 #include <string.h>
 
-int SHA_equals(unsigned char SHA1[], unsigned char SHA2[]) {
+int SHA_equals(unsigned char SHA1[], unsigned char SHA2[])
+{
     int i = 0;
     for (i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
         if (SHA1[i] != SHA2[i]) {
@@ -19,7 +20,8 @@ int SHA_equals(unsigned char SHA1[], unsigned char SHA2[]) {
     return 0;
 }
 
-int do_name_and_dedup(struct pictdb_file *db_file, const uint32_t index) {
+int do_name_and_dedup(struct pictdb_file *db_file, const uint32_t index)
+{
 
     int i = 0;
 
