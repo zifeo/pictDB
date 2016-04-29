@@ -15,7 +15,7 @@
 #include <vips/vips.h>
 
 #define CMDNAME_MAX 32
-#define NB_CMD 4
+#define NB_CMD 6
 
 #define CREATE_MAX_FILES "-max_files"
 #define CREATE_THUMB_RES "-thumb_res"
@@ -26,6 +26,8 @@
 #define NAME_RES_SMALL "small"
 #define NAME_RES_ORIG "orig"
 #define NAME_RES_ORIGINAL "original"
+
+#define IMG_EXT ".jpg"
 
 typedef int (*command)(int args, char *argv[]);
 
@@ -157,6 +159,11 @@ int help(int argc, char *argv[]) {
     printf("      %s <X_RES> <Y_RES>: resolution for small images.\n", CREATE_SMALL_RES);
     printf("\t\t\t\tdefault value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("\t\t\t\tmaximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
+    printf("  read <dbfilename> <pictID> [%s|%s|%s|%s|%s]\n", NAME_RES_ORIGINAL, NAME_RES_ORIG, NAME_RES_THUMBNAIL,
+           NAME_RES_THUMB, NAME_RES_SMALL);
+    puts("    read an image from the pictDB and save it to a file.");
+    printf("    default resolution is \"%s\".", NAME_RES_ORIGINAL);
+    puts("  <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     return 0;
 }
@@ -192,6 +199,81 @@ int do_delete_cmd(int argc, char *argv[]) {
     return status;
 }
 
+/********************************************************************//**
+ * Opens pictDB file and calls do_insert command.
+ ********************************************************************** */
+int do_insert_cmd(int argc, char *argv[]) {
+    if (argc < 4) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
+
+    if (argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
+        return ERR_INVALID_FILENAME;
+    }
+
+    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
+        return ERR_INVALID_PICID;
+    }
+
+    if (strlen(argv[3]) == 0 || strlen(argv[3]) > FILENAME_MAX) {
+        return ERR_INVALID_FILENAME;
+    }
+
+    struct pictdb_file myfile;
+    int status = do_open(argv[1], "r+b", &myfile);
+
+    if (status == 0) {
+        //status = do_insert(argv[2], &myfile);
+    }
+
+    do_close(&myfile);
+    return status;
+}
+
+/********************************************************************//**
+ * Opens pictDB file and calls do_read command.
+ ********************************************************************** */
+int do_read_cmd(int argc, char *argv[]) {
+    if (argc < 4) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
+
+    if (argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
+        return ERR_INVALID_FILENAME;
+    }
+
+    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
+        return ERR_INVALID_PICID;
+    }
+
+    int resolution = -1;
+
+    if ((resolution = resolution_atoi(argv[3])) == -1) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    struct pictdb_file myfile;
+    int status = do_open(argv[1], "r+b", &myfile);
+
+    if (status == 0) {
+        // TODO update this
+        const char **buffer = NULL;
+        uint32_t image_size = 0;
+
+        status = do_read(argv[2], (unsigned int) resolution, buffer, &image_size, &myfile);
+    }
+
+    do_close(&myfile);
+    return status;
+}
 
 int resolution_atoi(const char *resolution) {
     if (resolution == NULL) {
@@ -209,6 +291,47 @@ int resolution_atoi(const char *resolution) {
     return -1;
 }
 
+int read_disk_image(void **image_buffer, uint32_t *image_size, const char *filename) {
+    if (*image_buffer == NULL || image_size == NULL || filename == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    VipsImage *original = vips_image_new_from_file(filename, NULL);
+    if (original == NULL) {
+        return ERR_VIPS;
+    }
+
+
+    if (vips_jpegload_buffer(*image_buffer, 0, &original) != 1) {
+        return ERR_VIPS;
+    }
+
+    return 0;
+}
+
+int write_disk_image(char **image_buffer) {
+    return 0;
+}
+
+int create_name(const char **filename, const char *pic_id, unsigned int res) {
+    if (*filename == NULL || pic_id == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+    if (res != RES_ORIG && res != RES_SMALL && res != RES_THUMB) {
+        return ERR_RESOLUTIONS;
+    }
+
+    strncpy(*filename, pic_id, FILENAME_MAX);
+    strncat(*filename, "_", FILENAME_MAX);
+    strncat(*filename, res == RES_THUMB ? NAME_RES_THUMB :
+                       res == RES_SMALL ? NAME_RES_SMALL :
+                       NAME_RES_ORIG,
+            FILENAME_MAX);
+    strncat(*filename, IMG_EXT, FILENAME_MAX);
+
+    return 0;
+}
+
 /********************************************************************//**
  * MAIN
  */
@@ -221,7 +344,9 @@ int main(int argc, char *argv[]) {
             {do_list_cmd,   "list"},
             {do_create_cmd, "create"},
             {help,          "help"},
-            {do_delete_cmd, "delete"}
+            {do_delete_cmd, "delete"},
+            {do_insert_cmd, "insert"},
+            {do_read_cmd,   "read"}
     };
 
     int ret = 0;

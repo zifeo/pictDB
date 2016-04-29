@@ -17,22 +17,21 @@ int readImageData(size_t index, unsigned int res, const char **image_buffer, uin
 
     uint32_t size = db_file->metadata[index].size[res];
 
-    void *buffer = malloc(size);
+    *image_buffer = malloc(size);
 
-    if (buffer == NULL) {
+    if (*image_buffer == NULL) {
         status = ERR_OUT_OF_MEMORY;
     } else {
         if (fseek(db_file->fpdb, (long) db_file->metadata[index].offset[res], SEEK_SET) != 0 ||
-            fread(buffer, size, 1, db_file->fpdb) != 1) {
+            fread((void *) *image_buffer, size, 1, db_file->fpdb) != 1) {
             status = ERR_IO;
         } else {
             *image_size = size;
-            *image_buffer = buffer;
         }
     }
 
-    free(buffer);
-    buffer = NULL;
+    //free(buffer);
+    //buffer = NULL;
     return status;
 }
 

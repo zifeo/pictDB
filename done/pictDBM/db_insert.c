@@ -72,7 +72,6 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
     db_file->header.db_version += 1;
     db_file->header.num_files += 1;
 
-    //TODO ask for max size 512x512
     if ((status = get_resolution(&db_file->metadata[index].res_orig[0], &db_file->metadata[index].res_orig[1],
                                  *image_buffer, image_size)) != 0) {
         return status;
