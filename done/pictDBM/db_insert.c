@@ -29,62 +29,65 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
         return ERR_FULL_DATABASE;
     }
 
-    size_t index = 0;
-
-    for (size_t i = 0; index == 0 && i < db_file->header.max_files; ++i) {
+    size_t index = db_file->header.max_files;
+    for (size_t i = 0; index == db_file->header.max_files && i < db_file->header.max_files; ++i) {
         if (db_file->metadata[i].is_valid == EMPTY) {
+
             index = i;
-            db_file->metadata[i].is_valid = NON_EMPTY;
 
             unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
-            SHA256((unsigned char *) pict_id, SHA_DIGEST_LENGTH, sha);
+            // TODO : cast sha256 ?
+            SHA256((unsigned char *) image_buffer, image_size, sha);
             strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
             free(sha);
 
             strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID + 1);
-
             db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
         }
     }
 
-    int status = 0;
-
     // 2) Image de-duplication
-    status = do_name_and_content_dedup(db_file, (const uint32_t) index);
+    int status = do_name_and_content_dedup(db_file, (const uint32_t) index);
     if (status != 0) {
         return status;
     }
 
     // 3) Write image on disk
-    // If the image already existed simply exits
-    if (db_file->metadata[index].offset[RES_ORIG] != 0) {
-        return 0;
+    if (db_file->metadata[index].offset[RES_ORIG] == 0) {
+        // only if no duplicate
+        // fstat is not standard, so fseek + ftell will do the job
+        if (fseek(db_file->fpdb, 0, SEEK_END) != 0) {
+            return ERR_IO;
+        }
+        long end_offset = ftell(db_file->fpdb);
+        if (end_offset == -1 ||
+            fwrite(image_buffer, image_size, 1, db_file->fpdb) != 1) {
+            return ERR_IO;
+        }
+
+        db_file->metadata[index].offset[RES_THUMB] = 0;
+        db_file->metadata[index].offset[RES_SMALL] = 0;
+        db_file->metadata[index].offset[RES_ORIG] = (uint64_t) end_offset;
+        db_file->metadata[index].size[RES_THUMB] = 0;
+        db_file->metadata[index].size[RES_SMALL] = 0;
+        db_file->metadata[index].size[RES_ORIG] = (uint32_t) image_size;
     }
 
-    long end_offset = 0;
-    if (fseek(db_file->fpdb, 0, SEEK_END) != 0 ||
-        (end_offset = ftell(db_file->fpdb)) == -1 ||
-        fwrite(image_buffer, image_size, 1, db_file->fpdb) != 1) {
-        return ERR_IO;
+    db_file->metadata[index].is_valid = NON_EMPTY;
+    db_file->metadata[index].unused_16 = 0;
+    status = get_resolution(&db_file->metadata[index].res_orig[0], &db_file->metadata[index].res_orig[1], *image_buffer,
+                            image_size);
+    if (status != 0) {
+        return status;
     }
-
-    db_file->metadata[index].offset[RES_ORIG] = (uint64_t) end_offset;
 
     // 4) Update database
     db_file->header.db_version += 1;
     db_file->header.num_files += 1;
 
-    if ((status = get_resolution(&db_file->metadata[index].res_orig[0], &db_file->metadata[index].res_orig[1],
-                                 *image_buffer, image_size)) != 0) {
-        return status;
-    }
-
     if (fseek(db_file->fpdb, 0, SEEK_SET) != 0 ||
-        fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
-        return ERR_IO;
-    }
-
-    if (fseek(db_file->fpdb, index * sizeof(struct pict_metadata), SEEK_CUR) != 0 ||
+        fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1 ||
+        fseek(db_file->fpdb, index * sizeof(struct pict_metadata), SEEK_CUR) != 0 ||
         fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
         return ERR_IO;
     };
