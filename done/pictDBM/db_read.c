@@ -11,7 +11,7 @@
 #include "pictDB.h"
 #include "image_content.h"
 
-int do_read(const char *pict_id, unsigned int res, const char **image_buffer, uint32_t *image_size,
+int do_read(const char *pict_id, unsigned int res, char **image_buffer, uint32_t *image_size,
             struct pictdb_file *db_file)
 {
     // TODO : image_buffer array of null ?

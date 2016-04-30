@@ -158,7 +158,7 @@ int resolution_atoi(const char *resolution);
  * @param db_file In memory structure with header and metadata.
  */
 // TODO : image-size pointer ?
-int do_read(const char *pict_id, unsigned int res, const char **image_buffer, uint32_t *image_size,
+int do_read(const char *pict_id, unsigned int res, char **image_buffer, uint32_t *image_size,
             struct pictdb_file *db_file);
 
 /**

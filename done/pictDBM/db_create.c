@@ -25,7 +25,10 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     }
 
     // Sets the DB header name
-    strncpy(db_file->header.db_name, CAT_TXT, MAX_DB_NAME);
+    if (strncpy(db_file->header.db_name, CAT_TXT, MAX_DB_NAME) != 0) {
+        // TODO : which error ?
+        return ERR_DEBUG;
+    }
     db_file->header.db_name[MAX_DB_NAME] = '\0';
 
     // we initialize here all the other fields of the header that were not set explicitly before

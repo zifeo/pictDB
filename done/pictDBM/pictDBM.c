@@ -13,6 +13,7 @@
 
 #include <string.h>
 #include <vips/vips.h>
+#include <stdlib.h>
 
 #define CMDNAME_MAX 32
 #define NAME_RES_MAX 32
@@ -54,8 +55,10 @@ int do_list_cmd(int argc, char *argv[])
         return ERR_INVALID_FILENAME;
     }
 
+    char* db_filename = argv[1];
+
     struct pictdb_file myfile;
-    int status = do_open(argv[1], "rb", &myfile);
+    int status = do_open(db_filename, "rb", &myfile);
 
     if (status == 0) {
         status = do_list(&myfile);
@@ -81,6 +84,8 @@ int do_create_cmd(int argc, char *argv[])
     if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
         return ERR_INVALID_FILENAME;
     }
+
+    char* db_filename = argv[1];
 
     uint32_t max_files = DEFAULT_MAX_FILES;
     uint16_t thumb_resX = DEFAULT_THUMB_RES;
@@ -140,7 +145,7 @@ int do_create_cmd(int argc, char *argv[])
     db_file.header.res_resized[2 * RES_SMALL] = small_resX;
     db_file.header.res_resized[2 * RES_SMALL + 1] = small_resY;
 
-    int status = do_create(argv[1], &db_file);
+    int status = do_create(db_filename, &db_file);
     if (status == 0) {
         print_header(&db_file.header);
     }
@@ -167,6 +172,13 @@ int help(int argc, char *argv[])
     puts("          "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.");
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
+    puts("  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
+                 NAME_RES_SMALL"]:");
+    puts("      read an image from the pictDB and save it to a file.");
+    puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
+    puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
+    printf("                                  maximum value is %dx%d", MAX_SMALL_RES, MAX_SMALL_RES);
+    // TODO : max value 512 ?
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     return 0;
 }
@@ -192,14 +204,129 @@ int do_delete_cmd(int argc, char *argv[])
         return ERR_INVALID_PICID;
     }
 
+    char* db_filename = argv[1];
+    char* pict_id = argv[2];
+
     struct pictdb_file myfile;
-    int status = do_open(argv[1], "r+b", &myfile);
+    int status = do_open(db_filename, "r+b", &myfile);
 
     if (status == 0) {
-        status = do_delete(argv[2], &myfile);
+        status = do_delete(pict_id, &myfile);
     }
 
     do_close(&myfile);
+    return status;
+}
+
+/********************************************************************//**
+ * Create filename from resolution.
+ ********************************************************************** */
+// TODO : prototype this in .h ?
+int create_name(const char *filename, const char *pic_id, unsigned int res)
+{
+    if (pic_id == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    char* res_name = NULL;
+    switch (res) {
+        case RES_THUMB:
+            res_name = NAME_RES_THUMB;
+            break;
+        case RES_SMALL:
+            res_name = NAME_RES_SMALL;
+            break;
+        case RES_ORIG:
+            res_name = NAME_RES_ORIG;
+            break;
+        default:
+            return ERR_RESOLUTIONS;
+    }
+
+    if (strncpy(*filename, pic_id, FILENAME_MAX) != 0 ||
+        strncat(*filename, "_", FILENAME_MAX) != 0 ||
+        strncat(*filename, res_name, FILENAME_MAX) != 0 ||
+        strncat(*filename, IMG_EXT, FILENAME_MAX) != 0) {
+        // TODO : which error ?
+        return ERR_DEBUG;
+    }
+
+    return 0;
+}
+
+/********************************************************************//**
+ * Reads image from disk into buffer.
+ ********************************************************************** */
+int read_disk_image(char **image_buffer, uint32_t *image_size, const char *filename)
+{
+    if (image_buffer == NULL || image_size == NULL || filename == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
+        return ERR_INVALID_FILENAME;
+    }
+
+    FILE* image_file = fopen(filename, "rb");
+    if (image_file == NULL) {
+        return ERR_IO;
+    }
+
+    int status = 0;
+    if (fseek(image_file, 0, SEEK_END) != 0) {
+        status = ERR_IO;
+    } else {
+        size_t size = (size_t) ftell(image_file);
+        if (size == -1) {
+            status = ERR_IO;
+        } else {
+
+            image_buffer = malloc(size);
+            if (image_buffer == NULL) {
+                status = ERR_OUT_OF_MEMORY;
+            } else {
+
+                if (fread(image_buffer, size, 1, image_file) != 1) {
+                    status = ERR_IO;
+                } else {
+                    *image_size = (uint32_t) size;
+                }
+            }
+        }
+    }
+
+    if (fclose(image_file) != 0 && status == 0) {
+        status = ERR_IO;
+    }
+    return status;
+}
+
+/********************************************************************//**
+ * Writes image from buffer to disk.
+ ********************************************************************** */
+int write_disk_image(char **image_buffer, uint32_t image_size, const char *filename)
+{
+    if (image_buffer == NULL || image_size == NULL || filename == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
+        return ERR_INVALID_FILENAME;
+    }
+
+    FILE* image_file = fopen(filename, "wb");
+    if (image_file == NULL) {
+        return ERR_IO;
+    }
+
+    int status = 0;
+    if (fwrite(image_buffer, image_size, 1, image_file) != 1) {
+        status = ERR_IO;
+    }
+
+    if (fclose(image_file) != 0 && status == 0) {
+        status = ERR_IO;
+    }
     return status;
 }
 
@@ -228,11 +355,28 @@ int do_insert_cmd(int argc, char *argv[])
         return ERR_INVALID_FILENAME;
     }
 
+    char* db_filename = argv[1];
+    char* pic_id = argv[2];
+    char* filename = argv[3];
+
     struct pictdb_file myfile;
-    int status = do_open(argv[1], "r+b", &myfile);
+    int status = do_open(db_filename, "r+b", &myfile);
 
     if (status == 0) {
-        //status = do_insert(argv[2], &myfile);
+        if (myfile.header.num_files >= myfile.header.max_files) {
+            status = ERR_FULL_DATABASE;
+        } else {
+            char **image_buffer = NULL;
+            uint32_t image_size = 0;
+
+            status = read_disk_image(image_buffer, &image_size, filename);
+            if (status == 0) {
+                // TODO : cast const
+                status = do_insert((const char **) image_buffer, image_size, pic_id, &myfile);
+                free(image_buffer);
+                image_buffer = NULL;
+            }
+        }
     }
 
     do_close(&myfile);
@@ -260,21 +404,31 @@ int do_read_cmd(int argc, char *argv[])
         return ERR_INVALID_PICID;
     }
 
-    int resolution = -1;
-
-    if ((resolution = resolution_atoi(argv[3])) == -1) {
+    char* db_filename = argv[1];
+    char* pic_id = argv[2];
+    int resolution = resolution_atoi(argv[3]);
+    if (resolution < 0) {
         return ERR_INVALID_ARGUMENT;
     }
 
     struct pictdb_file myfile;
-    int status = do_open(argv[1], "r+b", &myfile);
+    int status = do_open(db_filename, "r+b", &myfile);
 
     if (status == 0) {
-        // TODO update this
-        const char **buffer = NULL;
+        // TODO when to use const car
+        char **image_buffer = NULL;
         uint32_t image_size = 0;
+        status = do_read(pic_id, (unsigned int) resolution, image_buffer, &image_size, &myfile);
 
-        status = do_read(argv[2], (unsigned int) resolution, buffer, &image_size, &myfile);
+        if (status == 0) {
+            char filename[FILENAME_MAX] = "";
+            status = create_name(filename, pic_id, (unsigned int) resolution);
+            if (status == 0) {
+                status = write_disk_image(image_buffer, image_size, filename);
+            }
+        }
+        free(image_buffer);
+        image_buffer = NULL;
     }
 
     do_close(&myfile);
@@ -301,50 +455,6 @@ int resolution_atoi(const char *resolution)
     return -1;
 }
 
-int read_disk_image(void **image_buffer, uint32_t *image_size, const char *filename)
-{
-    if (*image_buffer == NULL || image_size == NULL || filename == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    VipsImage *original = vips_image_new_from_file(filename, NULL);
-    if (original == NULL) {
-        return ERR_VIPS;
-    }
-
-
-    if (vips_jpegload_buffer(*image_buffer, 0, &original) != 1) {
-        return ERR_VIPS;
-    }
-
-    return 0;
-}
-
-int write_disk_image(char **image_buffer)
-{
-    return 0;
-}
-
-int create_name(const char **filename, const char *pic_id, unsigned int res)
-{
-    if (*filename == NULL || pic_id == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-    if (res != RES_ORIG && res != RES_SMALL && res != RES_THUMB) {
-        return ERR_RESOLUTIONS;
-    }
-
-    strncpy(*filename, pic_id, FILENAME_MAX);
-    strncat(*filename, "_", FILENAME_MAX);
-    strncat(*filename, res == RES_THUMB ? NAME_RES_THUMB :
-            res == RES_SMALL ? NAME_RES_SMALL :
-            NAME_RES_ORIG,
-            FILENAME_MAX);
-    strncat(*filename, IMG_EXT, FILENAME_MAX);
-
-    return 0;
-}
-
 /********************************************************************//**
  * MAIN
  ********************************************************************** */
@@ -354,14 +464,13 @@ int main(int argc, char *argv[])
         vips_error_exit("unable to start VIPS");
     }
 
-
     struct command_mapping commands[] = {
-        {"list", do_list_cmd},
-        {"create", do_create_cmd},
-        {"help", help},
-        {"delete", do_delete_cmd},
-        {"insert", do_insert_cmd},
-        {"read", do_read_cmd}
+            {"list", do_list_cmd},
+            {"create", do_create_cmd},
+            {"help", help},
+            {"delete", do_delete_cmd},
+            {"insert", do_insert_cmd},
+            {"read", do_read_cmd}
     };
     const size_t NB_CMD = sizeof(commands) / sizeof(commands[0]);
 

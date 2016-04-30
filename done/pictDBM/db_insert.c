@@ -38,11 +38,25 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
             unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
             // TODO : cast sha256 ?
             SHA256((unsigned char *) image_buffer, image_size, sha);
-            strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
-            free(sha);
 
-            strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID + 1);
-            db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
+            int status = 0;
+            if (strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH) != 0) {
+                // TODO : which error ?
+                status = ERR_DEBUG;
+            } else {
+                // TODO : max pic id + 1 ?
+                if (strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID + 1) != 0) {
+                    status = ERR_DEBUG;
+                } else {
+                    db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
+                }
+            }
+            free(sha);
+            sha = NULL;
+
+            if (status != 0) {
+                return status;
+            }
         }
     }
 
