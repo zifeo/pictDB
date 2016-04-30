@@ -173,7 +173,7 @@ int help(int argc, char *argv[])
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
     puts("  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
-                 NAME_RES_SMALL"]:");
+         NAME_RES_SMALL"]:");
     puts("      read an image from the pictDB and save it to a file.");
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
@@ -230,17 +230,17 @@ int create_name(const char *filename, const char *pic_id, unsigned int res)
 
     char* res_name = NULL;
     switch (res) {
-        case RES_THUMB:
-            res_name = NAME_RES_THUMB;
-            break;
-        case RES_SMALL:
-            res_name = NAME_RES_SMALL;
-            break;
-        case RES_ORIG:
-            res_name = NAME_RES_ORIG;
-            break;
-        default:
-            return ERR_RESOLUTIONS;
+    case RES_THUMB:
+        res_name = NAME_RES_THUMB;
+        break;
+    case RES_SMALL:
+        res_name = NAME_RES_SMALL;
+        break;
+    case RES_ORIG:
+        res_name = NAME_RES_ORIG;
+        break;
+    default:
+        return ERR_RESOLUTIONS;
     }
 
     if (strncpy(*filename, pic_id, FILENAME_MAX) != 0 ||
@@ -465,12 +465,12 @@ int main(int argc, char *argv[])
     }
 
     struct command_mapping commands[] = {
-            {"list", do_list_cmd},
-            {"create", do_create_cmd},
-            {"help", help},
-            {"delete", do_delete_cmd},
-            {"insert", do_insert_cmd},
-            {"read", do_read_cmd}
+        {"list", do_list_cmd},
+        {"create", do_create_cmd},
+        {"help", help},
+        {"delete", do_delete_cmd},
+        {"insert", do_insert_cmd},
+        {"read", do_read_cmd}
     };
     const size_t NB_CMD = sizeof(commands) / sizeof(commands[0]);
 
