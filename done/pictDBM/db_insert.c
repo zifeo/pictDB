@@ -25,7 +25,6 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
     // We assume the file is already opened from the outside so we don't do it here
 
     // 1) Find a free position at the index
-    // In fact the equality is strict but to ensure not writting
     if (db_file->header.num_files >= db_file->header.max_files) {
         return ERR_FULL_DATABASE;
     }
@@ -37,9 +36,10 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
             index = i;
             db_file->metadata[i].is_valid = NON_EMPTY;
 
-            unsigned char *SHA = malloc(SHA_DIGEST_LENGTH);
-            SHA256((const unsigned char *) pict_id, SHA_DIGEST_LENGTH, SHA);
-            strncpy(db_file->metadata[i].SHA, SHA, SHA_DIGEST_LENGTH);
+            unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
+            SHA256((unsigned char *) pict_id, SHA_DIGEST_LENGTH, sha);
+            strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
+            free(sha);
 
             strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID + 1);
 
@@ -50,13 +50,14 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
     int status = 0;
 
     // 2) Image de-duplication
-    if ((status = do_name_and_dedup(db_file, (const uint32_t) index)) != 0) {
+    status = do_name_and_content_dedup(db_file, (const uint32_t) index);
+    if (status != 0) {
         return status;
     }
 
     // 3) Write image on disk
     // If the image already existed simply exits
-    if (db_file->metadata[index].offset[RES_ORIG] == 0) {
+    if (db_file->metadata[index].offset[RES_ORIG] != 0) {
         return 0;
     }
 

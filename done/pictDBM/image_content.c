@@ -119,10 +119,12 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
     return status;
 }
 
+/********************************************************************//**
+ * Returns resolution from image given an image.
+ */
 int get_resolution(uint32_t *height, uint32_t *width, const char *image_buffer, size_t image_size)
 {
-    // TODO checks necessary ? what error ?
-    if (height == NULL || width == NULL || image_buffer == NULL) {
+    if (image_buffer == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 

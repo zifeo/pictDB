@@ -63,8 +63,7 @@ int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index)
     }
 
     db_file->metadata[index].offset[RES_ORIG] = 0;
-    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + index * sizeof(struct pict_metadata),
-              SEEK_SET) != 0 ||
+    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + index * sizeof(struct pict_metadata), SEEK_SET) != 0 ||
         fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
         return ERR_IO;
     }

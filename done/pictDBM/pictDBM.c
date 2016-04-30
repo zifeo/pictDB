@@ -15,6 +15,8 @@
 #include <vips/vips.h>
 
 #define CMDNAME_MAX 32
+#define NAME_RES_MAX 32
+// TODO : move to .h ?
 
 #define CREATE_MAX_FILES "-max_files"
 #define CREATE_THUMB_RES "-thumb_res"
@@ -279,18 +281,21 @@ int do_read_cmd(int argc, char *argv[])
     return status;
 }
 
+/********************************************************************//**
+ * Returns resolution from given string.
+ ********************************************************************** */
 int resolution_atoi(const char *resolution)
 {
     if (resolution == NULL) {
         return -1;
     }
-    if (!strcmp(NAME_RES_THUMB, resolution) || !strcmp(NAME_RES_THUMBNAIL, resolution)) {
+    if (!strncmp(NAME_RES_THUMB, resolution, NAME_RES_MAX) || !strncmp(NAME_RES_THUMBNAIL, resolution, NAME_RES_MAX)) {
         return RES_THUMB;
     }
-    if (!strcmp(NAME_RES_SMALL, resolution)) {
+    if (!strncmp(NAME_RES_SMALL, resolution, NAME_RES_MAX)) {
         return RES_SMALL;
     }
-    if (!strcmp(NAME_RES_ORIG, resolution) || !strcmp(NAME_RES_ORIGINAL, resolution)) {
+    if (!strncmp(NAME_RES_ORIG, resolution, NAME_RES_MAX) || !strncmp(NAME_RES_ORIGINAL, resolution, NAME_RES_MAX)) {
         return RES_ORIG;
     }
     return -1;

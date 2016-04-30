@@ -31,17 +31,14 @@ double resize_ratio(int current_width, int current_height, int max_goal_width, i
  */
 int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index);
 
-// ======================================================================
-// TODO Dioxygen doc
 /**
  * @brief Gets the resolution of a JPEG image
  *
- * @param height
- * @param width
- * @param image_buffer
- * @param image_size
+ * @param height image_buffer height
+ * @param width image_buffer width
+ * @param image_buffer image for getting height and width
+ * @param image_size size of image buffer
  */
 int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer, size_t image_size);
-
 
 #endif
