@@ -17,7 +17,7 @@
  * @param SHA1 The first SHA
  * @param SHA2 The second SHA
  */
-int SHA_equals(unsigned char SHA1[], unsigned char SHA2[]);
+inline int shacmp(unsigned char sha1[], unsigned char sha2[]);
 
 /**
  * @brief Check for duplicates in the file and de-duplicate image at given index if present
