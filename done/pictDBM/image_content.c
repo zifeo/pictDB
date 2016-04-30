@@ -11,6 +11,9 @@
 
 #include "pictDB.h"
 
+/********************************************************************//**
+ * Compute the aspect ratio from given sizes.
+ */
 double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height)
 {
     const double h_shrink = (double) max_goal_width / (double) current_width;
@@ -18,6 +21,9 @@ double resize_ratio(int current_width, int current_height, int max_goal_width, i
     return h_shrink > v_shrink ? v_shrink : h_shrink;
 }
 
+/********************************************************************//**
+ * Resize given picture in given resolution on the need.
+ */
 int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 {
     if (res == RES_ORIG) {

@@ -79,7 +79,7 @@ int do_create_cmd(int argc, char *argv[])
     uint16_t small_resX = DEFAULT_SMALL_RES;
     uint16_t small_resY = DEFAULT_SMALL_RES;
 
-    size_t i = 2;
+    int i = 2;
     // we skip the function name and first argument
     while (i < argc) {
         if (!strncmp(argv[i], CREATE_MAX_FILES, CMDNAME_MAX)) {

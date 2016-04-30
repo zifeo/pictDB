@@ -9,6 +9,9 @@
 #include "dedup.h"
 #include <string.h>
 
+/********************************************************************//**
+ * Verify equality between given SHA-1 hashes.
+ */
 int SHA_equals(unsigned char SHA1[], unsigned char SHA2[])
 {
     for (size_t i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
@@ -19,7 +22,10 @@ int SHA_equals(unsigned char SHA1[], unsigned char SHA2[])
     return 0;
 }
 
-int do_name_and_dedup(struct pictdb_file *db_file, const uint32_t index)
+/********************************************************************//**
+ * Check for SHA-1 and name duplication and optimize those cases.
+ */
+int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index)
 {
 
     if (db_file == NULL ||

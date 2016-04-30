@@ -9,6 +9,9 @@
 #include <string.h>
 #include "pictDB.h"
 
+/********************************************************************//**
+ * Remove a picture included in db_file.
+ */
 int do_delete (const char* pict_id, struct pictdb_file* db_file)
 {
     if (pict_id == NULL || db_file == NULL || db_file->metadata == NULL) {
