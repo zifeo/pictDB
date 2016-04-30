@@ -117,6 +117,10 @@ int do_create_cmd(int argc, char *argv[])
             return ERR_INVALID_ARGUMENT;
         }
     }
+    // thumbnail should be smaller than small ones, or at least a different ratio
+    if (thumb_resX >= small_resX && thumb_resY >= small_resY) {
+        return ERR_RESOLUTIONS;
+    }
     struct pictdb_file db_file;
 
     db_file.header.max_files = max_files;
