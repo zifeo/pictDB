@@ -12,14 +12,10 @@
 /********************************************************************//**
  * Verify equality between given SHA-1 hashes.
  */
-int SHA_equals(unsigned char SHA1[], unsigned char SHA2[])
+int shacmp(unsigned char sha1[], unsigned char sha2[])
 {
-    for (size_t i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
-        if (SHA1[i] != SHA2[i]) {
-            return 1;
-        }
-    }
-    return 0;
+    // external method ensure type safety
+    return memcmp(sha1, sha2, SHA256_DIGEST_LENGTH);
 }
 
 /********************************************************************//**
@@ -44,7 +40,7 @@ int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index)
             if (!strncmp(db_file->metadata[i].pict_id, db_file->metadata[index].pict_id, MAX_PIC_ID)) {
                 return ERR_DUPLICATE_ID;
 
-            } else if (SHA_equals(db_file->metadata[i].SHA, db_file->metadata[index].SHA) == 0) {
+            } else if (!shacmp(db_file->metadata[i].SHA, db_file->metadata[index].SHA)) {
 
                 db_file->metadata[index].offset[RES_THUMB] = db_file->metadata[i].offset[RES_THUMB];
                 db_file->metadata[index].offset[RES_SMALL] = db_file->metadata[i].offset[RES_SMALL];

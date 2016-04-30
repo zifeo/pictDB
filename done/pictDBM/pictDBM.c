@@ -23,10 +23,9 @@
 typedef int (*command)(int args, char *argv[]);
 
 struct command_mapping {
-    const char name[CMDNAME_MAX];
-    command function;
+    const char name[CMDNAME_MAX]; /**< command name */
+    command function; /**< command pointer function */
 };
-
 
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
