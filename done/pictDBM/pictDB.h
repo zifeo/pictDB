@@ -57,18 +57,12 @@ extern "C" {
  * @brief Store database general information.
  */
 struct pictdb_header {
-    char db_name[MAX_DB_NAME + 1];
-    /**< database name */
-    uint32_t db_version;
-    /**< database version */
-    uint32_t num_files;
-    /**< database image count */
-    uint32_t max_files;
-    /**< database max image count (constant) */
-    uint16_t res_resized[2 * (NB_RES - 1)];
-    /**< resolutions array (constant) */
-    uint32_t unused_32;
-    /**< unused or temporary information */
+    char db_name[MAX_DB_NAME + 1]; /**< database name */
+    uint32_t db_version; /**< database version */
+    uint32_t num_files; /**< database image count */
+    uint32_t max_files; /**< database max image count (constant) */
+    uint16_t res_resized[2 * (NB_RES - 1)]; /**< resolutions array (constant) */
+    uint32_t unused_32; /**< unused or temporary information */
     uint64_t unused_64; /**< unused or temporary information */
 };
 
@@ -76,18 +70,12 @@ struct pictdb_header {
  * @brief Store an image metadata.
  */
 struct pict_metadata {
-    char pict_id[MAX_PIC_ID + 1];
-    /**< image unique identifier */
-    unsigned char SHA[SHA256_DIGEST_LENGTH];
-    /**< image hashcode */
-    uint32_t res_orig[2];
-    /**< original image resolution */
-    uint32_t size[NB_RES];
-    /**< byte sizes of different resolutions */
-    uint64_t offset[NB_RES];
-    /**< image positions of different resolutions */
-    uint16_t is_valid;
-    /**< whether is image is used (NON_EMPTY) or not (EMPTY) */
+    char pict_id[MAX_PIC_ID + 1]; /**< image unique identifier */
+    unsigned char SHA[SHA256_DIGEST_LENGTH]; /**< image hashcode */
+    uint32_t res_orig[2]; /**< original image resolution */
+    uint32_t size[NB_RES]; /**< byte sizes of different resolutions */
+    uint64_t offset[NB_RES]; /**< image positions of different resolutions */
+    uint16_t is_valid; /**< whether is image is used (NON_EMPTY) or not (EMPTY) */
     uint16_t unused_16; /**< unused or temporary information */
 };
 
@@ -95,10 +83,8 @@ struct pict_metadata {
  * @brief Store a database with its header and images.
  */
 struct pictdb_file {
-    FILE *fpdb;
-    /**< disk file */
-    struct pictdb_header header;
-    /**< database header */
+    FILE *fpdb; /**< disk file */
+    struct pictdb_header header; /**< database header */
     struct pict_metadata *metadata; /**< images metadata */
 };
 

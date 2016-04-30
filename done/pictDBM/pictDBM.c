@@ -65,7 +65,7 @@ int do_list_cmd(int argc, char *argv[])
 
 /********************************************************************//**
  * Prepares and calls do_create command.
-********************************************************************** */
+ ********************************************************************** */
 int do_create_cmd(int argc, char *argv[])
 {
     if (argc < 2) {
@@ -171,7 +171,7 @@ int help(int argc, char *argv[])
 
 /********************************************************************//**
  * Deletes a picture from the database.
- */
+ ********************************************************************** */
 int do_delete_cmd(int argc, char *argv[]) {
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;

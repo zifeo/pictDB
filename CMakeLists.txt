@@ -20,5 +20,5 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/usr/local/opt/openssl/include")
 
 file(GLOB SOURCE_FILES "done/pictDBM/*.h" "done/pictDBM/*.c")
 
-add_executable(pps_team_kernel_panic ${SOURCE_FILES} done/pictDBM/dedup.c done/pictDBM/dedup.h done/pictDBM/db_insert.c done/pictDBM/db_read.c)
+add_executable(pps_team_kernel_panic ${SOURCE_FILES})
 target_link_libraries(pps_team_kernel_panic -lssl -lcrypto -L/usr/local/Cellar/vips/8.2.3/lib -L/usr/local/Cellar/glib/2.46.2/lib -L/usr/local/opt/gettext/lib -lvips -lgobject-2.0 -lglib-2.0 -lintl -lm)
