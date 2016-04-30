@@ -14,7 +14,7 @@
 #include <string.h>
 #include <vips/vips.h>
 
-#define CMDNAME_MAX 16
+#define CMDNAME_MAX 32
 
 #define CREATE_MAX_FILES "-max_files"
 #define CREATE_THUMB_RES "-thumb_res"
@@ -144,13 +144,13 @@ int help(int argc, char *argv[])
     puts("  list <dbfilename>: list pictDB content.");
     puts("  create <dbfilename>: create a new pictDB.");
     puts("      options are:");
-    puts("          "CREATE_MAX_FILES" <MAX_FILES>: maximum number of files.\n");
+    puts("          "CREATE_MAX_FILES" <MAX_FILES>: maximum number of files.");
     printf("                                  default value is %d\n", DEFAULT_MAX_FILES);
     printf("                                  maximum value is %d\n", MAX_MAX_FILES);
-    puts("          "CREATE_THUMB_RES" <X_RES> <Y_RES>: resolution for thumbnail images.\n");
+    puts("          "CREATE_THUMB_RES" <X_RES> <Y_RES>: resolution for thumbnail images.");
     printf("                                  default value is %dx%d\n", DEFAULT_THUMB_RES, DEFAULT_THUMB_RES);
     printf("                                  maximum value is %dx%d\n", MAX_THUMB_RES, MAX_THUMB_RES);
-    puts("          "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.\n");
+    puts("          "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.");
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
@@ -204,26 +204,24 @@ int main(int argc, char *argv[])
         {"help", help},
         {"delete", do_delete_cmd}
     };
-    // TODO verifiy this
     const size_t NB_CMD = sizeof(commands) / sizeof(commands[0]);
 
     int ret = 0;
-
     if (argc < 2) {
         ret = ERR_NOT_ENOUGH_ARGUMENTS;
     } else {
         argc--;
         argv++; // skips command call name
 
-        struct command_mapping* selected = NULL;
-        for (size_t i = 0; i < NB_CMD && selected == NULL; ++i) {
+        command selected_cmd = NULL;
+        for (size_t i = 0; i < NB_CMD && selected_cmd == NULL; ++i) {
             if (!strncmp(commands[i].name, argv[0], CMDNAME_MAX)) {
-                selected = commands + i;
+                selected_cmd = commands[i].function;
             }
         }
 
-        if (selected != NULL) {
-            ret = selected->function(argc, argv);
+        if (selected_cmd != NULL) {
+            ret = selected_cmd(argc, argv);
         } else {
             // In case we don't find the image, we throw this error code
             ret = ERR_INVALID_COMMAND;
