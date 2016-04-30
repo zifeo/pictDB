@@ -8,6 +8,9 @@
 
 #include "pictDB.h"
 
+/********************************************************************//**
+ * List all pictures included in db_file.
+ */
 int do_list(const struct pictdb_file* db_file)
 {
     if (db_file == NULL || db_file->metadata == NULL) {

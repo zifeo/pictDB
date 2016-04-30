@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-// ======================================================================
 /**
  * @brief Computes the aspect ratio
  *
@@ -23,7 +22,6 @@
  */
 double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height);
 
-// ======================================================================
 /**
  * @brief Computes the resize factor by keeping aspect ratio
  *

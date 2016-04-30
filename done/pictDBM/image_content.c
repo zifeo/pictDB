@@ -11,13 +11,21 @@
 
 #include "pictDB.h"
 
-double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height) {
+/********************************************************************//**
+ * Compute the aspect ratio from given sizes.
+ */
+double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height)
+{
     const double h_shrink = (double) max_goal_width / (double) current_width;
     const double v_shrink = (double) max_goal_height / (double) current_height;
     return h_shrink > v_shrink ? v_shrink : h_shrink;
 }
 
-int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
+/********************************************************************//**
+ * Resize given picture in given resolution on the need.
+ */
+int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
+{
     if (res == RES_ORIG) {
         return 0;
     }
@@ -84,7 +92,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index) {
 
         } else {
 
-            // TODO approche modulaire
             db_file->header.db_version += 1;
             db_file->metadata[index].offset[res] = (uint64_t) end_offset;
             db_file->metadata[index].size[res] = (uint32_t) res_len;

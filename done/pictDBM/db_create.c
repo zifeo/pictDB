@@ -12,8 +12,7 @@
 #include <string.h>  // for strncpy
 
 /********************************************************************//**
- * Creates the database called db_filename. Writes the header and the
- * preallocated empty metadata array to database file.
+ * Create a new picture database in db_file.
  */
 int do_create (const char* filename, struct pictdb_file* db_file)
 {

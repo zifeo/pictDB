@@ -9,9 +9,12 @@
 #include "dedup.h"
 #include <string.h>
 
-int SHA_equals(unsigned char SHA1[], unsigned char SHA2[]) {
-    int i = 0;
-    for (i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+/********************************************************************//**
+ * Verify equality between given SHA-1 hashes.
+ */
+int SHA_equals(unsigned char SHA1[], unsigned char SHA2[])
+{
+    for (size_t i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
         if (SHA1[i] != SHA2[i]) {
             return 1;
         }
@@ -19,12 +22,14 @@ int SHA_equals(unsigned char SHA1[], unsigned char SHA2[]) {
     return 0;
 }
 
-int do_name_and_dedup(struct pictdb_file *db_file, const uint32_t index) {
+/********************************************************************//**
+ * Check for SHA-1 and name duplication and optimize those cases.
+ */
+int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index)
+{
 
-    int i = 0;
-
-    if (db_file->metadata[index].is_valid == EMPTY) {
-        // TODO what error to return ?
+    if (db_file == NULL ||
+        db_file->metadata[index].is_valid == EMPTY) {
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -32,12 +37,14 @@ int do_name_and_dedup(struct pictdb_file *db_file, const uint32_t index) {
         return ERR_IO;
     }
 
-    for (i = 0; i < db_file->header.max_files; ++i) {
+    for (size_t i = 0; i < db_file->header.max_files; ++i) {
+
         if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
-            if (!strcmp(db_file->metadata[i].pict_id, db_file->metadata[index].pict_id)) {
+
+            if (!strncmp(db_file->metadata[i].pict_id, db_file->metadata[index].pict_id, MAX_PIC_ID)) {
                 return ERR_DUPLICATE_ID;
 
-            } else if (SHA_equals(db_file->metadata[i].SHA, db_file->metadata[index].SHA)) {
+            } else if (SHA_equals(db_file->metadata[i].SHA, db_file->metadata[index].SHA) == 0) {
 
                 db_file->metadata[index].offset[RES_THUMB] = db_file->metadata[i].offset[RES_THUMB];
                 db_file->metadata[index].offset[RES_SMALL] = db_file->metadata[i].offset[RES_SMALL];
