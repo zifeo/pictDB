@@ -9,6 +9,9 @@
 #include <string.h>
 #include "pictDB.h"
 
+/********************************************************************//**
+ * Remove a picture included in db_file.
+ */
 int do_delete (const char* pict_id, struct pictdb_file* db_file)
 {
     if (pict_id == NULL || db_file == NULL || db_file->metadata == NULL) {
@@ -17,6 +20,10 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
 
     if (strlen(pict_id) == 0 || strlen(pict_id) > MAX_PIC_ID) {
         return ERR_INVALID_PICID;
+    }
+
+    if (db_file->header.num_files == 0) {
+        return ERR_FILE_NOT_FOUND;
     }
 
     if (db_file->fpdb == NULL) {
@@ -28,11 +35,12 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
 
     // The ending condition also ensures that once we found the correct metadata
     // we do not iterate over the others
-    for (size_t i = 0; pict_to_delete == NULL && i < MAX_MAX_FILES; ++i) {
+    for (size_t i = 0; pict_to_delete == NULL && i < db_file->header.max_files; ++i) {
         if (db_file->metadata[i].is_valid == NON_EMPTY &&
             strncmp(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID) == 0) {
+
             pict_to_delete = &db_file->metadata[i];
-            pict_delete_offset = i * sizeof(struct pict_metadata);
+            pict_delete_offset = i;
         }
     }
 
@@ -47,7 +55,8 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
 
     // By default fwrite start writing at the begining of the stream. Therefore, we
     // need to move the cursor to the position of where we want to delete
-    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_delete_offset, SEEK_SET) != 0 ||
+    if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + pict_delete_offset * sizeof(struct pict_metadata), SEEK_SET)
+        != 0 ||
         fwrite(pict_to_delete, sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
         return ERR_IO;
     }

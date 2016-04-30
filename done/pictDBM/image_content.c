@@ -11,6 +11,9 @@
 
 #include "pictDB.h"
 
+/********************************************************************//**
+ * Compute the aspect ratio from given sizes.
+ */
 double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height)
 {
     const double h_shrink = (double) max_goal_width / (double) current_width;
@@ -18,6 +21,9 @@ double resize_ratio(int current_width, int current_height, int max_goal_width, i
     return h_shrink > v_shrink ? v_shrink : h_shrink;
 }
 
+/********************************************************************//**
+ * Resize given picture in given resolution on the need.
+ */
 int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 {
     if (res == RES_ORIG) {
@@ -72,7 +78,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 
         // We do not need to check if the new resolution is less than the
         // original since we are always going to reduce the size of the image
-        // TODO check assumption
         if (vips_jpegload_buffer(image, image_size, vips_in_image, NULL) != 0 ||
             vips_resize(*vips_in_image, vips_out_image, ratio, NULL) != 0 ||
             vips_jpegsave_buffer(*vips_out_image, &image, &res_len, NULL) != 0) {
@@ -87,9 +92,7 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 
         } else {
 
-            // TODO approche modulaire
             db_file->header.db_version += 1;
-            // TODO num_files + 1 ?
             db_file->metadata[index].offset[res] = (uint64_t) end_offset;
             db_file->metadata[index].size[res] = (uint32_t) res_len;
 
@@ -115,4 +118,3 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
     image = NULL;
     return status;
 }
-
