@@ -12,7 +12,8 @@
 #include "image_content.h"
 
 int readImageData(size_t index, unsigned int res, const char **image_buffer, uint32_t *image_size,
-                  struct pictdb_file *db_file) {
+                  struct pictdb_file *db_file)
+{
     int status = 0;
 
     uint32_t size = db_file->metadata[index].size[res];
@@ -36,7 +37,8 @@ int readImageData(size_t index, unsigned int res, const char **image_buffer, uin
 }
 
 int do_read(const char *pict_id, unsigned int res, const char **image_buffer, uint32_t *image_size,
-            struct pictdb_file *db_file) {
+            struct pictdb_file *db_file)
+{
     if (image_buffer == NULL || pict_id == NULL || db_file == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
@@ -49,7 +51,7 @@ int do_read(const char *pict_id, unsigned int res, const char **image_buffer, ui
 
     for (size_t i = 0; index == 0 && i < db_file->header.max_files; ++i) {
         if (db_file->metadata[i].is_valid == EMPTY && !strcmp(pict_id,
-                                                              db_file->metadata[i].pict_id)) {
+                db_file->metadata[i].pict_id)) {
             index = i;
         }
     }

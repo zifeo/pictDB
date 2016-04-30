@@ -12,7 +12,8 @@
 #include "dedup.h"
 #include "image_content.h"
 
-int do_insert(const char **image_buffer, size_t image_size, const char *pict_id, struct pictdb_file *db_file) {
+int do_insert(const char **image_buffer, size_t image_size, const char *pict_id, struct pictdb_file *db_file)
+{
     if (image_buffer == NULL || pict_id == NULL || db_file == NULL) {
         return ERR_INVALID_ARGUMENT;
     }

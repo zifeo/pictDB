@@ -172,7 +172,8 @@ int help(int argc, char *argv[])
 /********************************************************************//**
  * Deletes a picture from the database.
  ********************************************************************** */
-int do_delete_cmd(int argc, char *argv[]) {
+int do_delete_cmd(int argc, char *argv[])
+{
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -203,7 +204,8 @@ int do_delete_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Opens pictDB file and calls do_insert command.
  ********************************************************************** */
-int do_insert_cmd(int argc, char *argv[]) {
+int do_insert_cmd(int argc, char *argv[])
+{
     if (argc < 4) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -238,7 +240,8 @@ int do_insert_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Opens pictDB file and calls do_read command.
  ********************************************************************** */
-int do_read_cmd(int argc, char *argv[]) {
+int do_read_cmd(int argc, char *argv[])
+{
     if (argc < 4) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -276,7 +279,8 @@ int do_read_cmd(int argc, char *argv[]) {
     return status;
 }
 
-int resolution_atoi(const char *resolution) {
+int resolution_atoi(const char *resolution)
+{
     if (resolution == NULL) {
         return -1;
     }
@@ -292,7 +296,8 @@ int resolution_atoi(const char *resolution) {
     return -1;
 }
 
-int read_disk_image(void **image_buffer, uint32_t *image_size, const char *filename) {
+int read_disk_image(void **image_buffer, uint32_t *image_size, const char *filename)
+{
     if (*image_buffer == NULL || image_size == NULL || filename == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
@@ -310,11 +315,13 @@ int read_disk_image(void **image_buffer, uint32_t *image_size, const char *filen
     return 0;
 }
 
-int write_disk_image(char **image_buffer) {
+int write_disk_image(char **image_buffer)
+{
     return 0;
 }
 
-int create_name(const char **filename, const char *pic_id, unsigned int res) {
+int create_name(const char **filename, const char *pic_id, unsigned int res)
+{
     if (*filename == NULL || pic_id == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
@@ -325,8 +332,8 @@ int create_name(const char **filename, const char *pic_id, unsigned int res) {
     strncpy(*filename, pic_id, FILENAME_MAX);
     strncat(*filename, "_", FILENAME_MAX);
     strncat(*filename, res == RES_THUMB ? NAME_RES_THUMB :
-                       res == RES_SMALL ? NAME_RES_SMALL :
-                       NAME_RES_ORIG,
+            res == RES_SMALL ? NAME_RES_SMALL :
+            NAME_RES_ORIG,
             FILENAME_MAX);
     strncat(*filename, IMG_EXT, FILENAME_MAX);
 
