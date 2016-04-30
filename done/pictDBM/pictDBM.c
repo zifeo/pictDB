@@ -147,10 +147,10 @@ int help(int argc, char *argv[])
     puts("          "CREATE_MAX_FILES" <MAX_FILES>: maximum number of files.\n");
     printf("                                  default value is %d\n", DEFAULT_MAX_FILES);
     printf("                                  maximum value is %d\n", MAX_MAX_FILES);
-    puts("      "CREATE_THUMB_RES" <X_RES> <Y_RES>: resolution for thumbnail images.\n");
+    puts("          "CREATE_THUMB_RES" <X_RES> <Y_RES>: resolution for thumbnail images.\n");
     printf("                                  default value is %dx%d\n", DEFAULT_THUMB_RES, DEFAULT_THUMB_RES);
     printf("                                  maximum value is %dx%d\n", MAX_THUMB_RES, MAX_THUMB_RES);
-    puts("      "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.\n");
+    puts("          "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.\n");
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
