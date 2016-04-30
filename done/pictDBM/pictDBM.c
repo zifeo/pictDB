@@ -83,7 +83,7 @@ int do_create_cmd(int argc, char *argv[])
     // we skip the function name and first argument
     while (i < argc) {
         if (!strncmp(argv[i], CREATE_MAX_FILES, CMDNAME_MAX)) {
-            if (argc < i + 1) {
+            if (argc <= i + 1) {
                 return ERR_NOT_ENOUGH_ARGUMENTS;
             }
             max_files = atouint32(argv[i + 1]);
@@ -92,7 +92,7 @@ int do_create_cmd(int argc, char *argv[])
             }
             i += 2;
         } else if (!strncmp(argv[i], CREATE_THUMB_RES, CMDNAME_MAX)) {
-            if (argc < i + 2) {
+            if (argc <= i + 2) {
                 return ERR_NOT_ENOUGH_ARGUMENTS;
             }
             thumb_resX = atouint16(argv[i + 1]);
@@ -103,7 +103,7 @@ int do_create_cmd(int argc, char *argv[])
             }
             i += 3;
         } else if (!strncmp(argv[i], CREATE_SMALL_RES, CMDNAME_MAX)) {
-            if (argc < i + 2) {
+            if (argc <= i + 2) {
                 return ERR_NOT_ENOUGH_ARGUMENTS;
             }
             small_resX = atouint16(argv[i + 1]);
