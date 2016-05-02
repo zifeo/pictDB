@@ -14,6 +14,7 @@
 #include <string.h>
 #include <vips/vips.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #define CMDNAME_MAX 32
 #define NAME_RES_MAX 32
@@ -176,7 +177,6 @@ int help(int argc, char *argv[])
     puts("      read an image from the pictDB and save it to a file.");
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
-    printf("                                  maximum value is %dx%d", MAX_SMALL_RES, MAX_SMALL_RES);
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     return 0;
 }
@@ -219,7 +219,7 @@ int do_delete_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Create filename from resolution.
  ********************************************************************** */
-int create_name(const char *filename, const char *pic_id, unsigned int res)
+int create_name(char *filename, const char *pic_id, unsigned int res)
 {
     if (pic_id == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -240,13 +240,11 @@ int create_name(const char *filename, const char *pic_id, unsigned int res)
         return ERR_RESOLUTIONS;
     }
 
-    if (strncpy(*filename, pic_id, FILENAME_MAX) != 0 ||
-        strncat(*filename, "_", FILENAME_MAX) != 0 ||
-        strncat(*filename, res_name, FILENAME_MAX) != 0 ||
-        strncat(*filename, IMG_EXT, FILENAME_MAX) != 0) {
-        // TODO : which error ?
-        return ERR_DEBUG;
-    }
+    filename[0] = '\0';
+    assert(strncat(*filename, pic_id, FILENAME_MAX) == 0 &&
+           strncat(*filename, "_", FILENAME_MAX) == 0 &&
+           strncat(*filename, res_name, FILENAME_MAX) == 0 &&
+           strncat(*filename, IMG_EXT, FILENAME_MAX) == 0);
 
     return 0;
 }
@@ -254,7 +252,7 @@ int create_name(const char *filename, const char *pic_id, unsigned int res)
 /********************************************************************//**
  * Reads image from disk into buffer.
  ********************************************************************** */
-int read_disk_image(char **image_buffer, uint32_t *image_size, const char *filename)
+int read_disk_image(char image_buffer[], uint32_t *image_size, const char *filename)
 {
     if (image_buffer == NULL || image_size == NULL || filename == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -301,7 +299,7 @@ int read_disk_image(char **image_buffer, uint32_t *image_size, const char *filen
 /********************************************************************//**
  * Writes image from buffer to disk.
  ********************************************************************** */
-int write_disk_image(char **image_buffer, uint32_t image_size, const char *filename)
+int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename)
 {
     if (image_buffer == NULL || image_size == NULL || filename == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -368,8 +366,7 @@ int do_insert_cmd(int argc, char *argv[])
 
             status = read_disk_image(image_buffer, &image_size, filename);
             if (status == 0) {
-                // TODO : cast const
-                status = do_insert((const char **) image_buffer, image_size, pic_id, &myfile);
+                status = do_insert((const char *) image_buffer, image_size, pic_id, &myfile);
                 free(image_buffer);
                 image_buffer = NULL;
             }
@@ -412,13 +409,12 @@ int do_read_cmd(int argc, char *argv[])
     int status = do_open(db_filename, "r+b", &myfile);
 
     if (status == 0) {
-        // TODO when to use const car
-        char **image_buffer = NULL;
+        char *image_buffer = NULL;
         uint32_t image_size = 0;
         status = do_read(pic_id, (unsigned int) resolution, image_buffer, &image_size, &myfile);
 
         if (status == 0) {
-            char filename[FILENAME_MAX] = "";
+            char filename[FILENAME_MAX];
             status = create_name(filename, pic_id, (unsigned int) resolution);
             if (status == 0) {
                 status = write_disk_image(image_buffer, image_size, filename);

@@ -11,8 +11,9 @@
 #include "pictDB.h"
 #include "dedup.h"
 #include "image_content.h"
+#include <assert.h>
 
-int do_insert(const char **image_buffer, size_t image_size, const char *pict_id, struct pictdb_file *db_file)
+int do_insert(const char image_buffer[], size_t image_size, const char *pict_id, struct pictdb_file *db_file)
 {
     if (image_buffer == NULL || pict_id == NULL || db_file == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -36,26 +37,15 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
             index = i;
 
             unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
-            SHA256((unsigned char *) image_buffer, image_size, sha);
+            SHA256((const unsigned char *) image_buffer, image_size, sha);
 
-            int status = 0;
-            if (strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH) != 0) {
-                // TODO : which error ?
-                status = ERR_DEBUG;
-            } else {
-                // TODO : max pic id + 1 ?
-                if (strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID + 1) != 0) {
-                    status = ERR_DEBUG;
-                } else {
-                    db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
-                }
-            }
+            assert(strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH) == 0);
+            assert(strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID) == 0);
+            db_file->metadata[i].pict_id[MAX_PIC_ID] = '\0';
+            db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
+
             free(sha);
             sha = NULL;
-
-            if (status != 0) {
-                return status;
-            }
         }
     }
 
@@ -88,7 +78,7 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
 
     db_file->metadata[index].is_valid = NON_EMPTY;
     db_file->metadata[index].unused_16 = 0;
-    status = get_resolution(&db_file->metadata[index].res_orig[0], &db_file->metadata[index].res_orig[1], *image_buffer,
+    status = get_resolution(&db_file->metadata[index].res_orig[0], &db_file->metadata[index].res_orig[1], image_buffer,
                             image_size);
     if (status != 0) {
         return status;
