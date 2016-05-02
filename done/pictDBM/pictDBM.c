@@ -17,7 +17,6 @@
 
 #define CMDNAME_MAX 32
 #define NAME_RES_MAX 32
-// TODO : move to .h ?
 
 #define CREATE_MAX_FILES "-max_files"
 #define CREATE_THUMB_RES "-thumb_res"
@@ -178,7 +177,6 @@ int help(int argc, char *argv[])
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
     printf("                                  maximum value is %dx%d", MAX_SMALL_RES, MAX_SMALL_RES);
-    // TODO : max value 512 ?
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     return 0;
 }
@@ -221,7 +219,6 @@ int do_delete_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Create filename from resolution.
  ********************************************************************** */
-// TODO : prototype this in .h ?
 int create_name(const char *filename, const char *pic_id, unsigned int res)
 {
     if (pic_id == NULL) {

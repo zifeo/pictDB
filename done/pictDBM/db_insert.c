@@ -36,7 +36,6 @@ int do_insert(const char **image_buffer, size_t image_size, const char *pict_id,
             index = i;
 
             unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
-            // TODO : cast sha256 ?
             SHA256((unsigned char *) image_buffer, image_size, sha);
 
             int status = 0;

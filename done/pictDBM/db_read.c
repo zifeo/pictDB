@@ -12,9 +12,7 @@
 #include "image_content.h"
 
 int do_read(const char *pict_id, unsigned int res, char **image_buffer, uint32_t *image_size,
-            struct pictdb_file *db_file)
-{
-    // TODO : image_buffer array of null ?
+            struct pictdb_file *db_file) {
     if (image_buffer == NULL || pict_id == NULL || db_file == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
