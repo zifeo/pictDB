@@ -12,11 +12,11 @@
 #include "pictDB.h"
 #include "image_content.h"
 
-int do_read(const char *pict_id, unsigned int res, char image_buffer[], uint32_t *image_size,
+int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_t *image_size,
             struct pictdb_file *db_file)
 {
 
-    if (image_buffer == NULL || pict_id == NULL || db_file == NULL) {
+    if (image_buffer == NULL || *image_buffer != NULL || pict_id == NULL || db_file == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -51,14 +51,14 @@ int do_read(const char *pict_id, unsigned int res, char image_buffer[], uint32_t
     }
 
     uint32_t size = db_file->metadata[index].size[res];
-    image_buffer = malloc(size);
-    if (image_buffer == NULL) {
+    *image_buffer = malloc(size);
+    if (*image_buffer == NULL) {
         return ERR_OUT_OF_MEMORY;
     }
 
     int status = 0;
     if (fseek(db_file->fpdb, (long) db_file->metadata[index].offset[res], SEEK_SET) != 0 ||
-        fread((void *) image_buffer, size, 1, db_file->fpdb) != 1) {
+        fread((void *) *image_buffer, size, 1, db_file->fpdb) != 1) {
         status = ERR_IO;
     } else {
         *image_size = size;

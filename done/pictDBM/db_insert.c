@@ -39,10 +39,13 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
             unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
             SHA256((const unsigned char *) image_buffer, image_size, sha);
 
-            assert(strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH) == 0);
-            assert(strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID) == 0);
+            strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
+            strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID);
             db_file->metadata[i].pict_id[MAX_PIC_ID] = '\0';
             db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
+
+            // TODO put this here (otherwise content and dedup returns immediately)
+            db_file->metadata[index].is_valid = NON_EMPTY;
 
             free(sha);
             sha = NULL;
@@ -76,7 +79,7 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
         db_file->metadata[index].size[RES_ORIG] = (uint32_t) image_size;
     }
 
-    db_file->metadata[index].is_valid = NON_EMPTY;
+    //db_file->metadata[index].is_valid = NON_EMPTY;
     db_file->metadata[index].unused_16 = 0;
     status = get_resolution(&db_file->metadata[index].res_orig[0], &db_file->metadata[index].res_orig[1], image_buffer,
                             image_size);
