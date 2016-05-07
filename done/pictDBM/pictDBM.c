@@ -253,7 +253,7 @@ int do_delete_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Reads image from disk into buffer.
  ********************************************************************** */
-int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename)
+static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename)
 {
     if (image_buffer == NULL || *image_buffer != NULL || image_size == NULL || filename == NULL) {
         return ERR_INVALID_ARGUMENT;
@@ -311,7 +311,7 @@ int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *file
 /********************************************************************//**
  * Writes image from buffer to disk.
  ********************************************************************** */
-int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename)
+static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename)
 {
     if (image_buffer == NULL || filename == NULL) {
         return ERR_INVALID_ARGUMENT;

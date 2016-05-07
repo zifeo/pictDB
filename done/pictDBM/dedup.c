@@ -12,7 +12,7 @@
 /********************************************************************//**
  * Verify equality between given SHA-1 hashes.
  */
-int shacmp(unsigned char sha1[], unsigned char sha2[])
+static inline int shacmp(unsigned char sha1[], unsigned char sha2[])
 {
     // external method ensure type safety
     return memcmp(sha1, sha2, SHA256_DIGEST_LENGTH);

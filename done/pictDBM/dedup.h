@@ -12,14 +12,6 @@
 #include "pictDB.h"
 
 /**
- * @brief Check whether or not the two given SHAs are equals
- *
- * @param SHA1 The first SHA
- * @param SHA2 The second SHA
- */
-inline int shacmp(unsigned char sha1[], unsigned char sha2[]);
-
-/**
  * @brief Check for duplicates in the file and de-duplicate image at given index if present
  *
  * @param db_file In memory structure with header and metadata.
