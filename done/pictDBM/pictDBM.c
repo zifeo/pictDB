@@ -443,7 +443,7 @@ int do_read_cmd(int argc, char *argv[])
                 status = write_disk_image(image_buffer, image_size, filename);
             }
 
-            free(&image_buffer);
+            free(image_buffer);
             image_buffer = NULL;
         }
 
