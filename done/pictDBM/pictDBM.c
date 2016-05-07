@@ -55,7 +55,7 @@ int do_list_cmd(int argc, char *argv[])
         return ERR_INVALID_FILENAME;
     }
 
-    char *db_filename = argv[1];
+    const char *db_filename = argv[1];
 
     struct pictdb_file myfile;
     int status = do_open(db_filename, "rb", &myfile);
@@ -85,14 +85,13 @@ int do_create_cmd(int argc, char *argv[])
         return ERR_INVALID_FILENAME;
     }
 
-    char *db_filename = argv[1];
+    const char *db_filename = argv[1];
 
     uint32_t max_files = DEFAULT_MAX_FILES;
     uint16_t thumb_resX = DEFAULT_THUMB_RES;
     uint16_t thumb_resY = DEFAULT_THUMB_RES;
     uint16_t small_resX = DEFAULT_SMALL_RES;
     uint16_t small_resY = DEFAULT_SMALL_RES;
-
 
     int i = 2;
     // we skip the function name and first argument
@@ -236,8 +235,8 @@ int do_delete_cmd(int argc, char *argv[])
         return ERR_INVALID_PICID;
     }
 
-    char *db_filename = argv[1];
-    char *pict_id = argv[2];
+    const char *db_filename = argv[1];
+    const char *pict_id = argv[2];
 
     struct pictdb_file myfile;
     int status = do_open(db_filename, "r+b", &myfile);
