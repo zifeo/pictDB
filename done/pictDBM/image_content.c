@@ -111,6 +111,7 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         }
 
         g_object_unref(process);
+        process = NULL;
     }
 
     free(image);
@@ -140,5 +141,7 @@ int get_resolution(uint32_t *height, uint32_t *width, const char *image_buffer, 
     }
 
     g_object_unref(process);
+    // TODO : free another vips ref ?
+    process = NULL;
     return status;
 }

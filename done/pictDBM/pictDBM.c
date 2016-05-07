@@ -34,8 +34,7 @@
 typedef int (*command)(int args, char *argv[]);
 
 struct command_mapping {
-    const char name[CMDNAME_MAX];
-    /**< command name */
+    const char name[CMDNAME_MAX]; /**< command name */
     command function; /**< command pointer function */
 };
 
@@ -160,10 +159,11 @@ int do_create_cmd(int argc, char *argv[])
  ********************************************************************** */
 int create_name(char *filename, const char *pic_id, unsigned int res)
 {
-    if (pic_id == NULL) {
+    if (filename == NULL || pic_id == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
 
+    // TODO : ensure array allocation
     filename[0] = '\0';
     strncat(filename, pic_id, FILENAME_MAX);
     strncat(filename, "_", FILENAME_MAX);
@@ -192,26 +192,26 @@ int create_name(char *filename, const char *pic_id, unsigned int res)
  ********************************************************************** */
 int help(int argc, char *argv[])
 {
-    puts("pictDBM [COMMAND] [ARGUMENTS]");
-    puts("  help: displays this help.");
-    puts("  list <dbfilename>: list pictDB content.");
-    puts("  create <dbfilename>: create a new pictDB.");
-    puts("      options are:");
-    puts("          "CREATE_MAX_FILES" <MAX_FILES>: maximum number of files.");
+    puts(  "pictDBM [COMMAND] [ARGUMENTS]");
+    puts(  "  help: displays this help.");
+    puts(  "  list <dbfilename>: list pictDB content.");
+    puts(  "  create <dbfilename>: create a new pictDB.");
+    puts(  "      options are:");
+    puts(  "          "CREATE_MAX_FILES" <MAX_FILES>: maximum number of files.");
     printf("                                  default value is %d\n", DEFAULT_MAX_FILES);
     printf("                                  maximum value is %d\n", MAX_MAX_FILES);
-    puts("          "CREATE_THUMB_RES" <X_RES> <Y_RES>: resolution for thumbnail images.");
+    puts(  "          "CREATE_THUMB_RES" <X_RES> <Y_RES>: resolution for thumbnail images.");
     printf("                                  default value is %dx%d\n", DEFAULT_THUMB_RES, DEFAULT_THUMB_RES);
     printf("                                  maximum value is %dx%d\n", MAX_THUMB_RES, MAX_THUMB_RES);
-    puts("          "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.");
+    puts(  "          "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.");
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
-    puts("  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
-         NAME_RES_SMALL"]:");
-    puts("      read an image from the pictDB and save it to a file.");
-    puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
-    puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
-    puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
+    puts(  "  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
+                   NAME_RES_SMALL"]:");
+    puts(  "      read an image from the pictDB and save it to a file.");
+    puts(  "      default resolution is \""NAME_RES_ORIGINAL"\".");
+    puts(  "  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
+    puts(  "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     return 0;
 }
 
@@ -259,10 +259,11 @@ int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *file
         return ERR_INVALID_ARGUMENT;
     }
 
-
+    // TODO : duplicate strlen
     if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
         return ERR_INVALID_FILENAME;
     }
+
     FILE *image_file = fopen(filename, "rb");
     if (image_file == NULL) {
         return ERR_IO;
@@ -272,10 +273,12 @@ int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *file
     if (fseek(image_file, 0, SEEK_END) != 0) {
         status = ERR_IO;
     } else {
-        size_t size = (size_t) ftell(image_file);
-        if ((long) size == -1) {
+        long end_pos = ftell(image_file);
+        if (end_pos == -1) {
             status = ERR_IO;
         } else {
+            assert(0 <= end_pos && end_pos < SIZE_MAX);
+            size_t size = (size_t) end_pos;
 
             *image_buffer = malloc(size);
             if (*image_buffer == NULL) {
@@ -286,7 +289,7 @@ int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *file
                     fread((void *) *image_buffer, size, 1, image_file) != 1) {
                     status = ERR_IO;
                 } else {
-                    *image_size = (uint32_t) size;
+                    *image_size = (uint32_t) end_pos;
                 }
             }
         }
@@ -295,6 +298,13 @@ int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *file
     if (fclose(image_file) != 0 && status == 0) {
         status = ERR_IO;
     }
+
+    // TODO : in error cases, free
+    if (status != 0 && *image_buffer != NULL) {
+        free(*image_buffer);
+        *image_buffer = NULL;
+    }
+
     return status;
 }
 
@@ -315,6 +325,7 @@ int write_disk_image(char image_buffer[], uint32_t image_size, const char *filen
     if (image_file == NULL) {
         return ERR_IO;
     }
+
     int status = 0;
     if (fwrite(image_buffer, image_size, 1, image_file) != 1) {
         status = ERR_IO;
@@ -351,9 +362,9 @@ int do_insert_cmd(int argc, char *argv[])
         return ERR_INVALID_FILENAME;
     }
 
-    char *db_filename = argv[1];
-    char *pic_id = argv[2];
-    char *filename = argv[3];
+    const char *db_filename = argv[1];
+    const char *pic_id = argv[2];
+    const char *filename = argv[3];
 
     struct pictdb_file myfile;
     int status = do_open(db_filename, "r+b", &myfile);
@@ -367,10 +378,14 @@ int do_insert_cmd(int argc, char *argv[])
 
             status = read_disk_image(&image_buffer, &image_size, filename);
             if (status == 0) {
-                status = do_insert((const char *) image_buffer, image_size, pic_id, &myfile);
+
+                assert(image_buffer != NULL);
+                status = do_insert(image_buffer, image_size, pic_id, &myfile);
                 free(image_buffer);
                 image_buffer = NULL;
             }
+
+            assert(image_buffer == NULL);
         }
     }
 
@@ -383,6 +398,8 @@ int do_insert_cmd(int argc, char *argv[])
  ********************************************************************** */
 int do_read_cmd(int argc, char *argv[])
 {
+    // TODO : what if more argv ?
+
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -399,12 +416,14 @@ int do_read_cmd(int argc, char *argv[])
         return ERR_INVALID_PICID;
     }
 
-    char *db_filename = argv[1];
-    char *pic_id = argv[2];
-    int resolution = argc == 3 ? RES_ORIG : resolution_atoi(argv[3]);
-    if (resolution < 0) {
+    const char *db_filename = argv[1];
+    const char *pic_id = argv[2];
+
+    int resolution_parsed = argc == 3 ? RES_ORIG : resolution_atoi(argv[3]);
+    if (resolution_parsed < 0) {
         return ERR_INVALID_ARGUMENT;
     }
+    const unsigned int resolution = (unsigned int) resolution_parsed;
 
     struct pictdb_file myfile;
     int status = do_open(db_filename, "r+b", &myfile);
@@ -412,21 +431,25 @@ int do_read_cmd(int argc, char *argv[])
     if (status == 0) {
         char *image_buffer = NULL;
         uint32_t image_size = 0;
-        status = do_read(pic_id, (unsigned int) resolution, &image_buffer, &image_size, &myfile);
-        assert(image_buffer != NULL);
+        status = do_read(pic_id, resolution, &image_buffer, &image_size, &myfile);
 
         if (status == 0) {
+            assert(image_buffer != NULL);
             char filename[FILENAME_MAX];
-            status = create_name(filename, pic_id, (unsigned int) resolution);
+            status = create_name(filename, pic_id, resolution);
+            assert(strlen(filename) > 0);
+
             if (status == 0) {
                 status = write_disk_image(image_buffer, image_size, filename);
             }
+
+            free(&image_buffer);
+            image_buffer = NULL;
         }
-        // TODO we need to free something here
-        //free(&image_buffer);
-        //image_buffer = NULL;
-        do_close(&myfile);
+
+        assert(image_buffer == NULL);
     }
+    do_close(&myfile);
     return status;
 }
 

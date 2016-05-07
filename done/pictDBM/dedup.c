@@ -32,7 +32,7 @@ int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index)
         return ERR_IO;
     }
 
-    for (size_t i = 0; i < db_file->header.max_files; ++i) {
+    for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
 
         if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
 

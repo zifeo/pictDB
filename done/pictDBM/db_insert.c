@@ -23,15 +23,14 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
         return ERR_IO;
     }
 
-    // We assume the file is already opened from the outside so we don't do it here
-
-    // 1) Find a free position at the index
     if (db_file->header.num_files >= db_file->header.max_files) {
         return ERR_FULL_DATABASE;
     }
 
-    size_t index = db_file->header.max_files;
-    for (size_t i = 0; index == db_file->header.max_files && i < db_file->header.max_files; ++i) {
+    // We assume the file is already opened from the outside so we don't do it here
+    // 1) Find a free position at the index
+    uint32_t index = db_file->header.max_files;
+    for (uint32_t i = 0; index == db_file->header.max_files && i < db_file->header.max_files; ++i) {
         if (db_file->metadata[i].is_valid == EMPTY) {
 
             index = i;
@@ -41,11 +40,10 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
 
             strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
             strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID);
+
             db_file->metadata[i].pict_id[MAX_PIC_ID] = '\0';
             db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
-
-            // TODO put this here (otherwise content and dedup returns immediately)
-            db_file->metadata[index].is_valid = NON_EMPTY;
+            // TODO : caution on type cast ?
 
             free(sha);
             sha = NULL;
@@ -53,18 +51,18 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
     }
 
     // 2) Image de-duplication
-    int status = do_name_and_content_dedup(db_file, (const uint32_t) index);
+    int status = do_name_and_content_dedup(db_file, index);
     if (status != 0) {
         return status;
     }
 
-    // 3) Write image on disk
+    // 3) Write image on disk if it does not exist yet
     if (db_file->metadata[index].offset[RES_ORIG] == 0) {
-        // only if no duplicate
-        // fstat is not standard, so fseek + ftell will do the job
+
         if (fseek(db_file->fpdb, 0, SEEK_END) != 0) {
             return ERR_IO;
         }
+
         long end_offset = ftell(db_file->fpdb);
         if (end_offset == -1 ||
             fwrite(image_buffer, image_size, 1, db_file->fpdb) != 1) {
@@ -76,10 +74,9 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
         db_file->metadata[index].offset[RES_ORIG] = (uint64_t) end_offset;
         db_file->metadata[index].size[RES_THUMB] = 0;
         db_file->metadata[index].size[RES_SMALL] = 0;
-        db_file->metadata[index].size[RES_ORIG] = (uint32_t) image_size;
     }
 
-    //db_file->metadata[index].is_valid = NON_EMPTY;
+    db_file->metadata[index].is_valid = NON_EMPTY;
     db_file->metadata[index].unused_16 = 0;
     status = get_resolution(&db_file->metadata[index].res_orig[0], &db_file->metadata[index].res_orig[1], image_buffer,
                             image_size);
@@ -95,6 +92,7 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
         fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1 ||
         fseek(db_file->fpdb, index * sizeof(struct pict_metadata), SEEK_CUR) != 0 ||
         fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
+
         return ERR_IO;
     };
 

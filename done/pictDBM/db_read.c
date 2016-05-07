@@ -16,7 +16,8 @@ int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_
             struct pictdb_file *db_file)
 {
 
-    if (image_buffer == NULL || *image_buffer != NULL || pict_id == NULL || db_file == NULL) {
+    if (image_buffer == NULL || *image_buffer != NULL || pict_id == NULL || db_file == NULL ||
+        (res != RES_THUMB && res != RES_SMALL && res != RES_ORIG)) {
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -24,12 +25,8 @@ int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_
         return ERR_IO;
     }
 
-    if (res != RES_THUMB && res != RES_SMALL && res != RES_ORIG) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    size_t index = db_file->header.max_files;
-    for (size_t i = 0; index == db_file->header.max_files && i < db_file->header.max_files; ++i) {
+    uint32_t index = db_file->header.max_files;
+    for (uint32_t i = 0; i < index; ++i) {
 
         if (db_file->metadata[i].is_valid == NON_EMPTY && !strncmp(pict_id, db_file->metadata[i].pict_id, MAX_PIC_ID)) {
             index = i;
@@ -62,6 +59,11 @@ int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_
         status = ERR_IO;
     } else {
         *image_size = size;
+    }
+
+    if (status != 0) {
+        free(*image_buffer);
+        *image_buffer = NULL;
     }
 
     return status;
