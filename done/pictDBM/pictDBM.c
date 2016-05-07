@@ -61,7 +61,7 @@ int do_list_cmd(int argc, char *argv[])
     int status = do_open(db_filename, "rb", &myfile);
 
     if (status == 0) {
-        status = do_list(&myfile);
+        do_list(&myfile, STDOUT);
     }
 
     do_close(&myfile);

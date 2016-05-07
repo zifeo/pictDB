@@ -11,11 +11,16 @@
 /********************************************************************//**
  * List all pictures included in db_file.
  */
-int do_list(const struct pictdb_file* db_file)
+const char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
 {
     if (db_file == NULL || db_file->metadata == NULL) {
-        return ERR_INVALID_ARGUMENT;
+        return NULL;
     }
+
+    if (mode != STDOUT && mode != JSON) {
+        return "unimplemented do_list mode";
+    }
+
     print_header(&db_file->header);
 
     if (db_file->header.num_files > 0) {
@@ -28,5 +33,14 @@ int do_list(const struct pictdb_file* db_file)
         printf("<< empty database >>\n");
     }
 
-    return 0;
+    switch (mode) {
+        case STDOUT:
+
+            break;
+        case JSON:
+
+            break;
+    }
+
+    return NULL;
 }
