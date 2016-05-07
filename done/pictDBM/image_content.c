@@ -15,7 +15,7 @@
  * Compute the aspect ratio from given sizes.
  */
 static inline double resize_ratio(unsigned int current_width, unsigned int current_height, unsigned int max_goal_width,
-                    unsigned int max_goal_height)
+                                  unsigned int max_goal_height)
 {
     double h_shrink = (double) max_goal_width / (double) current_width;
     double v_shrink = (double) max_goal_height / (double) current_height;

@@ -207,7 +207,7 @@ int help(int argc, char *argv[])
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
     puts(  "  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
-                   NAME_RES_SMALL"]:");
+           NAME_RES_SMALL"]:");
     puts(  "      read an image from the pictDB and save it to a file.");
     puts(  "      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts(  "  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
