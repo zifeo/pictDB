@@ -10,7 +10,7 @@ mongoose:
 
 pictDBM: db_read.c db_insert.c dedup.c pictDBM_tools.c image_content.c db_delete.c db_list.c db_create.c db_utils.c error.c pictDBM.c
 
-pictDB_server: pictDB_server.c
+pictDB_server: db_read.c db_insert.c dedup.c pictDBM_tools.c image_content.c db_delete.c db_list.c db_create.c db_utils.c error.c pictDB_server.c
 
 clean:
 	rm -f pictDBM *.o
