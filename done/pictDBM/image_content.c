@@ -14,10 +14,11 @@
 /********************************************************************//**
  * Compute the aspect ratio from given sizes.
  */
-double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height)
+static inline double resize_ratio(unsigned int current_width, unsigned int current_height, unsigned int max_goal_width,
+                    unsigned int max_goal_height)
 {
-    const double h_shrink = (double) max_goal_width / (double) current_width;
-    const double v_shrink = (double) max_goal_height / (double) current_height;
+    double h_shrink = (double) max_goal_width / (double) current_width;
+    double v_shrink = (double) max_goal_height / (double) current_height;
     return h_shrink > v_shrink ? v_shrink : h_shrink;
 }
 
@@ -105,7 +106,7 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 
                 // The metadata is after the header and then at the position idx * size(metadata)
                 // Note that we start at SEEK_CUR to avoid adding the size of the header
-            } else if (fseek(db_file->fpdb, index * sizeof(struct pict_metadata), SEEK_CUR) != 0 ||
+            } else if (fseek(db_file->fpdb, (long) (index * sizeof(struct pict_metadata)), SEEK_CUR) != 0 ||
                        fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
 
                 status = ERR_IO;

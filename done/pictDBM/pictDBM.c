@@ -277,7 +277,7 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
         if (end_pos == -1) {
             status = ERR_IO;
         } else {
-            assert(0 <= end_pos && end_pos < SIZE_MAX);
+            assert(0 <= end_pos);
             size_t size = (size_t) end_pos;
 
             *image_buffer = malloc(size);

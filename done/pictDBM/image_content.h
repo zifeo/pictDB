@@ -13,16 +13,6 @@
 #include <stdint.h>
 
 /**
- * @brief Computes the aspect ratio
- *
- * @param current_width The current width.
- * @param current_height The current height.
- * @param max_goal_width The maximum goal width.
- * @param max_goal_height The maximum goal height.
- */
-double resize_ratio(int current_width, int current_height, int max_goal_width, int max_goal_height);
-
-/**
  * @brief Computes the resize factor by keeping aspect ratio
  *
  * @param res The resize resolution.

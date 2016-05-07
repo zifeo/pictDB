@@ -38,7 +38,7 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
             unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
             SHA256((const unsigned char *) image_buffer, image_size, sha);
 
-            strncpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
+            memcpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
             strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID);
 
             db_file->metadata[i].pict_id[MAX_PIC_ID] = '\0';
