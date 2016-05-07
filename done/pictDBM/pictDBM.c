@@ -4,7 +4,7 @@
  *
  * Picture Database Management Tool
  *
- * @author Mia Primorac
+ * @author Aurélien Soccard & Teo Stocco
  * @date 2 Nov 2015
  */
 

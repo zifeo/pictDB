@@ -11,7 +11,7 @@
  * because it should be stored as raw bytes appended at the end of the
  * database file and addressed by offsets in the metadata structure.
  *
- * @author Mia Primorac
+ * @author Aurélien Soccard & Teo Stocco
  * @date 2 Nov 2015
  */
 
