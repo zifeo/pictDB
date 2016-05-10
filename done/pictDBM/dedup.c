@@ -14,7 +14,6 @@
  */
 static inline int shacmp(unsigned char sha1[], unsigned char sha2[])
 {
-    // external method ensure type safety
     return memcmp(sha1, sha2, SHA256_DIGEST_LENGTH);
 }
 
@@ -23,8 +22,7 @@ static inline int shacmp(unsigned char sha1[], unsigned char sha2[])
  */
 int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index)
 {
-    if (db_file == NULL ||
-        index >= db_file->header.num_files ||
+    if (db_file == NULL || index > db_file->header.max_files ||
         db_file->metadata[index].is_valid == EMPTY) {
         return ERR_INVALID_ARGUMENT;
     }

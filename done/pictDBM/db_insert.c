@@ -35,11 +35,10 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
 
             index = i;
 
-            unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
+            unsigned char *sha = malloc(SHA256_DIGEST_LENGTH);
             SHA256((const unsigned char *) image_buffer, image_size, sha);
-            // TODO : sha256 ?
 
-            memcpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
+            memcpy(db_file->metadata[i].SHA, sha, SHA256_DIGEST_LENGTH);
             strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID);
 
             db_file->metadata[i].pict_id[MAX_PIC_ID] = '\0';
@@ -51,7 +50,6 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
             sha = NULL;
         }
     }
-
     // 2) Image de-duplication
     int status = do_name_and_content_dedup(db_file, index);
     if (status != 0) {

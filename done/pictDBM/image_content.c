@@ -54,18 +54,18 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
     for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
         if (i != index && db_file->metadata[i].is_valid == NON_EMPTY &&
             !memcmp(db_file->metadata[i].SHA, db_file->metadata[index].SHA, SHA256_DIGEST_LENGTH) &&
-                db_file->metadata[i].offset[res] != 0) {
+            db_file->metadata[i].offset[res] != 0) {
 
-                db_file->metadata[index].offset[res] = db_file->metadata[i].offset[res];
-                db_file->metadata[index].size[res] = db_file->metadata[i].size[res];
+            db_file->metadata[index].offset[res] = db_file->metadata[i].offset[res];
+            db_file->metadata[index].size[res] = db_file->metadata[i].size[res];
 
-                if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + index * sizeof(struct pict_metadata),
-                          SEEK_SET) != 0 ||
-                    fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
+            if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + index * sizeof(struct pict_metadata),
+                      SEEK_SET) != 0 ||
+                fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
 
-                    return ERR_IO;
-                }
-                return 0;
+                return ERR_IO;
+            }
+            return 0;
         }
     }
 
@@ -159,7 +159,6 @@ int get_resolution(uint32_t *height, uint32_t *width, const char *image_buffer, 
     }
 
     VipsObject *process = VIPS_OBJECT(vips_image_new());
-    // TODO : double pointer ?
     VipsImage **vips_image = (VipsImage **) vips_object_local_array(process, 1);
 
     int status = 0;
