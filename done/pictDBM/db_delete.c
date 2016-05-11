@@ -18,9 +18,7 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(pict_id) == 0 || strlen(pict_id) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
+    macro_check_invalid_pic_id(pict_id);
 
     if (db_file->header.num_files == 0) {
         return ERR_FILE_NOT_FOUND;

@@ -51,9 +51,7 @@ int do_list_cmd(int argc, char *argv[])
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    macro_check_invalid_filename(argv[1]);
 
     const char *db_filename = argv[1];
 
@@ -81,9 +79,7 @@ int do_create_cmd(int argc, char *argv[])
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    macro_check_invalid_filename(argv[1]);
 
     const char *db_filename = argv[1];
 
@@ -227,13 +223,8 @@ int do_delete_cmd(int argc, char *argv[])
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
-
-    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
+    macro_check_invalid_filename(argv[1]);
+    macro_check_invalid_pic_id(argv[2]);
 
     const char *db_filename = argv[1];
     const char *pict_id = argv[2];
@@ -258,9 +249,7 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    macro_check_invalid_filename(filename);
 
     FILE *image_file = fopen(filename, "rb");
     if (image_file == NULL) {
@@ -315,9 +304,7 @@ static int write_disk_image(char image_buffer[], uint32_t image_size, const char
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    macro_check_invalid_filename(filename);
 
     FILE *image_file = fopen(filename, "wb");
     if (image_file == NULL) {
@@ -348,17 +335,9 @@ int do_insert_cmd(int argc, char *argv[])
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
-
-    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
-
-    if (strlen(argv[3]) == 0 || strlen(argv[3]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    macro_check_invalid_filename(argv[1]);
+    macro_check_invalid_pic_id(argv[2]);
+    macro_check_invalid_filename(argv[3]);
 
     const char *db_filename = argv[1];
     const char *pic_id = argv[2];
@@ -405,13 +384,8 @@ int do_read_cmd(int argc, char *argv[])
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
-
-    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
+    macro_check_invalid_filename(argv[1]);
+    macro_check_invalid_pic_id(argv[2]);
 
     const char *db_filename = argv[1];
     const char *pic_id = argv[2];

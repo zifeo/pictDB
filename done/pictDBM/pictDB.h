@@ -53,12 +53,19 @@
 extern "C" {
 #endif
 
-#define check_invalid_filename(name) { \
+#define macro_check_invalid_filename(name) { \
     const size_t len = strlen(name); \
     if (len == 0 || len > FILENAME_MAX) { \
         return ERR_INVALID_FILENAME; \
     } \
-}\
+} \
+
+#define macro_check_invalid_pic_id(id) { \
+    const size_t len = strlen(id); \
+    if (len == 0 || len > MAX_PIC_ID) { \
+        return ERR_INVALID_PICID; \
+    } \
+} \
 
 /**
  * @brief Store database general information.

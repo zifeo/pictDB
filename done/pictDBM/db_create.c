@@ -21,9 +21,7 @@ int do_create (const char* filename, struct pictdb_file* db_file)
         return ERR_INVALID_ARGUMENT;
     }
 
-    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    macro_check_invalid_filename(filename);
 
     // Sets the DB header name
     strncpy(db_file->header.db_name, CAT_TXT, MAX_DB_NAME);
