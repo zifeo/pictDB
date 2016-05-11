@@ -18,7 +18,7 @@ int do_delete (const char* pict_id, struct pictdb_file* db_file)
         return ERR_INVALID_ARGUMENT;
     }
 
-    macro_check_invalid_pic_id(pict_id);
+    MACRO_REQUIRE_VALID_PIC_ID(pict_id);
 
     if (db_file->header.num_files == 0) {
         return ERR_FILE_NOT_FOUND;
