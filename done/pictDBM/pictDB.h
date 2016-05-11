@@ -53,6 +53,8 @@
 extern "C" {
 #endif
 
+#define macro_check_null_arg(arg) if (arg == NULL) return ERR_INVALID_ARGUMENT
+
 #define macro_check_invalid_filename(name) { \
     const size_t len = strlen(name); \
     if (len == 0 || len > FILENAME_MAX) { \
