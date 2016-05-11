@@ -249,6 +249,11 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
         return ERR_INVALID_ARGUMENT;
     }
 
+    macro_check_null_arg(image_buffer);
+    macro_check_null_arg(*image_buffer);
+    macro_check_null_arg(image_size);
+    macro_check_null_arg(filename);
+
     macro_check_invalid_filename(filename);
 
     FILE *image_file = fopen(filename, "rb");
