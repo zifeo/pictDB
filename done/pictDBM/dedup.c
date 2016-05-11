@@ -16,8 +16,7 @@ int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index)
 {
     M_REQUIRE_NON_NULL(db_file);
 
-    // TODO : verify >
-    if (index > db_file->header.max_files ||
+    if (index >= db_file->header.max_files ||
         db_file->metadata[index].is_valid == EMPTY) {
         return ERR_INVALID_ARGUMENT;
     }
@@ -58,6 +57,6 @@ int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index)
         fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
         return ERR_IO;
     }
-    
+
     return 0;
 }

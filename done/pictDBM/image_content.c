@@ -34,8 +34,7 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 
     M_REQUIRE_NON_NULL(db_file);
 
-    // TODO : check index bound, also in dedup
-    if ((res != RES_THUMB && res != RES_SMALL) || index >= db_file->header.num_files) {
+    if ((res != RES_THUMB && res != RES_SMALL) || index >= db_file->header.max_files) {
         return ERR_INVALID_ARGUMENT;
     }
 
