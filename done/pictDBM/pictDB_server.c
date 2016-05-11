@@ -23,7 +23,9 @@ static struct mg_serve_http_opts s_http_server_opts;
 static void handle_list(struct mg_connection *nc, struct http_message *hm)
 {
     const char* rep = do_list(&myfile, JSON);
-     // TODO : leak/error ?
+    // TODO : leak/error ?
+
+    // TODO : get parameter ?
 
     // TODO : better routines ?
     mg_printf(nc, "HTTP/1.0 200 OK\r\nContent-Length: %d\r\n"
