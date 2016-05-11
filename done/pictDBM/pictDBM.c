@@ -279,7 +279,6 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
         status = ERR_IO;
     }
 
-    // TODO : in error cases, free
     if (status != 0 && *image_buffer != NULL) {
         free(*image_buffer);
         *image_buffer = NULL;

@@ -52,26 +52,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         return 0;
     }
 
-    // TODO : dedup in lazy ? + memcmp !
-    for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
-        if (i != index && db_file->metadata[i].is_valid == NON_EMPTY &&
-            !memcmp(db_file->metadata[i].SHA, db_file->metadata[index].SHA, SHA256_DIGEST_LENGTH) &&
-            db_file->metadata[i].offset[res] != 0) {
-
-            db_file->metadata[index].offset[res] = db_file->metadata[i].offset[res];
-            db_file->metadata[index].size[res] = db_file->metadata[i].size[res];
-
-            if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + index * sizeof(struct pict_metadata),
-                      SEEK_SET) != 0 ||
-                fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
-
-                return ERR_IO;
-            }
-            return 0;
-        }
-    }
-
-    // TODO : in size_t or should be keep uintxx_t ?
     size_t image_size = db_file->metadata[index].size[RES_ORIG];
 
     void *image_in = malloc(image_size);
@@ -101,7 +81,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         size_t res_len = 0;
         void *image_out = NULL;
 
-        // TODO : resolution
         if (vips_jpegload_buffer(image_in, image_size, vips_in_image, NULL) != 0 ||
             vips_resize(*vips_in_image, vips_out_image, ratio, NULL) != 0 ||
             vips_jpegsave_buffer(*vips_out_image, &image_out, &res_len, NULL) != 0) {
@@ -136,11 +115,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
 
         g_free(image_out);
         image_out = NULL;
-
-        // TODO : free vips ?
-        //if ((vips_free(vips_in_image) != 0 || vips_free(vips_out_image) != 0) && status == 0) {
-        //    status = ERR_VIPS;
-        //}
 
         g_object_unref(process);
         process = NULL;
