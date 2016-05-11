@@ -17,10 +17,8 @@
  */
 int do_create (const char* filename, struct pictdb_file* db_file)
 {
-    if (filename == NULL || db_file == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
+    M_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_NON_NULL(db_file);
     M_REQUIRE_VALID_FILENAME(filename);
 
     // Sets the DB header name

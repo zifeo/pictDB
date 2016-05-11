@@ -13,9 +13,9 @@
  */
 int do_list(const struct pictdb_file* db_file)
 {
-    if (db_file == NULL || db_file->metadata == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
+    M_REQUIRE_NON_NULL(db_file);
+    M_REQUIRE_NON_NULL(db_file->metadata);
+
     print_header(&db_file->header);
 
     if (db_file->header.num_files > 0) {

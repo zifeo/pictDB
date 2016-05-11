@@ -15,9 +15,9 @@
 
 int do_insert(const char image_buffer[], size_t image_size, const char *pict_id, struct pictdb_file *db_file)
 {
-    if (image_buffer == NULL || pict_id == NULL || db_file == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
+    M_REQUIRE_NON_NULL(image_buffer);
+    M_REQUIRE_NON_NULL(pict_id);
+    M_REQUIRE_NON_NULL(db_file);
 
     if (db_file->fpdb == NULL) {
         return ERR_IO;

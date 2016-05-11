@@ -14,10 +14,9 @@
  */
 int do_delete (const char* pict_id, struct pictdb_file* db_file)
 {
-    if (pict_id == NULL || db_file == NULL || db_file->metadata == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
+    M_REQUIRE_NON_NULL(pict_id);
+    M_REQUIRE_NON_NULL(db_file);
+    M_REQUIRE_NON_NULL(db_file->metadata);
     M_REQUIRE_VALID_PIC_ID(pict_id);
 
     if (db_file->header.num_files == 0) {

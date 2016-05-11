@@ -32,8 +32,10 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         return 0;
     }
 
+    M_REQUIRE_NON_NULL(db_file);
+
     // TODO : check index bound, also in dedup
-    if ((res != RES_THUMB && res != RES_SMALL) || db_file == NULL || index >= db_file->header.num_files) {
+    if ((res != RES_THUMB && res != RES_SMALL) || index >= db_file->header.num_files) {
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -154,9 +156,7 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
  */
 int get_resolution(uint32_t *height, uint32_t *width, const char *image_buffer, size_t image_size)
 {
-    if (image_buffer == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
+    M_REQUIRE_NON_NULL(image_buffer);
 
     VipsObject *process = VIPS_OBJECT(vips_image_new());
     VipsImage **vips_image = (VipsImage **) vips_object_local_array(process, 1);
@@ -170,12 +170,8 @@ int get_resolution(uint32_t *height, uint32_t *width, const char *image_buffer, 
         *height = (uint32_t) vips_image_get_height(*vips_image);
     }
 
-    //if (vips_free(vips_image) != 0 && status == 0) {
-    //    status = ERR_VIPS;
-    //}
-
     g_object_unref(process);
-    // TODO : free another vips ref ?
     process = NULL;
+
     return status;
 }
