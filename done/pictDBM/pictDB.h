@@ -53,16 +53,16 @@
 extern "C" {
 #endif
 
-#define MACRO_REQUIRE_NON_NULL(arg) if (arg == NULL) return ERR_INVALID_ARGUMENT
+#define M_REQUIRE_NON_NULL(arg) if (arg == NULL) return ERR_INVALID_ARGUMENT
 
-#define MACRO_REQUIRE_VALID_FILENAME(name) { \
+#define M_REQUIRE_VALID_FILENAME(name) { \
     const size_t len = strlen(name); \
     if (len == 0 || len > FILENAME_MAX) { \
         return ERR_INVALID_FILENAME; \
     } \
 } \
 
-#define MACRO_REQUIRE_VALID_PIC_ID(id) { \
+#define M_REQUIRE_VALID_PIC_ID(id) { \
     const size_t len = strlen(id); \
     if (len == 0 || len > MAX_PIC_ID) { \
         return ERR_INVALID_PICID; \

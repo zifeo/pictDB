@@ -47,11 +47,8 @@ int do_list_cmd(int argc, char *argv[])
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    MACRO_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
 
     const char *db_filename = argv[1];
 
@@ -75,11 +72,8 @@ int do_create_cmd(int argc, char *argv[])
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    MACRO_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
 
     const char *db_filename = argv[1];
 
@@ -154,11 +148,9 @@ int do_create_cmd(int argc, char *argv[])
  ********************************************************************** */
 int create_name(char *filename, const char *pic_id, unsigned int res)
 {
-    if (filename == NULL || pic_id == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
+    M_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_NON_NULL(pic_id);
 
-    // TODO : ensure array allocation
     filename[0] = '\0';
     strncat(filename, pic_id, FILENAME_MAX);
     strncat(filename, "_", FILENAME_MAX);
@@ -219,12 +211,10 @@ int do_delete_cmd(int argc, char *argv[])
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL || argv[2] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    MACRO_REQUIRE_VALID_FILENAME(argv[1]);
-    MACRO_REQUIRE_VALID_PIC_ID(argv[2]);
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_NON_NULL(argv[2]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_VALID_PIC_ID(argv[2]);
 
     const char *db_filename = argv[1];
     const char *pict_id = argv[2];
@@ -245,15 +235,14 @@ int do_delete_cmd(int argc, char *argv[])
  ********************************************************************** */
 static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename)
 {
-    MACRO_REQUIRE_NON_NULL(image_buffer);
-    MACRO_REQUIRE_NON_NULL(image_size);
-    MACRO_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_NON_NULL(image_buffer);
+    M_REQUIRE_NON_NULL(image_size);
+    M_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_VALID_FILENAME(filename);
 
     if (*image_buffer != NULL) {
         return ERR_INVALID_ARGUMENT;
     }
-
-    MACRO_REQUIRE_VALID_FILENAME(filename);
 
     FILE *image_file = fopen(filename, "rb");
     if (image_file == NULL) {
@@ -304,11 +293,9 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
  ********************************************************************** */
 static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename)
 {
-    if (image_buffer == NULL || filename == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    MACRO_REQUIRE_VALID_FILENAME(filename);
+    M_REQUIRE_NON_NULL(image_buffer);
+    M_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_VALID_FILENAME(filename);
 
     FILE *image_file = fopen(filename, "wb");
     if (image_file == NULL) {
@@ -335,13 +322,12 @@ int do_insert_cmd(int argc, char *argv[])
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    MACRO_REQUIRE_VALID_FILENAME(argv[1]);
-    MACRO_REQUIRE_VALID_PIC_ID(argv[2]);
-    MACRO_REQUIRE_VALID_FILENAME(argv[3]);
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_NON_NULL(argv[2]);
+    M_REQUIRE_NON_NULL(argv[3]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_VALID_PIC_ID(argv[2]);
+    M_REQUIRE_VALID_FILENAME(argv[3]);
 
     const char *db_filename = argv[1];
     const char *pic_id = argv[2];
@@ -378,18 +364,14 @@ int do_insert_cmd(int argc, char *argv[])
  ********************************************************************** */
 int do_read_cmd(int argc, char *argv[])
 {
-    // TODO : what if more argv ?
-
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL || argv[2] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    MACRO_REQUIRE_VALID_FILENAME(argv[1]);
-    MACRO_REQUIRE_VALID_PIC_ID(argv[2]);
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_NON_NULL(argv[2]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_VALID_PIC_ID(argv[2]);
 
     const char *db_filename = argv[1];
     const char *pic_id = argv[2];
