@@ -258,8 +258,7 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
         return ERR_INVALID_ARGUMENT;
     }
 
-    size_t len = strlen(filename);
-    if (len == 0 || len > FILENAME_MAX) {
+    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
         return ERR_INVALID_FILENAME;
     }
 
@@ -547,7 +546,6 @@ int test_do_create_and_insert()
 
 int test_insert_already_here()
 {
-    // TODO adding two times the coquelicot is working and should not as the content is the same check the way to compute SHA512
     puts(" * test_insert_already_here");
     char *argv[] = {"insert", "testDB02.pictdb_dynamic", "coquelicots", "coquelicots.jpg"};
     puts(" << BETWEEN THE TWO FOLLOWING LISTS, THERE SOULDN'T BE ANY ADDITIONAL IMAGE");

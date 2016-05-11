@@ -53,6 +53,13 @@
 extern "C" {
 #endif
 
+#define check_invalid_filename(name) { \
+    const size_t len = strlen(name); \
+    if (len == 0 || len > FILENAME_MAX) { \
+        return ERR_INVALID_FILENAME; \
+    } \
+}\
+
 /**
  * @brief Store database general information.
  */
