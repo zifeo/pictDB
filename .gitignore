@@ -139,3 +139,4 @@ install_manifest.txt
 done/pictDBM/pictDBM
 done/pictDBM/pictDB_server
 *.orig
+test*

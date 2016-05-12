@@ -15,9 +15,11 @@
 int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_t *image_size,
             struct pictdb_file *db_file)
 {
+    M_REQUIRE_NON_NULL(image_buffer);
+    M_REQUIRE_NON_NULL(pict_id);
+    M_REQUIRE_NON_NULL(db_file);
 
-    if (image_buffer == NULL || *image_buffer != NULL || pict_id == NULL || db_file == NULL ||
-        (res != RES_THUMB && res != RES_SMALL && res != RES_ORIG)) {
+    if (*image_buffer != NULL || (res != RES_THUMB && res != RES_SMALL && res != RES_ORIG)) {
         return ERR_INVALID_ARGUMENT;
     }
 

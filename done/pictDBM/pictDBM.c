@@ -47,13 +47,8 @@ int do_list_cmd(int argc, char *argv[])
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
 
     const char *db_filename = argv[1];
 
@@ -77,13 +72,8 @@ int do_create_cmd(int argc, char *argv[])
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
 
     const char *db_filename = argv[1];
 
@@ -158,11 +148,9 @@ int do_create_cmd(int argc, char *argv[])
  ********************************************************************** */
 int create_name(char *filename, const char *pic_id, unsigned int res)
 {
-    if (filename == NULL || pic_id == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
+    M_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_NON_NULL(pic_id);
 
-    // TODO : ensure array allocation
     filename[0] = '\0';
     strncat(filename, pic_id, FILENAME_MAX);
     strncat(filename, "_", FILENAME_MAX);
@@ -191,6 +179,7 @@ int create_name(char *filename, const char *pic_id, unsigned int res)
  ********************************************************************** */
 int help(int argc, char *argv[])
 {
+    (void) argc, (void) argv;
     puts(  "pictDBM [COMMAND] [ARGUMENTS]");
     puts(  "  help: displays this help.");
     puts(  "  list <dbfilename>: list pictDB content.");
@@ -223,17 +212,10 @@ int do_delete_cmd(int argc, char *argv[])
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL || argv[2] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
-
-    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_NON_NULL(argv[2]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_VALID_PIC_ID(argv[2]);
 
     const char *db_filename = argv[1];
     const char *pict_id = argv[2];
@@ -254,13 +236,13 @@ int do_delete_cmd(int argc, char *argv[])
  ********************************************************************** */
 static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename)
 {
-    if (image_buffer == NULL || *image_buffer != NULL || image_size == NULL || filename == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
+    M_REQUIRE_NON_NULL(image_buffer);
+    M_REQUIRE_NON_NULL(image_size);
+    M_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_VALID_FILENAME(filename);
 
-    // TODO : duplicate strlen
-    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
+    if (*image_buffer != NULL) {
+        return ERR_INVALID_ARGUMENT;
     }
 
     FILE *image_file = fopen(filename, "rb");
@@ -298,7 +280,6 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
         status = ERR_IO;
     }
 
-    // TODO : in error cases, free
     if (status != 0 && *image_buffer != NULL) {
         free(*image_buffer);
         *image_buffer = NULL;
@@ -312,13 +293,9 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
  ********************************************************************** */
 static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename)
 {
-    if (image_buffer == NULL || filename == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    if (strlen(filename) == 0 || strlen(filename) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    M_REQUIRE_NON_NULL(image_buffer);
+    M_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_VALID_FILENAME(filename);
 
     FILE *image_file = fopen(filename, "wb");
     if (image_file == NULL) {
@@ -345,21 +322,12 @@ int do_insert_cmd(int argc, char *argv[])
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
-
-    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
-
-    if (strlen(argv[3]) == 0 || strlen(argv[3]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_NON_NULL(argv[2]);
+    M_REQUIRE_NON_NULL(argv[3]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_VALID_PIC_ID(argv[2]);
+    M_REQUIRE_VALID_FILENAME(argv[3]);
 
     const char *db_filename = argv[1];
     const char *pic_id = argv[2];
@@ -377,7 +345,6 @@ int do_insert_cmd(int argc, char *argv[])
 
             status = read_disk_image(&image_buffer, &image_size, filename);
             if (status == 0) {
-
                 assert(image_buffer != NULL);
                 status = do_insert(image_buffer, image_size, pic_id, &myfile);
                 free(image_buffer);
@@ -397,23 +364,14 @@ int do_insert_cmd(int argc, char *argv[])
  ********************************************************************** */
 int do_read_cmd(int argc, char *argv[])
 {
-    // TODO : what if more argv ?
-
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
 
-    if (argv[1] == NULL || argv[2] == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    if (strlen(argv[1]) == 0 || strlen(argv[1]) > FILENAME_MAX) {
-        return ERR_INVALID_FILENAME;
-    }
-
-    if (strlen(argv[2]) == 0 || strlen(argv[2]) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_NON_NULL(argv[2]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_VALID_PIC_ID(argv[2]);
 
     const char *db_filename = argv[1];
     const char *pic_id = argv[2];
@@ -473,120 +431,6 @@ int resolution_atoi(const char *resolution)
 }
 
 /********************************************************************//**
- * Tests
- ********************************************************************** */
-int test_create_name()
-{
-    puts(" * test_create_name");
-    char filename[FILENAME_MAX];
-    create_name(filename, "pic1", (unsigned int) RES_THUMB);
-    assert(strcmp(filename, "pic1_thumb.jpg") == 0);
-    create_name(filename, "pic1", (unsigned int) RES_SMALL);
-    assert(strcmp(filename, "pic1_small.jpg") == 0);
-    create_name(filename, "pic1", (unsigned int) RES_ORIG);
-    assert(strcmp(filename, "pic1_orig.jpg") == 0);
-    create_name(filename, "name", (unsigned int) RES_THUMB);
-    assert(strcmp(filename, "name_thumb.jpg") == 0);
-    create_name(filename, "name", (unsigned int) RES_SMALL);
-    assert(strcmp(filename, "name_small.jpg") == 0);
-    create_name(filename, "name", (unsigned int) RES_ORIG);
-    assert(strcmp(filename, "name_orig.jpg") == 0);
-    assert(create_name(filename, NULL, (unsigned int) RES_THUMB) != 0);
-    assert(create_name(filename, "pic1", (unsigned int) 42) != 0);
-    return 0;
-}
-
-int test_resolution_atoi()
-{
-    puts(" * test_resolution_atoi");
-    assert(resolution_atoi(NULL) != 0);
-    assert(resolution_atoi("thumb") == RES_THUMB);
-    assert(resolution_atoi("thumbnail") == RES_THUMB);
-    assert(resolution_atoi("small") == RES_SMALL);
-    assert(resolution_atoi("orig") == RES_ORIG);
-    assert(resolution_atoi("original") == RES_ORIG);
-    assert(resolution_atoi("thumb ") != RES_THUMB);
-    assert(resolution_atoi("Thumbnail") != RES_THUMB);
-    assert(resolution_atoi("Small") != RES_SMALL);
-    assert(resolution_atoi(" orig") != RES_ORIG);
-    assert(resolution_atoi("Original") != RES_ORIG);
-    return 0;
-}
-
-int test_do_read_cmd()
-{
-    puts(" * test_do_read_cmd");
-    assert(do_read_cmd(2, NULL) != 0);
-    int argv = 5;
-    char *res[] = {"thumb", "thumbnail", "small", "original", "orig"};
-    char *picts[] = {"pic1", "pic2"};
-    for (int j = 0; j < 2; ++j) {
-        for (int i = 0; i < 5; ++i) {
-            char *argc[] = {"read", "testDB02.pictdb_dynamic", picts[j], res[i]};
-            assert(do_read_cmd(argv, argc) == 0);
-        }
-    }
-    return 0;
-}
-
-int test_do_create_and_insert()
-{
-    puts(" * test_do_create_and_insert");
-    char *argc[] = {"create", "testDB03.pictdb_dynamic"};
-    do_create_cmd(2, argc);
-    assert(do_list_cmd(2, argc) == 0);
-    char *insert_argv[] = {"insert", "testDB03.pictdb_dynamic", "coquelicots", "coquelicots.jpg"};
-    assert(do_insert_cmd(4, insert_argv) == 0);
-    //do_list_cmd(2, argc);
-    char *res[] = {"thumb", "thumbnail", "small", "original", "orig"};
-    for (int i = 0; i < 5; ++i) {
-        char *argc1[] = {"read", "testDB03.pictdb_dynamic", "coquelicots", res[i]};
-        assert(do_read_cmd(4, argc1) == 0);
-    }
-    return 0;
-}
-
-int test_insert_already_here()
-{
-    // TODO adding two times the coquelicot is working and should not as the content is the same check the way to compute SHA512
-    puts(" * test_insert_already_here");
-    char *argv[] = {"insert", "testDB02.pictdb_dynamic", "coquelicots", "coquelicots.jpg"};
-    puts(" << BETWEEN THE TWO FOLLOWING LISTS, THERE SOULDN'T BE ANY ADDITIONAL IMAGE");
-    puts("\n => BEFORE\n");
-    do_list_cmd(2, argv);
-    assert(do_insert_cmd(4, argv) == 0);
-    puts("\n => AFTER\n");
-    do_list_cmd(2, argv);
-    return 0;
-}
-
-int test_insert_full_db()
-{
-    puts(" * test_insert_full_db");
-    char *argc[] = {"create", "testDB04.pictdb_dynamic", "-max_files", "1"};
-    assert(do_create_cmd(4, argc) == 0);
-    char *argv[] = {"insert", "testDB04.pictdb_dynamic", "shouldnebehere", "coquelicots.jpg"};
-    assert(do_insert_cmd(4, argv) == 0);
-    argv[3] = "foret.jpg";
-    assert(do_insert_cmd(4, argv) == ERR_FULL_DATABASE);
-    return 0;
-}
-
-int tests(int argc, char *argv[])
-{
-    puts("Running tests");
-    test_create_name();
-    test_resolution_atoi();
-    test_do_read_cmd();
-    test_do_create_and_insert();
-    test_insert_already_here();
-    test_insert_full_db();
-    puts("Done");
-    return 0;
-}
-
-
-/********************************************************************//**
  * MAIN
  ********************************************************************** */
 int main(int argc, char *argv[])
@@ -596,7 +440,6 @@ int main(int argc, char *argv[])
     }
 
     struct command_mapping commands[] = {
-        {"test",   tests},
         {"list",   do_list_cmd},
         {"create", do_create_cmd},
         {"help",   help},

@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 #include <vips/vips.h>
-#include <memory.h>
 
 #include "pictDB.h"
 
@@ -32,8 +31,9 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         return 0;
     }
 
-    // TODO : check index bound, also in dedup
-    if ((res != RES_THUMB && res != RES_SMALL) || db_file == NULL || index >= db_file->header.num_files) {
+    M_REQUIRE_NON_NULL(db_file);
+
+    if ((res != RES_THUMB && res != RES_SMALL) || index >= db_file->header.max_files) {
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -50,26 +50,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         return 0;
     }
 
-    // TODO : dedup in lazy ? + memcmp !
-    for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
-        if (i != index && db_file->metadata[i].is_valid == NON_EMPTY &&
-            !memcmp(db_file->metadata[i].SHA, db_file->metadata[index].SHA, SHA256_DIGEST_LENGTH) &&
-                db_file->metadata[i].offset[res] != 0) {
-
-                db_file->metadata[index].offset[res] = db_file->metadata[i].offset[res];
-                db_file->metadata[index].size[res] = db_file->metadata[i].size[res];
-
-                if (fseek(db_file->fpdb, sizeof(struct pictdb_header) + index * sizeof(struct pict_metadata),
-                          SEEK_SET) != 0 ||
-                    fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
-
-                    return ERR_IO;
-                }
-                return 0;
-        }
-    }
-
-    // TODO : in size_t or should be keep uintxx_t ?
     size_t image_size = db_file->metadata[index].size[RES_ORIG];
 
     void *image_in = malloc(image_size);
@@ -99,7 +79,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         size_t res_len = 0;
         void *image_out = NULL;
 
-        // TODO : resolution
         if (vips_jpegload_buffer(image_in, image_size, vips_in_image, NULL) != 0 ||
             vips_resize(*vips_in_image, vips_out_image, ratio, NULL) != 0 ||
             vips_jpegsave_buffer(*vips_out_image, &image_out, &res_len, NULL) != 0) {
@@ -135,11 +114,6 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
         g_free(image_out);
         image_out = NULL;
 
-        // TODO : free vips ?
-        //if ((vips_free(vips_in_image) != 0 || vips_free(vips_out_image) != 0) && status == 0) {
-        //    status = ERR_VIPS;
-        //}
-
         g_object_unref(process);
         process = NULL;
     }
@@ -154,12 +128,9 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
  */
 int get_resolution(uint32_t *height, uint32_t *width, const char *image_buffer, size_t image_size)
 {
-    if (image_buffer == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
+    M_REQUIRE_NON_NULL(image_buffer);
 
     VipsObject *process = VIPS_OBJECT(vips_image_new());
-    // TODO : double pointer ?
     VipsImage **vips_image = (VipsImage **) vips_object_local_array(process, 1);
 
     int status = 0;
@@ -171,12 +142,8 @@ int get_resolution(uint32_t *height, uint32_t *width, const char *image_buffer, 
         *height = (uint32_t) vips_image_get_height(*vips_image);
     }
 
-    //if (vips_free(vips_image) != 0 && status == 0) {
-    //    status = ERR_VIPS;
-    //}
-
     g_object_unref(process);
-    // TODO : free another vips ref ?
     process = NULL;
+
     return status;
 }

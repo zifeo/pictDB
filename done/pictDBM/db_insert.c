@@ -11,13 +11,12 @@
 #include "pictDB.h"
 #include "dedup.h"
 #include "image_content.h"
-#include <assert.h>
 
 int do_insert(const char image_buffer[], size_t image_size, const char *pict_id, struct pictdb_file *db_file)
 {
-    if (image_buffer == NULL || pict_id == NULL || db_file == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
+    M_REQUIRE_NON_NULL(image_buffer);
+    M_REQUIRE_NON_NULL(pict_id);
+    M_REQUIRE_NON_NULL(db_file);
 
     if (db_file->fpdb == NULL) {
         return ERR_IO;
@@ -35,23 +34,20 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
 
             index = i;
 
-            unsigned char *sha = malloc(SHA_DIGEST_LENGTH);
+            unsigned char *sha = malloc(SHA256_DIGEST_LENGTH);
             SHA256((const unsigned char *) image_buffer, image_size, sha);
-            // TODO : sha256 ?
 
-            memcpy(db_file->metadata[i].SHA, sha, SHA_DIGEST_LENGTH);
+            memcpy(db_file->metadata[i].SHA, sha, SHA256_DIGEST_LENGTH);
             strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID);
 
             db_file->metadata[i].pict_id[MAX_PIC_ID] = '\0';
             db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
-            // TODO : caution on type cast ?
             db_file->metadata[i].is_valid = NON_EMPTY;
 
             free(sha);
             sha = NULL;
         }
     }
-
     // 2) Image de-duplication
     int status = do_name_and_content_dedup(db_file, index);
     if (status != 0) {

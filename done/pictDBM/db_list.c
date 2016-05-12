@@ -18,6 +18,7 @@
  */
 const char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
 {
+
     if (db_file == NULL || db_file->metadata == NULL) {
         return NULL;
     }
