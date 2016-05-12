@@ -430,119 +430,6 @@ int resolution_atoi(const char *resolution)
 }
 
 /********************************************************************//**
- * Tests
- ********************************************************************** */
-int test_create_name()
-{
-    puts(" * test_create_name");
-    char filename[FILENAME_MAX];
-    create_name(filename, "pic1", (unsigned int) RES_THUMB);
-    assert(strcmp(filename, "pic1_thumb.jpg") == 0);
-    create_name(filename, "pic1", (unsigned int) RES_SMALL);
-    assert(strcmp(filename, "pic1_small.jpg") == 0);
-    create_name(filename, "pic1", (unsigned int) RES_ORIG);
-    assert(strcmp(filename, "pic1_orig.jpg") == 0);
-    create_name(filename, "name", (unsigned int) RES_THUMB);
-    assert(strcmp(filename, "name_thumb.jpg") == 0);
-    create_name(filename, "name", (unsigned int) RES_SMALL);
-    assert(strcmp(filename, "name_small.jpg") == 0);
-    create_name(filename, "name", (unsigned int) RES_ORIG);
-    assert(strcmp(filename, "name_orig.jpg") == 0);
-    assert(create_name(filename, NULL, (unsigned int) RES_THUMB) != 0);
-    assert(create_name(filename, "pic1", (unsigned int) 42) != 0);
-    return 0;
-}
-
-int test_resolution_atoi()
-{
-    puts(" * test_resolution_atoi");
-    assert(resolution_atoi(NULL) != 0);
-    assert(resolution_atoi("thumb") == RES_THUMB);
-    assert(resolution_atoi("thumbnail") == RES_THUMB);
-    assert(resolution_atoi("small") == RES_SMALL);
-    assert(resolution_atoi("orig") == RES_ORIG);
-    assert(resolution_atoi("original") == RES_ORIG);
-    assert(resolution_atoi("thumb ") != RES_THUMB);
-    assert(resolution_atoi("Thumbnail") != RES_THUMB);
-    assert(resolution_atoi("Small") != RES_SMALL);
-    assert(resolution_atoi(" orig") != RES_ORIG);
-    assert(resolution_atoi("Original") != RES_ORIG);
-    return 0;
-}
-
-int test_do_read_cmd()
-{
-    puts(" * test_do_read_cmd");
-    assert(do_read_cmd(2, NULL) != 0);
-    int argv = 5;
-    char *res[] = {"thumb", "thumbnail", "small", "original", "orig"};
-    char *picts[] = {"pic1", "pic2"};
-    for (int j = 0; j < 2; ++j) {
-        for (int i = 0; i < 5; ++i) {
-            char *argc[] = {"read", "testDB02.pictdb_dynamic", picts[j], res[i]};
-            assert(do_read_cmd(argv, argc) == 0);
-        }
-    }
-    return 0;
-}
-
-int test_do_create_and_insert()
-{
-    puts(" * test_do_create_and_insert");
-    char *argc[] = {"create", "testDB03.pictdb_dynamic"};
-    do_create_cmd(2, argc);
-    assert(do_list_cmd(2, argc) == 0);
-    char *insert_argv[] = {"insert", "testDB03.pictdb_dynamic", "coquelicots", "coquelicots.jpg"};
-    assert(do_insert_cmd(4, insert_argv) == 0);
-    //do_list_cmd(2, argc);
-    char *res[] = {"thumb", "thumbnail", "small", "original", "orig"};
-    for (int i = 0; i < 5; ++i) {
-        char *argc1[] = {"read", "testDB03.pictdb_dynamic", "coquelicots", res[i]};
-        assert(do_read_cmd(4, argc1) == 0);
-    }
-    return 0;
-}
-
-int test_insert_already_here()
-{
-    puts(" * test_insert_already_here");
-    char *argv[] = {"insert", "testDB02.pictdb_dynamic", "coquelicots", "coquelicots.jpg"};
-    puts(" << BETWEEN THE TWO FOLLOWING LISTS, THERE SOULDN'T BE ANY ADDITIONAL IMAGE");
-    puts("\n => BEFORE\n");
-    do_list_cmd(2, argv);
-    assert(do_insert_cmd(4, argv) == 0);
-    puts("\n => AFTER\n");
-    do_list_cmd(2, argv);
-    return 0;
-}
-
-int test_insert_full_db()
-{
-    puts(" * test_insert_full_db");
-    char *argc[] = {"create", "testDB04.pictdb_dynamic", "-max_files", "1"};
-    assert(do_create_cmd(4, argc) == 0);
-    char *argv[] = {"insert", "testDB04.pictdb_dynamic", "shouldnebehere", "coquelicots.jpg"};
-    assert(do_insert_cmd(4, argv) == 0);
-    argv[3] = "foret.jpg";
-    assert(do_insert_cmd(4, argv) == ERR_FULL_DATABASE);
-    return 0;
-}
-
-int tests(int argc, char *argv[])
-{
-    puts("Running tests");
-    //test_create_name();
-    //test_resolution_atoi();
-    //test_do_read_cmd();
-    //test_do_create_and_insert();
-    test_insert_already_here();
-    //test_insert_full_db();
-    puts("Done");
-    return 0;
-}
-
-
-/********************************************************************//**
  * MAIN
  ********************************************************************** */
 int main(int argc, char *argv[])
@@ -552,7 +439,6 @@ int main(int argc, char *argv[])
     }
 
     struct command_mapping commands[] = {
-        {"test",   tests},
         {"list",   do_list_cmd},
         {"create", do_create_cmd},
         {"help",   help},
