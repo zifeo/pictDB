@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 #include <vips/vips.h>
-#include <memory.h>
 
 #include "pictDB.h"
 

@@ -10,7 +10,6 @@
 
 #include <stdlib.h>
 #include <string.h>  // for strncpy
-#include <assert.h>
 
 /********************************************************************//**
  * Create a new picture database in db_file.

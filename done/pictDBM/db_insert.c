@@ -11,7 +11,6 @@
 #include "pictDB.h"
 #include "dedup.h"
 #include "image_content.h"
-#include <assert.h>
 
 int do_insert(const char image_buffer[], size_t image_size, const char *pict_id, struct pictdb_file *db_file)
 {

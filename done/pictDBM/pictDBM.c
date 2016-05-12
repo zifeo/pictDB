@@ -179,6 +179,7 @@ int create_name(char *filename, const char *pic_id, unsigned int res)
  ********************************************************************** */
 int help(int argc, char *argv[])
 {
+    (void) argc, (void) argv;
     puts(  "pictDBM [COMMAND] [ARGUMENTS]");
     puts(  "  help: displays this help.");
     puts(  "  list <dbfilename>: list pictDB content.");
