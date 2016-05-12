@@ -138,3 +138,5 @@ install_manifest.txt
 
 done/pictDBM/pictDBM
 *.orig
+test*
+

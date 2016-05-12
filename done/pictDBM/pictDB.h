@@ -53,6 +53,22 @@
 extern "C" {
 #endif
 
+#define M_REQUIRE_NON_NULL(arg) if (arg == NULL) return ERR_INVALID_ARGUMENT
+
+#define M_REQUIRE_VALID_FILENAME(name) { \
+    const size_t len = strlen(name); \
+    if (len == 0 || len > FILENAME_MAX) { \
+        return ERR_INVALID_FILENAME; \
+    } \
+} \
+
+#define M_REQUIRE_VALID_PIC_ID(id) { \
+    const size_t len = strlen(id); \
+    if (len == 0 || len > MAX_PIC_ID) { \
+        return ERR_INVALID_PICID; \
+    } \
+} \
+
 /**
  * @brief Store database general information.
  */
@@ -83,9 +99,9 @@ struct pict_metadata {
  * @brief Store a database with its header and images.
  */
 struct pictdb_file {
-    FILE* fpdb; /**< disk file */
+    FILE *fpdb; /**< disk file */
     struct pictdb_header header; /**< database header */
-    struct pict_metadata* metadata; /**< images metadata */
+    struct pict_metadata *metadata; /**< images metadata */
 };
 
 /**
@@ -93,21 +109,21 @@ struct pictdb_file {
  *
  * @param header The header to be displayed.
  */
-void print_header (const struct pictdb_header* header);
+void print_header(const struct pictdb_header *header);
 
 /**
  * @brief Prints picture metadata information.
  *
  * @param metadata The metadata of one picture.
  */
-void print_metadata (const struct pict_metadata* metadata);
+void print_metadata(const struct pict_metadata *metadata);
 
 /**
  * @brief Displays (on stdout) pictDB metadata.
  *
  * @param db_file In memory structure with header and metadata.
  */
-int do_list (const struct pictdb_file* db_file);
+int do_list(const struct pictdb_file *db_file);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
@@ -115,7 +131,7 @@ int do_list (const struct pictdb_file* db_file);
  *
  * @param db_file In memory structure with header and metadata.
  */
-int do_create (const char* filename, struct pictdb_file* db_file);
+int do_create(const char *filename, struct pictdb_file *db_file);
 
 /**
  * @brief Opens given file, reads header and metadata.
@@ -124,14 +140,14 @@ int do_create (const char* filename, struct pictdb_file* db_file);
  * @param mode File mode to be used (e.g. "rb", "wb").
  * @param db_file In memory structure with header and metadata.
  */
-int do_open (const char* filename, const char* mode, struct pictdb_file* db_file);
+int do_open(const char *filename, const char *mode, struct pictdb_file *db_file);
 
 /**
  * @brief Closes file included in db_file.
  *
  * @param db_file In memory structure with header and metadata.
  */
-void do_close (struct pictdb_file* db_file);
+void do_close(struct pictdb_file *db_file);
 
 /**
  * @brief Deletes an image.
@@ -139,22 +155,36 @@ void do_close (struct pictdb_file* db_file);
  * @param filename Name of file to be deleted.
  * @param db_file In memory structure with header and metadata.
  */
-int do_delete (const char* pict_id, struct pictdb_file* db_file);
+int do_delete(const char *pict_id, struct pictdb_file *db_file);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF resolution_atoi HERE.
- * **********************************************************************
+/**
+ * @brief Converts a string of characters representing a resolution into a number
+ *
+ * @param resolution Name of of the resolution to be converted.
  */
+int resolution_atoi(const char *resolution);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF do_read HERE.
- * **********************************************************************
+/**
+ * @brief Reads an image.
+ *
+ * @param pict_id Name of image to be read.
+ * @param res Integer representing the resolution of the image.
+ * @param image_buffer Array of bytes of the image.
+ * @param image_size Size of the image to be read.
+ * @param db_file In memory structure with header and metadata.
  */
+int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_t *image_size,
+            struct pictdb_file *db_file);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF do_insert HERE.
- * **********************************************************************
+/**
+ * @brief Inserts an image.
+ *
+ * @param image_buffer Array of bytes of the image.
+ * @param image_size Size of the image to be read.
+ * @param pict_id Name of image to be read.
+ * @param db_file In memory structure with header and metadata.
  */
+int do_insert(const char image_buffer[], size_t image_size, const char *pict_id, struct pictdb_file *db_file);
 
 #ifdef __cplusplus
 }

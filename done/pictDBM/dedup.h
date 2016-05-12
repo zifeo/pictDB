@@ -11,13 +11,9 @@
 
 #include "pictDB.h"
 
-/**
- * @brief Check whether or not the two given SHAs are equals
- *
- * @param SHA1 The first SHA
- * @param SHA2 The second SHA
- */
-inline int shacmp(unsigned char sha1[], unsigned char sha2[]);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Check for duplicates in the file and de-duplicate image at given index if present
@@ -26,5 +22,9 @@ inline int shacmp(unsigned char sha1[], unsigned char sha2[]);
  * @param index The metadata index of the image
  */
 int do_name_and_content_dedup(struct pictdb_file *db_file, const uint32_t index);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
