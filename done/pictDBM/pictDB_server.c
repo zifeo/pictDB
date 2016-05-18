@@ -27,8 +27,8 @@
 
 static int s_sig_received = 0;
 static const struct mg_serve_http_opts s_http_server_opts = {
-    .document_root = ".",
-    .enable_directory_listing = "yes"
+    .document_root = "."
+    // TODO : .enable_directory_listing = "yes"
 };
 
 /********************************************************************//**
@@ -46,9 +46,9 @@ static void split(char* result[], char* tmp, const char* src, const char* delim,
     size_t param_id = 0;
     result[param_id] = strtok(tmp, delim);
 
-    while (result[param_id] != NULL && param_id < MAX_QUERY_PARAM) {
-        result[param_id] = strtok(NULL, delim);
+    while (result[param_id] != NULL && param_id + 1 < MAX_QUERY_PARAM) {
         ++param_id;
+        result[param_id] = strtok(NULL, delim);
     }
 
     result[param_id] = NULL;
@@ -66,13 +66,11 @@ void mg_error(struct mg_connection* nc, int error)
         return;
     }
 
-    puts("eeeero");
-
     // TODO : content type ?
-    mg_printf(nc, "HTTP/1.1 500 OK\r\n"
-              "Content-Length: 0\r\n\r\n%s",
+    mg_printf(nc, "HTTP/1.1 500 %s\r\n"
+              "Content-Length: 0\r\n\r\n",
               ERROR_MESSAGES[error]);
-    //nc->flags |= MG_F_SEND_AND_CLOSE;
+    nc->flags |= MG_F_SEND_AND_CLOSE;
 
 }
 
@@ -104,7 +102,6 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
     char tmp[(MAX_PIC_ID + 1) * MAX_QUERY_PARAM] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
-    puts("aaaaa");
 
     // TODO : unspecified arg ?
     char *pict_id = NULL;
@@ -112,33 +109,27 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 
     // TODO : control max query param
     for (size_t i = 0; i + 1 < MAX_QUERY_PARAM; i += 2) {
+
         if (params[i] != NULL && params[i + 1] != NULL) {
+
             if (!strncmp(params[i], ARG_RES, ARGNAME_MAX)) {
                 resolution_parsed = resolution_atoi(params[i + 1]);
             } else if (!strncmp(params[i], ARG_PICT_ID, ARGNAME_MAX)) {
                 pict_id = params[i + 1];
             }
-            printf("%s\n", params[i]);
-            printf("%s\n", params[i+1]);
         }
     }
-    puts("bb");
-
 
     if (resolution_parsed == -1 || pict_id == NULL) {
         mg_error(nc, ERR_INVALID_ARGUMENT);
-        puts("eer");
-
         return;
     }
-    uint32_t resolution = (uint32_t) resolution_parsed;
 
+    uint32_t resolution = (uint32_t) resolution_parsed;
     char *image_buffer = NULL;
     uint32_t image_size = 0;
-    puts("cc");
 
     int status = do_read(pict_id, resolution, &image_buffer, &image_size, nc->mgr->user_data);
-    puts("dd");
 
     if (status != 0) {
         mg_error(nc, status);
@@ -251,7 +242,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
             handle_list_call(nc, hm);
         } else if (mg_vcmp(&hm->uri, ROUTE_READ) == 0) {
             handle_read_call(nc, hm);
-    puts("ttt");
         } else if (mg_vcmp(&hm->uri, ROUTE_INSERT) == 0) {
             // TODO : post route ?
             // strcmp(request_info->request_method, "GET")
@@ -285,7 +275,7 @@ int main(int argc, char *argv[])
 
     const char *db_filename = argv[1];
     struct pictdb_file myfile;
-    int status = do_open(db_filename, "rb", &myfile);
+    int status = do_open(db_filename, "rb+", &myfile);
 
     if (status == 0) {
         print_header(&myfile.header);
