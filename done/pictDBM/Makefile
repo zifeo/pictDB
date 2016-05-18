@@ -1,7 +1,9 @@
 
 CFLAGS += -std=c99 -I/usr/local/opt/openssl/include -Wall -Wpedantic $$(pkg-config vips --cflags)
-LDFLAGS += -Llibmongoose
-LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) -lm -lmongoose -ljson-c
+LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) -lm -ljson-c
+
+pictDB_server: LDLIBS += -lmongoose
+pictDB_server: LDFLAGS += -Llibmongoose
 
 all: mongoose pictDBM pictDB_server
 
