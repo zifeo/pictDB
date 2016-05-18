@@ -8,21 +8,21 @@
  * @date 7 May 2016
  */
 
-#include <tclDecls.h>
 #include <vips/vips.h>
 #include "libmongoose/mongoose.h"
 #include "pictDB.h"
 
-#define PORT "8000"
 #define ROUTE_LIST "/pictDB/list"
 #define ROUTE_READ "/pictDB/read"
 #define ROUTE_INSERT "/pictDB/insert"
 #define ROUTE_DELETE "/pictDB/delete"
+
+#define PORT "8000"
 #define MAX_QUERY_PARAM 5
+
 #define ARG_DELIM "&="
 #define ARG_RES "res"
 #define ARG_PICT_ID "pict_id"
-#define ARG_RES "res"
 #define ARGNAME_MAX 16
 
 static int s_sig_received = 0;
@@ -102,15 +102,11 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
 
-    if (params == NULL) {
-        mg_error(nc, ERR_INVALID_ARGUMENT);
-        return;
-    }
-
     // TODO : unspecified arg ?
     char *pict_id = NULL;
     int resolution_parsed = -1;
 
+    // TODO : control max query param
     for (size_t i = 0; i + 1 < MAX_QUERY_PARAM; i += 2) {
         if (params[i] != NULL && params[i + 1] != NULL) {
             if (!strncmp(params[i], ARG_RES, ARGNAME_MAX)) {
@@ -157,16 +153,6 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 static void handle_insert_call(struct mg_connection *nc, struct http_message *hm)
 {
 
-    char* params[MAX_QUERY_PARAM];
-    char tmp[(MAX_PIC_ID + 1) * MAX_QUERY_PARAM] = "";
-
-    split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
-
-    if (params == NULL) {
-        mg_error(nc, ERR_INVALID_ARGUMENT);
-        return;
-    }
-
     // TODO : useless
     char varname[FILENAME_MAX];
     char filename[FILENAME_MAX];
@@ -203,11 +189,6 @@ static void handle_delete_call(struct mg_connection *nc, struct http_message *hm
     char tmp[(MAX_PIC_ID + 1) * MAX_QUERY_PARAM] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
-
-    if (params == NULL) {
-        mg_error(nc, ERR_INVALID_ARGUMENT);
-        return;
-    }
 
     char *pict_id = NULL;
 

@@ -38,7 +38,6 @@
 #define DEFAULT_THUMB_RES 64
 #define DEFAULT_SMALL_RES 256
 
-
 /* For is_valid in pictdb_metadata */
 #define EMPTY 0
 #define NON_EMPTY 1
@@ -48,6 +47,13 @@
 #define RES_SMALL 1
 #define RES_ORIG  2
 #define NB_RES    3
+
+#define NAME_RES_MAX 32
+#define NAME_RES_THUMB "thumb"
+#define NAME_RES_THUMBNAIL "thumbnail"
+#define NAME_RES_SMALL "small"
+#define NAME_RES_ORIG "orig"
+#define NAME_RES_ORIGINAL "original"
 
 #ifdef __cplusplus
 extern "C" {
