@@ -2,7 +2,7 @@
  * @file db_create.c
  * @brief pictDB library: do_create implementation.
  *
- * @author Mia Primorac
+ * @author Aurélien Soccard & Teo Stocco
  * @date 2 Nov 2015
  */
 

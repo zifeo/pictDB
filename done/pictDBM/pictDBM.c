@@ -410,7 +410,6 @@ int main(int argc, char *argv[])
 {
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("unable to start VIPS");
-        return -1;
     }
 
     struct command_mapping commands[] = {

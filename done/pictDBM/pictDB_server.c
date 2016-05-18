@@ -66,11 +66,13 @@ void mg_error(struct mg_connection* nc, int error)
         return;
     }
 
+    puts("eeeero");
+
     // TODO : content type ?
     mg_printf(nc, "HTTP/1.1 500 OK\r\n"
               "Content-Length: 0\r\n\r\n%s",
               ERROR_MESSAGES[error]);
-    nc->flags |= MG_F_SEND_AND_CLOSE;
+    //nc->flags |= MG_F_SEND_AND_CLOSE;
 
 }
 
@@ -97,10 +99,12 @@ static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
 static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 {
 
+
     char* params[MAX_QUERY_PARAM];
     char tmp[(MAX_PIC_ID + 1) * MAX_QUERY_PARAM] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
+    puts("aaaaa");
 
     // TODO : unspecified arg ?
     char *pict_id = NULL;
@@ -114,19 +118,28 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
             } else if (!strncmp(params[i], ARG_PICT_ID, ARGNAME_MAX)) {
                 pict_id = params[i + 1];
             }
+            printf("%s\n", params[i]);
+            printf("%s\n", params[i+1]);
         }
     }
+    puts("bb");
+
 
     if (resolution_parsed == -1 || pict_id == NULL) {
         mg_error(nc, ERR_INVALID_ARGUMENT);
+        puts("eer");
+
         return;
     }
     uint32_t resolution = (uint32_t) resolution_parsed;
 
     char *image_buffer = NULL;
     uint32_t image_size = 0;
+    puts("cc");
 
     int status = do_read(pict_id, resolution, &image_buffer, &image_size, nc->mgr->user_data);
+    puts("dd");
+
     if (status != 0) {
         mg_error(nc, status);
         return;
@@ -238,8 +251,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
             handle_list_call(nc, hm);
         } else if (mg_vcmp(&hm->uri, ROUTE_READ) == 0) {
             handle_read_call(nc, hm);
+    puts("ttt");
         } else if (mg_vcmp(&hm->uri, ROUTE_INSERT) == 0) {
             // TODO : post route ?
+            // strcmp(request_info->request_method, "GET")
             handle_insert_call(nc, hm);
         } else if (mg_vcmp(&hm->uri, ROUTE_DELETE) == 0) {
             handle_delete_call(nc, hm);
@@ -250,6 +265,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
     default:
         break;
     }
+
 }
 
 /********************************************************************//**
@@ -259,7 +275,6 @@ int main(int argc, char *argv[])
 {
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("unable to start VIPS");
-        return -1;
     }
 
     if (argc < 2) {
