@@ -8,12 +8,21 @@
  * @date 7 May 2016
  */
 
+#include <tclDecls.h>
 #include "libmongoose/mongoose.h"
 #include "pictDB.h"
 
 #define PORT "8000"
 #define ROUTE_LIST "/pictDB/list"
+#define ROUTE_READ "/pictDB/read"
+#define ROUTE_INSERT "/pictDB/insert"
+#define ROUTE_DELETE "/pictDB/delete"
 #define MAX_QUERY_PARAM 5
+#define ARG_DELIM "&="
+#define ARG_RES "res"
+#define ARG_PICT_ID "pict_id"
+#define ARG_RES "res"
+#define ARGNAME_MAX 16
 
 static int s_sig_received = 0;
 static const struct mg_serve_http_opts s_http_server_opts = {
@@ -30,6 +39,7 @@ static void split(char* result[], char* tmp, const char* src, const char* delim,
         return;
     }
 
+    // TODO : handle higher len than (MAX_PIC_ID + 1) * MAX_QUERY_PARAM ?
     strncpy(tmp, src, len);
     size_t param_id = 0;
     result[param_id] = strtok(tmp, delim);
@@ -42,19 +52,111 @@ static void split(char* result[], char* tmp, const char* src, const char* delim,
     result[param_id] = NULL;
 }
 
+// TODO : prototype
+/********************************************************************//**
+ * Handles error with corresponding content.
+ ********************************************************************** */
+void mg_error(struct mg_connection* nc, int error) {
+
+    // TODO : error < ?
+    if (nc == NULL) {
+        return;
+    }
+
+    // TODO : content type ?
+    mg_printf(nc, "HTTP/1.1 500 OK\r\n"
+                      "Content-Length: 0\r\n\r\n%s",
+              ERROR_MESSAGES[error]);
+    nc->flags |= MG_F_SEND_AND_CLOSE;
+
+}
+
 /********************************************************************//**
  * Handles list route.
  ********************************************************************** */
-static void handle_list(struct mg_connection *nc, struct http_message *hm)
+static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
 {
     const char* resp = do_list(nc->mgr->user_data, JSON);
-    // TODO : leak
+    // TODO : leak and error case ?
 
-    mg_printf(nc, "HTTP/1.0 200 OK\r\nContent-Length: %d\r\n"
+    // TODO : 1.1 ?
+    mg_printf(nc, "HTTP/1.1 200 OK\r\n"
+                      "Content-Length: %d\r\n"
                       "Content-Type: application/json\r\n\r\n%s",
               (int) strlen(resp), resp);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
+}
+
+/********************************************************************//**
+ * Handles read route.
+ ********************************************************************** */
+static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
+{
+
+    char* params[MAX_QUERY_PARAM];
+    char tmp[(MAX_PIC_ID + 1) * MAX_QUERY_PARAM] = "";
+
+    split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
+
+    if (params == NULL) {
+        mg_error(nc, ERR_INVALID_ARGUMENT);
+        return;
+    }
+
+    // TODO : unspecified arg ?
+    char *pict_id = NULL;
+    int resolution_parsed = -1;
+
+    for (size_t i = 0; i + 1 < MAX_QUERY_PARAM; i += 2) {
+        if (params[i] != NULL && params[i + 1] != NULL) {
+            if (!strncmp(params[i], ARG_RES, ARGNAME_MAX)) {
+                resolution_parsed = resolution_atoi(params[i + 1]);
+            } else if (!strncmp(params[i], ARG_PICT_ID, ARGNAME_MAX)) {
+                pict_id = params[i + 1];
+            }
+        }
+    }
+
+    if (resolution_parsed == -1) {
+        mg_error(nc, ERR_INVALID_ARGUMENT);
+        return;
+    }
+    uint32_t resolution = (uint32_t) resolution_parsed;
+
+    char *image_buffer = NULL;
+    uint32_t image_size = 0;
+
+    if (do_read(pict_id, resolution, &image_buffer, &image_size, nc->mgr->user_data) != 0) {
+        mg_error(nc, ERR_IO);
+        return;
+    }
+
+    assert(image_buffer != NULL);
+
+    // TODO : content type/length order
+    mg_send(nc, image_buffer, image_size);
+    mg_printf(nc, "HTTP/1.1 200 OK\r\n"
+                      "Content-Length: %d\r\n"
+                      "Content-Type: image/jpeg",
+              image_size);
+    nc->flags |= MG_F_SEND_AND_CLOSE;
+
+    free(image_buffer);
+    image_buffer = NULL;
+
+}
+
+/********************************************************************//**
+ * Handles insert route.
+ ********************************************************************** */
+static void handle_insert_call(struct mg_connection *nc, struct http_message *hm)
+}
+
+/********************************************************************//**
+ * Handles delete route.
+ ********************************************************************** */
+static void handle_delete_call(struct mg_connection *nc, struct http_message *hm)
 }
 
 /********************************************************************//**
@@ -76,7 +178,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
     switch (ev) {
         case MG_EV_HTTP_REQUEST:
             if (mg_vcmp(&hm->uri, ROUTE_LIST) == 0) {
-                handle_list(nc, hm);
+                handle_list_call(nc, hm);
+            } else if (mg_vcmp(&hm->uri, ROUTE_READ) == 0) {
+                handle_read_call(nc, hm);
+            } else if (mg_vcmp(&hm->uri, ROUTE_INSERT) == 0) {
+                handle_insert_call(nc, hm);
+            } else if (mg_vcmp(&hm->uri, ROUTE_DELETE) == 0) {
+                handle_delete_call(nc, hm);
             } else {
                 mg_serve_http(nc, hm, s_http_server_opts);
             }
