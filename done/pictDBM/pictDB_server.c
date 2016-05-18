@@ -98,7 +98,7 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 {
 
 
-    char* params[MAX_QUERY_PARAM];
+    char* params[MAX_QUERY_PARAM] = {}; // TODO : uninitialized value ?
     char tmp[(MAX_PIC_ID + 1) * MAX_QUERY_PARAM] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
