@@ -13,6 +13,7 @@
 
 #define PORT "8000"
 #define ROUTE_LIST "/pictDB/list"
+#define MAX_QUERY_PARAM 5
 
 static int s_sig_received = 0;
 static const struct mg_serve_http_opts s_http_server_opts = {
@@ -21,11 +22,33 @@ static const struct mg_serve_http_opts s_http_server_opts = {
 };
 
 /********************************************************************//**
+ * Splits query_string in parts.
+ ********************************************************************** */
+static void split(char* result[], char* tmp, const char* src, const char* delim, size_t len) {
+
+    if (result == NULL || tmp == NULL || src == NULL || delim == NULL) {
+        return;
+    }
+
+    strncpy(tmp, src, len);
+    size_t param_id = 0;
+    result[param_id] = strtok(tmp, delim);
+
+    while (result[param_id] != NULL && param_id < MAX_QUERY_PARAM) {
+        result[param_id] = strtok(NULL, delim);
+        ++param_id;
+    }
+
+    result[param_id] = NULL;
+}
+
+/********************************************************************//**
  * Handles list route.
  ********************************************************************** */
 static void handle_list(struct mg_connection *nc, struct http_message *hm)
 {
     const char* resp = do_list(nc->mgr->user_data, JSON);
+    // TODO : leak
 
     mg_printf(nc, "HTTP/1.0 200 OK\r\nContent-Length: %d\r\n"
                       "Content-Type: application/json\r\n\r\n%s",
