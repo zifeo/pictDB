@@ -34,15 +34,15 @@
 typedef int (*command)(int args, char *argv[]);
 
 struct command_mapping {
-    const char name[CMDNAME_MAX]; /**< command name */
+    const char name[CMDNAME_MAX];
+    /**< command name */
     command function; /**< command pointer function */
 };
 
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd(int argc, char *argv[])
-{
+int do_list_cmd(int argc, char *argv[]) {
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -66,8 +66,7 @@ int do_list_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Prepares and calls do_create command.
  ********************************************************************** */
-int do_create_cmd(int argc, char *argv[])
-{
+int do_create_cmd(int argc, char *argv[]) {
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -146,8 +145,7 @@ int do_create_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Create filename from resolution.
  ********************************************************************** */
-int create_name(char *filename, const char *pic_id, unsigned int res)
-{
+int create_name(char *filename, const char *pic_id, unsigned int res) {
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_NON_NULL(pic_id);
 
@@ -156,18 +154,18 @@ int create_name(char *filename, const char *pic_id, unsigned int res)
     strncat(filename, "_", FILENAME_MAX);
 
     switch (res) {
-    case RES_THUMB:
-        strncat(filename, NAME_RES_THUMB, FILENAME_MAX);
-        break;
-    case RES_SMALL:
-        strncat(filename, NAME_RES_SMALL, FILENAME_MAX);
-        break;
-    case RES_ORIG:
-        strncat(filename, NAME_RES_ORIG, FILENAME_MAX);
-        break;
-    default:
-        filename[0] = '\0';
-        return ERR_RESOLUTIONS;
+        case RES_THUMB:
+            strncat(filename, NAME_RES_THUMB, FILENAME_MAX);
+            break;
+        case RES_SMALL:
+            strncat(filename, NAME_RES_SMALL, FILENAME_MAX);
+            break;
+        case RES_ORIG:
+            strncat(filename, NAME_RES_ORIG, FILENAME_MAX);
+            break;
+        default:
+            filename[0] = '\0';
+            return ERR_RESOLUTIONS;
     }
 
     strncat(filename, IMG_EXT, FILENAME_MAX);
@@ -177,37 +175,37 @@ int create_name(char *filename, const char *pic_id, unsigned int res)
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help(int argc, char *argv[])
-{
+int help(int argc, char *argv[]) {
     (void) argc, (void) argv;
-    puts(  "pictDBM [COMMAND] [ARGUMENTS]");
-    puts(  "  help: displays this help.");
-    puts(  "  list <dbfilename>: list pictDB content.");
-    puts(  "  create <dbfilename>: create a new pictDB.");
-    puts(  "      options are:");
-    puts(  "          "CREATE_MAX_FILES" <MAX_FILES>: maximum number of files.");
+    puts("pictDBM [COMMAND] [ARGUMENTS]");
+    puts("  help: displays this help.");
+    puts("  list <dbfilename>: list pictDB content.");
+    puts("  create <dbfilename>: create a new pictDB.");
+    puts("      options are:");
+    puts("          "CREATE_MAX_FILES" <MAX_FILES>: maximum number of files.");
     printf("                                  default value is %d\n", DEFAULT_MAX_FILES);
     printf("                                  maximum value is %d\n", MAX_MAX_FILES);
-    puts(  "          "CREATE_THUMB_RES" <X_RES> <Y_RES>: resolution for thumbnail images.");
+    puts("          "CREATE_THUMB_RES" <X_RES> <Y_RES>: resolution for thumbnail images.");
     printf("                                  default value is %dx%d\n", DEFAULT_THUMB_RES, DEFAULT_THUMB_RES);
     printf("                                  maximum value is %dx%d\n", MAX_THUMB_RES, MAX_THUMB_RES);
-    puts(  "          "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.");
+    puts("          "CREATE_SMALL_RES" <X_RES> <Y_RES>: resolution for small images.");
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
-    puts(  "  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
-           NAME_RES_SMALL"]:");
-    puts(  "      read an image from the pictDB and save it to a file.");
-    puts(  "      default resolution is \""NAME_RES_ORIGINAL"\".");
-    puts(  "  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
-    puts(  "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
+    puts("  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
+                 NAME_RES_SMALL"]:");
+    puts("      read an image from the pictDB and save it to a file.");
+    puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
+    puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
+    puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
+    puts("  gc <dbfilename> <tmpfilename>: collect garbage over the given file,"
+                 " in case of error, the original file is not modified but only the temporary one.");
     return 0;
 }
 
 /********************************************************************//**
  * Deletes a picture from the database.
  ********************************************************************** */
-int do_delete_cmd(int argc, char *argv[])
-{
+int do_delete_cmd(int argc, char *argv[]) {
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -234,8 +232,7 @@ int do_delete_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Reads image from disk into buffer.
  ********************************************************************** */
-static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename)
-{
+static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename) {
     M_REQUIRE_NON_NULL(image_buffer);
     M_REQUIRE_NON_NULL(image_size);
     M_REQUIRE_NON_NULL(filename);
@@ -291,8 +288,7 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
 /********************************************************************//**
  * Writes image from buffer to disk.
  ********************************************************************** */
-static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename)
-{
+static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename) {
     M_REQUIRE_NON_NULL(image_buffer);
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_VALID_FILENAME(filename);
@@ -316,8 +312,7 @@ static int write_disk_image(char image_buffer[], uint32_t image_size, const char
 /********************************************************************//**
  * Opens pictDB file and calls do_insert command.
  ********************************************************************** */
-int do_insert_cmd(int argc, char *argv[])
-{
+int do_insert_cmd(int argc, char *argv[]) {
     if (argc < 4) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -362,8 +357,7 @@ int do_insert_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Opens pictDB file and calls do_read command.
  ********************************************************************** */
-int do_read_cmd(int argc, char *argv[])
-{
+int do_read_cmd(int argc, char *argv[]) {
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -382,13 +376,13 @@ int do_read_cmd(int argc, char *argv[])
     }
     const unsigned int resolution = (unsigned int) resolution_parsed;
 
-    struct pictdb_file myfile;
-    int status = do_open(db_filename, "r+b", &myfile);
+    struct pictdb_file db_file;
+    int status = do_open(db_filename, "r+b", &db_file);
 
     if (status == 0) {
         char *image_buffer = NULL;
         uint32_t image_size = 0;
-        status = do_read(pic_id, resolution, &image_buffer, &image_size, &myfile);
+        status = do_read(pic_id, resolution, &image_buffer, &image_size, &db_file);
 
         if (status == 0) {
             assert(image_buffer != NULL);
@@ -406,15 +400,14 @@ int do_read_cmd(int argc, char *argv[])
 
         assert(image_buffer == NULL);
     }
-    do_close(&myfile);
+    do_close(&db_file);
     return status;
 }
 
 /********************************************************************//**
  * Returns resolution from given string.
  ********************************************************************** */
-int resolution_atoi(const char *resolution)
-{
+int resolution_atoi(const char *resolution) {
     if (resolution == NULL) {
         return -1;
     }
@@ -431,21 +424,80 @@ int resolution_atoi(const char *resolution)
 }
 
 /********************************************************************//**
+ * Copy a file into another
+ ********************************************************************** */
+int copy_file_to_another(const char *from, const char *to) {
+    FILE *file_from = fopen(from, "rb");
+    if (file_from == NULL) {
+        return ERR_IO;
+    }
+
+    FILE *file_to = fopen(to, "wb");
+    if (file_to != NULL) {
+        char c;
+        while ((c = (char) fgetc(file_from)) != EOF) {
+            fputc(c, file_to);
+        }
+        fclose(file_from);
+        fclose(file_to);
+        return 0;
+    }
+    return ERR_IO;
+}
+
+/********************************************************************//**
+ * Opens pictDB file and calls do_read command.
+ ********************************************************************** */
+int do_gbcollect_cmd(int argc, char *argv[]) {
+    if (argc < 3) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
+
+    M_REQUIRE_NON_NULL(argv[1]);
+    M_REQUIRE_NON_NULL(argv[2]);
+
+    const char *db_filename = argv[1];
+    const char *tmp_db_filename = argv[2];
+
+    // TODO before copying, maybe we can check that the file contains indeed holes ?
+    int status = copy_file_to_another(db_filename, tmp_db_filename);
+
+    if (status == 0) {
+        struct pictdb_file db_file;
+        status = do_open(tmp_db_filename, "r+b", &db_file);
+
+        if (status == 0) {
+            status = do_gbcollect(&db_file);
+
+            if (status == 0) {
+                status = remove(db_filename);
+
+                if (status == 0) {
+                    status = rename(tmp_db_filename, db_filename);
+                }
+            }
+        }
+        do_close(&db_file);
+    }
+    return status;
+}
+
+/********************************************************************//**
  * MAIN
  ********************************************************************** */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("unable to start VIPS");
     }
 
     struct command_mapping commands[] = {
-        {"list",   do_list_cmd},
-        {"create", do_create_cmd},
-        {"help",   help},
-        {"delete", do_delete_cmd},
-        {"insert", do_insert_cmd},
-        {"read",   do_read_cmd}
+            {"list",   do_list_cmd},
+            {"create", do_create_cmd},
+            {"help",   help},
+            {"delete", do_delete_cmd},
+            {"insert", do_insert_cmd},
+            {"read",   do_read_cmd},
+            {"gc",     do_gbcollect_cmd}
     };
     const size_t NB_CMD = sizeof(commands) / sizeof(commands[0]);
 

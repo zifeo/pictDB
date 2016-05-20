@@ -73,12 +73,18 @@ extern "C" {
  * @brief Store database general information.
  */
 struct pictdb_header {
-    char db_name[MAX_DB_NAME + 1]; /**< database name */
-    uint32_t db_version; /**< database version */
-    uint32_t num_files; /**< database image count */
-    uint32_t max_files; /**< database max image count (constant) */
-    uint16_t res_resized[2 * (NB_RES - 1)]; /**< resolutions array (constant) */
-    uint32_t unused_32; /**< unused or temporary information */
+    char db_name[MAX_DB_NAME + 1];
+    /**< database name */
+    uint32_t db_version;
+    /**< database version */
+    uint32_t num_files;
+    /**< database image count */
+    uint32_t max_files;
+    /**< database max image count (constant) */
+    uint16_t res_resized[2 * (NB_RES - 1)];
+    /**< resolutions array (constant) */
+    uint32_t unused_32;
+    /**< unused or temporary information */
     uint64_t unused_64; /**< unused or temporary information */
 };
 
@@ -86,12 +92,18 @@ struct pictdb_header {
  * @brief Store an image metadata.
  */
 struct pict_metadata {
-    char pict_id[MAX_PIC_ID + 1]; /**< image unique identifier */
-    unsigned char SHA[SHA256_DIGEST_LENGTH]; /**< image hashcode */
-    uint32_t res_orig[2]; /**< original image resolution */
-    uint32_t size[NB_RES]; /**< byte sizes of different resolutions */
-    uint64_t offset[NB_RES]; /**< image positions of different resolutions */
-    uint16_t is_valid; /**< whether is image is used (NON_EMPTY) or not (EMPTY) */
+    char pict_id[MAX_PIC_ID + 1];
+    /**< image unique identifier */
+    unsigned char SHA[SHA256_DIGEST_LENGTH];
+    /**< image hashcode */
+    uint32_t res_orig[2];
+    /**< original image resolution */
+    uint32_t size[NB_RES];
+    /**< byte sizes of different resolutions */
+    uint64_t offset[NB_RES];
+    /**< image positions of different resolutions */
+    uint16_t is_valid;
+    /**< whether is image is used (NON_EMPTY) or not (EMPTY) */
     uint16_t unused_16; /**< unused or temporary information */
 };
 
@@ -99,8 +111,10 @@ struct pict_metadata {
  * @brief Store a database with its header and images.
  */
 struct pictdb_file {
-    FILE *fpdb; /**< disk file */
-    struct pictdb_header header; /**< database header */
+    FILE *fpdb;
+    /**< disk file */
+    struct pictdb_header header;
+    /**< database header */
     struct pict_metadata *metadata; /**< images metadata */
 };
 
@@ -109,7 +123,7 @@ struct pictdb_file {
  */
 enum do_list_mode {
     STDOUT, /**< standard output */
-    JSON /**< json output */
+            JSON /**< json output */
 };
 
 /**
@@ -131,7 +145,7 @@ void print_metadata(const struct pict_metadata *metadata);
  *
  * @param db_file In memory structure with header and metadata.
  */
-const char* do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
+const char *do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
@@ -193,6 +207,17 @@ int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_
  * @param db_file In memory structure with header and metadata.
  */
 int do_insert(const char image_buffer[], size_t image_size, const char *pict_id, struct pictdb_file *db_file);
+
+/**
+ * @brief Garbage collector for pictDB files
+ *
+ * @param image_buffer Array of bytes of the image.
+ * @param image_size Size of the image to be read.
+ * @param pict_id Name of image to be read.
+ * @param db_file In memory structure with header and metadata.
+ */
+int do_gbcollect(struct pictdb_file *db_file);
+
 
 #ifdef __cplusplus
 }
