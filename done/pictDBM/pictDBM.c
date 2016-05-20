@@ -467,7 +467,7 @@ int do_gbcollect_cmd(int argc, char *argv[]) {
         status = do_open(tmp_db_filename, "r+b", &db_file);
 
         if (status == 0) {
-            status = do_gbcollect(&db_file);
+            status = do_gbcollect(&db_file, tmp_db_filename);
 
             if (status == 0) {
                 status = remove(db_filename);
