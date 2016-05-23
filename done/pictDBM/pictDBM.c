@@ -424,28 +424,6 @@ int resolution_atoi(const char *resolution) {
 }
 
 /********************************************************************//**
- * Copy a file into another
- ********************************************************************** */
-int copy_file_to_another(const char *from, const char *to) {
-    FILE *file_from = fopen(from, "rb");
-    if (file_from == NULL) {
-        return ERR_IO;
-    }
-
-    FILE *file_to = fopen(to, "wb");
-    if (file_to != NULL) {
-        char c;
-        while ((c = (char) fgetc(file_from)) != EOF) {
-            fputc(c, file_to);
-        }
-        fclose(file_from);
-        fclose(file_to);
-        return 0;
-    }
-    return ERR_IO;
-}
-
-/********************************************************************//**
  * Opens pictDB file and calls do_read command.
  ********************************************************************** */
 int do_gbcollect_cmd(int argc, char *argv[]) {
@@ -459,26 +437,43 @@ int do_gbcollect_cmd(int argc, char *argv[]) {
     const char *db_filename = argv[1];
     const char *tmp_db_filename = argv[2];
 
-    // TODO before copying, maybe we can check that the file contains indeed holes ?
-    int status = copy_file_to_another(db_filename, tmp_db_filename);
+    struct pictdb_file db_file;
+    int status = do_open(db_filename, "rb", &db_file);
 
     if (status == 0) {
-        struct pictdb_file db_file;
-        status = do_open(tmp_db_filename, "r+b", &db_file);
+
+        struct pictdb_file tmp_db_file;
+        tmp_db_file.header.max_files = db_file.header.max_files;
+
+        tmp_db_file.header.res_resized[RES_THUMB] = db_file.header.res_resized[RES_THUMB];
+        tmp_db_file.header.res_resized[RES_THUMB + 1] = tmp_db_file.header.res_resized[RES_THUMB + 1];
+        tmp_db_file.header.res_resized[RES_SMALL << 1] = tmp_db_file.header.res_resized[RES_THUMB << 1];
+        tmp_db_file.header.res_resized[(RES_SMALL << 1) + 1] = tmp_db_file.header.res_resized[(RES_THUMB << 1) + 1];
+
+        status = do_create(tmp_db_filename, &tmp_db_file);
 
         if (status == 0) {
-            status = do_gbcollect(&db_file, tmp_db_filename);
+            status = do_open(tmp_db_filename, "r+b", &tmp_db_file);
 
             if (status == 0) {
-                status = remove(db_filename);
+                status = do_gbcollect(&db_file, &tmp_db_file);
 
                 if (status == 0) {
-                    status = rename(tmp_db_filename, db_filename);
+                    status = fclose(db_file.fpdb) != 0 ? ERR_IO : 0;
+
+                    if (status == 0) {
+                        status = remove(db_filename);
+
+                        if (status == 0) {
+                            status = rename(tmp_db_filename, db_filename);
+                        }
+                    }
                 }
             }
+            do_close(&tmp_db_file);
         }
-        do_close(&db_file);
     }
+    do_close(&db_file);
     return status;
 }
 
