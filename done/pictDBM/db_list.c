@@ -54,13 +54,16 @@ const char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
             if (db_file->metadata[i].is_valid == NON_EMPTY) {
 
                 struct json_object* id = json_object_new_string(db_file->metadata[i].pict_id);
-                assert(json_object_array_add(arr, id) == 0);
+                int status = json_object_array_add(arr, id);
+                assert(status == 0);
             }
         }
 
         json_object_object_add(obj, PICS_JSON_LABEL, arr);
         const char* json = json_object_to_json_string(obj);
-        assert(json_object_put(obj) == 1);
+
+        int status = json_object_put(obj);
+        assert(status == 1);
 
         return json;
     }

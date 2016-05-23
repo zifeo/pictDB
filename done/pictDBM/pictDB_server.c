@@ -28,7 +28,6 @@
 static int s_sig_received = 0;
 static const struct mg_serve_http_opts s_http_server_opts = {
     .document_root = "."
-    // TODO : .enable_directory_listing = "yes"
 };
 
 /********************************************************************//**
@@ -54,11 +53,10 @@ static void split(char* result[], char* tmp, const char* src, const char* delim,
     result[param_id] = NULL;
 }
 
-// TODO : prototype
 /********************************************************************//**
  * Handles error with corresponding content.
  ********************************************************************** */
-void mg_error(struct mg_connection* nc, int error)
+static void mg_error(struct mg_connection* nc, int error)
 {
 
     // TODO : error < ?
@@ -103,7 +101,6 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
 
-    // TODO : unspecified arg ?
     char *pict_id = NULL;
     int resolution_parsed = -1;
 
