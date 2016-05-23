@@ -22,7 +22,6 @@ int do_gbcollect(const struct pictdb_file *db_file, struct pictdb_file *tmp_db_f
         if (db_file->metadata[i].is_valid == NON_EMPTY) {
             size_t offset, size;
             for (unsigned int res = 0; res < NB_RES; ++res) {
-                printf("HERE status=%d i=%lu\n", status, i);
                 if ((offset = db_file->metadata[i].offset[res]) != 0 &&
                     (size = db_file->metadata[i].size[res]) != 0) {
                     if (res == RES_ORIG) {
