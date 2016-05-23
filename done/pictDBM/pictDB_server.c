@@ -25,6 +25,8 @@
 #define ARG_PICT_ID "pict_id"
 #define ARGNAME_MAX 16
 
+#define MAX_SPLIT_LEN (MAX_PIC_ID + 1) * MAX_QUERY_PARAM
+
 static int s_sig_received = 0;
 static const struct mg_serve_http_opts s_http_server_opts = {
     .document_root = "."
@@ -40,8 +42,9 @@ static void split(char* result[], char* tmp, const char* src, const char* delim,
         return;
     }
 
-    // TODO : handle higher len than (MAX_PIC_ID + 1) * MAX_QUERY_PARAM ?
-    strncpy(tmp, src, len);
+    strncpy(tmp, src, len > MAX_SPLIT_LEN ? MAX_SPLIT_LEN : len);
+    tmp[MAX_SPLIT_LEN - 1] = '\0';
+
     size_t param_id = 0;
     result[param_id] = strtok(tmp, delim);
 
@@ -58,9 +61,7 @@ static void split(char* result[], char* tmp, const char* src, const char* delim,
  ********************************************************************** */
 static void mg_error(struct mg_connection* nc, int error)
 {
-
-    // TODO : error < ?
-    if (nc == NULL) {
+    if (nc == NULL || error < 0 || error >= ERROR_COUNT) {
         return;
     }
 
@@ -79,7 +80,6 @@ static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
 {
     char* resp = do_list(nc->mgr->user_data, JSON);
 
-    // TODO : 1.1 ?
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
               "Content-Length: %d\r\n"
               "Content-Type: application/json\r\n\r\n%s",
@@ -97,15 +97,14 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 {
 
 
-    char* params[MAX_QUERY_PARAM] = {}; // TODO : uninitialized value ?
-    char tmp[(MAX_PIC_ID + 1) * MAX_QUERY_PARAM] = "";
+    char* params[MAX_QUERY_PARAM] = {};
+    char tmp[MAX_SPLIT_LEN] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
 
     char *pict_id = NULL;
     int resolution_parsed = -1;
 
-    // TODO : control max query param
     for (size_t i = 0; i + 1 < MAX_QUERY_PARAM; i += 2) {
 
         if (params[i] != NULL && params[i + 1] != NULL) {
@@ -154,8 +153,6 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
  ********************************************************************** */
 static void handle_insert_call(struct mg_connection *nc, struct http_message *hm)
 {
-
-    // TODO : useless
     char varname[FILENAME_MAX];
     char filename[FILENAME_MAX];
     const char *data;
@@ -292,7 +289,6 @@ int main(int argc, char *argv[])
 
         mg_set_protocol_http_websocket(nc);
 
-        // TODO : why not https://github.com/cesanta/mongoose/blob/76364af243530f3ca52cac78c869a66d58f20ace/docs/c-api/http.h/mg_register_http_endpoint.md ?
         while (!s_sig_received) {
             mg_mgr_poll(&mgr, 1000);
         }

@@ -39,6 +39,7 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
 
             memcpy(db_file->metadata[i].SHA, sha, SHA256_DIGEST_LENGTH);
             strncpy(db_file->metadata[i].pict_id, pict_id, MAX_PIC_ID);
+            db_file->metadata[i].pict_id[MAX_PIC_ID] = '\0';
 
             db_file->metadata[i].pict_id[MAX_PIC_ID] = '\0';
             db_file->metadata[i].size[RES_ORIG] = (uint32_t) image_size;
