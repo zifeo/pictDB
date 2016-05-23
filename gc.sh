@@ -8,10 +8,11 @@ cd ../..
 ./pictDBM insert testdb.pictdb pic3 ./provided/week09/foret.jpg
 ./pictDBM delete testdb.pictdb pic2
 ./pictDBM list testdb.pictdb
-#size of 562570
+#before size of 562570
 echo ''
 echo 'Garbage collector'
 echo ''
 ./pictDBM gc testdb.pictdb tmp.pictdb
+#after size of 464451
 
 rm pictDBM

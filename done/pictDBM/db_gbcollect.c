@@ -30,7 +30,7 @@ int do_gbcollect(const struct pictdb_file *db_file, struct pictdb_file *tmp_db_f
                         if (fseek(db_file->fpdb, offset, SEEK_SET) != 0 || fread(buffer, size, 1, db_file->fpdb) != 1) {
                             status = ERR_IO;
                         }
-                        status = do_insert(buffer, size, tmp_db_file->metadata[i].pict_id, tmp_db_file);
+                        status = do_insert(buffer, size, db_file->metadata[i].pict_id, tmp_db_file);
                     } else {
                         status = lazy_resize(res, tmp_db_file, i);
                     };
