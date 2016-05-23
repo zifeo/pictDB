@@ -77,8 +77,7 @@ static void mg_error(struct mg_connection* nc, int error)
  ********************************************************************** */
 static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
 {
-    const char* resp = do_list(nc->mgr->user_data, JSON);
-    // TODO : leak and error case ?
+    char* resp = do_list(nc->mgr->user_data, JSON);
 
     // TODO : 1.1 ?
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
@@ -87,6 +86,8 @@ static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
               (int) strlen(resp), resp);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
+    free(resp);
+    resp = NULL;
 }
 
 /********************************************************************//**

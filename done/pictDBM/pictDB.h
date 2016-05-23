@@ -137,7 +137,7 @@ void print_metadata(const struct pict_metadata *metadata);
  *
  * @param db_file In memory structure with header and metadata.
  */
-const char* do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
+char* do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the

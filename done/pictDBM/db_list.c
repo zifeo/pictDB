@@ -10,6 +10,7 @@
 #include "pictDB.h"
 #include <json-c/json.h>
 #include <assert.h>
+#include <string.h>
 
 #define UNKNOWN_MODE "unimplemented do_list mode"
 #define PICS_JSON_LABEL "Pictures"
@@ -17,7 +18,7 @@
 /********************************************************************//**
  * List all pictures included in db_file.
  */
-const char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
+char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
 {
 
     if (db_file == NULL || db_file->metadata == NULL) {
@@ -62,10 +63,15 @@ const char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
         json_object_object_add(obj, PICS_JSON_LABEL, arr);
         const char* json = json_object_to_json_string(obj);
 
+        size_t ret_size = strlen(json);
+        char* ret = malloc(ret_size + 1);
+        strncpy(ret, json, ret_size);
+        ret[ret_size] = '\0';
+
         int status = json_object_put(obj);
         assert(status == 1);
 
-        return json;
+        return ret;
     }
     }
 }
