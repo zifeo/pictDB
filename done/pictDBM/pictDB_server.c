@@ -12,6 +12,9 @@
 #include "libmongoose/mongoose.h"
 #include "pictDB.h"
 
+#define GET_METHOD "GET"
+#define POST_METHOD "POST"
+
 #define ROUTE_LIST "/pictDB/list"
 #define ROUTE_READ "/pictDB/read"
 #define ROUTE_INSERT "/pictDB/insert"
@@ -233,15 +236,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 
     switch (ev) {
     case MG_EV_HTTP_REQUEST:
-        if (mg_vcmp(&hm->uri, ROUTE_LIST) == 0) {
+        if (!mg_vcmp(&hm->uri, ROUTE_LIST)) {
             handle_list_call(nc, hm);
-        } else if (mg_vcmp(&hm->uri, ROUTE_READ) == 0) {
+        } else if (!mg_vcmp(&hm->uri, ROUTE_READ)) {
             handle_read_call(nc, hm);
-        } else if (mg_vcmp(&hm->uri, ROUTE_INSERT) == 0) {
-            // TODO : post route ?
-            // strcmp(request_info->request_method, "GET")
+        } else if (!mg_vcmp(&hm->uri, ROUTE_INSERT) && !mg_vcmp(&hm->method, POST_METHOD)) {
             handle_insert_call(nc, hm);
-        } else if (mg_vcmp(&hm->uri, ROUTE_DELETE) == 0) {
+        } else if (!mg_vcmp(&hm->uri, ROUTE_DELETE)) {
             handle_delete_call(nc, hm);
         } else {
             mg_serve_http(nc, hm, s_http_server_opts);
