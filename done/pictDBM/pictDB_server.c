@@ -12,6 +12,7 @@
 #include "libmongoose/mongoose.h"
 #include "pictDB.h"
 
+// TODO : check get method ?
 #define GET_METHOD "GET"
 #define POST_METHOD "POST"
 
@@ -98,9 +99,9 @@ static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
  ********************************************************************** */
 static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 {
-
-
     char* params[MAX_QUERY_PARAM] = {};
+    // TODO : ensure this
+    memset(params, NULL, sizeof(params));
     char tmp[MAX_SPLIT_LEN] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
@@ -139,11 +140,11 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
     assert(image_buffer != NULL);
 
     // TODO : content type/length order
-    mg_send(nc, image_buffer, image_size);
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
               "Content-Length: %d\r\n"
-              "Content-Type: image/jpeg",
+              "Content-Type: image/jpeg\r\n\r\n",
               image_size);
+    mg_send(nc, image_buffer, image_size);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
     free(image_buffer);
@@ -271,7 +272,7 @@ int main(int argc, char *argv[])
 
     const char *db_filename = argv[1];
     struct pictdb_file myfile;
-    int status = do_open(db_filename, "rb+", &myfile);
+    int status = do_open(db_filename, "r+b", &myfile);
 
     if (status == 0) {
         print_header(&myfile.header);
