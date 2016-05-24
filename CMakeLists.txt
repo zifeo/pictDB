@@ -24,11 +24,11 @@ file(GLOB SOURCE_DB done/pictDBM/*.[ch])
 list(REMOVE_ITEM SOURCE_DB ${MAIN_M})
 list(REMOVE_ITEM SOURCE_DB ${MAIN_W})
 
-#link_directories(done/pictDBM/libmongoose)
-#set(DYLD_FALLBACK_LIBRARY_PATH done/pictDBM/libmongoose)
+link_directories(done/pictDBM/libmongoose)
+set(DYLD_FALLBACK_LIBRARY_PATH done/pictDBM/libmongoose)
 
 add_executable(pictDBM ${SOURCE_DB} ${MAIN_M})
 target_link_libraries(pictDBM -lssl -lcrypto -L/usr/local/Cellar/vips/8.2.3/lib -L/usr/local/Cellar/glib/2.46.2/lib -L/usr/local/opt/gettext/lib -lvips -lgobject-2.0 -lglib-2.0 -lintl -lm -ljson-c)
 
-#add_executable(pictDB_server ${SOURCE_DB} ${MAIN_W} done/pictDBM/db_gbcollect.c)
-#target_link_libraries(pictDB_server -lssl -lcrypto -L/usr/local/Cellar/vips/8.2.3/lib -L/usr/local/Cellar/glib/2.46.2/lib -L/usr/local/opt/gettext/lib -lvips -lgobject-2.0 -lglib-2.0 -lintl -lm -lmongoose -ljson-c)
+add_executable(pictDB_server ${SOURCE_DB} ${MAIN_W} done/pictDBM/db_gbcollect.c)
+target_link_libraries(pictDB_server -lssl -lcrypto -L/usr/local/Cellar/vips/8.2.3/lib -L/usr/local/Cellar/glib/2.46.2/lib -L/usr/local/opt/gettext/lib -lvips -lgobject-2.0 -lglib-2.0 -lintl -lm -lmongoose -ljson-c)
