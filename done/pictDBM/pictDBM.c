@@ -4,7 +4,7 @@
  *
  * Picture Database Management Tool
  *
- * @author Mia Primorac
+ * @author Aurélien Soccard & Teo Stocco
  * @date 2 Nov 2015
  */
 
@@ -17,17 +17,10 @@
 #include <assert.h>
 
 #define CMDNAME_MAX 32
-#define NAME_RES_MAX 32
 
 #define CREATE_MAX_FILES "-max_files"
 #define CREATE_THUMB_RES "-thumb_res"
 #define CREATE_SMALL_RES "-small_res"
-
-#define NAME_RES_THUMB "thumb"
-#define NAME_RES_THUMBNAIL "thumbnail"
-#define NAME_RES_SMALL "small"
-#define NAME_RES_ORIG "orig"
-#define NAME_RES_ORIGINAL "original"
 
 #define IMG_EXT ".jpg"
 
@@ -56,7 +49,7 @@ int do_list_cmd(int argc, char *argv[])
     int status = do_open(db_filename, "rb", &myfile);
 
     if (status == 0) {
-        status = do_list(&myfile);
+        do_list(&myfile, STDOUT);
     }
 
     do_close(&myfile);
@@ -408,26 +401,6 @@ int do_read_cmd(int argc, char *argv[])
     }
     do_close(&myfile);
     return status;
-}
-
-/********************************************************************//**
- * Returns resolution from given string.
- ********************************************************************** */
-int resolution_atoi(const char *resolution)
-{
-    if (resolution == NULL) {
-        return -1;
-    }
-    if (!strncmp(NAME_RES_THUMB, resolution, NAME_RES_MAX) || !strncmp(NAME_RES_THUMBNAIL, resolution, NAME_RES_MAX)) {
-        return RES_THUMB;
-    }
-    if (!strncmp(NAME_RES_SMALL, resolution, NAME_RES_MAX)) {
-        return RES_SMALL;
-    }
-    if (!strncmp(NAME_RES_ORIG, resolution, NAME_RES_MAX) || !strncmp(NAME_RES_ORIGINAL, resolution, NAME_RES_MAX)) {
-        return RES_ORIG;
-    }
-    return -1;
 }
 
 /********************************************************************//**

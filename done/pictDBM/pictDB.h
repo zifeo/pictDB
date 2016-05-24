@@ -11,7 +11,7 @@
  * because it should be stored as raw bytes appended at the end of the
  * database file and addressed by offsets in the metadata structure.
  *
- * @author Mia Primorac
+ * @author Aurélien Soccard & Teo Stocco
  * @date 2 Nov 2015
  */
 
@@ -38,7 +38,6 @@
 #define DEFAULT_THUMB_RES 64
 #define DEFAULT_SMALL_RES 256
 
-
 /* For is_valid in pictdb_metadata */
 #define EMPTY 0
 #define NON_EMPTY 1
@@ -49,9 +48,12 @@
 #define RES_ORIG  2
 #define NB_RES    3
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define NAME_RES_MAX 32
+#define NAME_RES_THUMB "thumb"
+#define NAME_RES_THUMBNAIL "thumbnail"
+#define NAME_RES_SMALL "small"
+#define NAME_RES_ORIG "orig"
+#define NAME_RES_ORIGINAL "original"
 
 #define M_REQUIRE_NON_NULL(arg) if (arg == NULL) return ERR_INVALID_ARGUMENT
 
@@ -68,6 +70,10 @@ extern "C" {
         return ERR_INVALID_PICID; \
     } \
 } \
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Store database general information.
@@ -104,6 +110,14 @@ struct pictdb_file {
     struct pict_metadata *metadata; /**< images metadata */
 };
 
+/*
+ * @brief Output mod for do_list.
+ */
+enum do_list_mode {
+    STDOUT, /**< standard output */
+    JSON /**< json output */
+};
+
 /**
  * @brief Prints database header information.
  *
@@ -123,7 +137,7 @@ void print_metadata(const struct pict_metadata *metadata);
  *
  * @param db_file In memory structure with header and metadata.
  */
-int do_list(const struct pictdb_file *db_file);
+char* do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
