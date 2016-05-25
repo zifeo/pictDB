@@ -25,10 +25,6 @@ char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
         return NULL;
     }
 
-    if (mode != STDOUT && mode != JSON) {
-        return UNKNOWN_MODE;
-    }
-
     switch (mode) {
     case STDOUT: {
 
@@ -73,5 +69,7 @@ char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
 
         return ret;
     }
+    default:
+        return UNKNOWN_MODE;
     }
 }
