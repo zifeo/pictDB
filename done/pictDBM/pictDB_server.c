@@ -65,7 +65,7 @@ static void split(char* result[], char* tmp, const char* src, const char* delim,
  ********************************************************************** */
 static void mg_error(struct mg_connection* nc, int error)
 {
-    if (nc == NULL || error < 0 || error >= ERROR_COUNT) {
+    if (nc == NULL || error < 0 || error >= (int) ERROR_COUNT) {
         return;
     }
 
@@ -82,6 +82,8 @@ static void mg_error(struct mg_connection* nc, int error)
  ********************************************************************** */
 static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
 {
+    (void) hm;
+
     char* resp = do_list(nc->mgr->user_data, JSON);
 
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
@@ -99,9 +101,9 @@ static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
  ********************************************************************** */
 static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 {
-    char* params[MAX_QUERY_PARAM] = {};
-    // TODO : ensure this
-    memset(params, NULL, sizeof(params));
+    char* params[MAX_QUERY_PARAM];
+    memset(params, 0, sizeof(params));
+
     char tmp[MAX_SPLIT_LEN] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
@@ -144,7 +146,7 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
               "Content-Length: %d\r\n"
               "Content-Type: image/jpeg\r\n\r\n",
               image_size);
-    mg_send(nc, image_buffer, image_size);
+    mg_send(nc, image_buffer, (int) image_size);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
     free(image_buffer);
