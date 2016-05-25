@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <string.h>
 
+// TODO : confirmed char* and static chars
 #define UNKNOWN_MODE "unimplemented do_list mode"
 #define PICS_JSON_LABEL "Pictures"
 

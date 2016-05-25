@@ -12,8 +12,6 @@
 #include "libmongoose/mongoose.h"
 #include "pictDB.h"
 
-// TODO : check get method ?
-#define GET_METHOD "GET"
 #define POST_METHOD "POST"
 
 #define ROUTE_LIST "/pictDB/list"
@@ -69,7 +67,6 @@ static void mg_error(struct mg_connection* nc, int error)
         return;
     }
 
-    // TODO : content type ?
     mg_printf(nc, "HTTP/1.1 500 %s\r\n"
               "Content-Length: 0\r\n\r\n",
               ERROR_MESSAGES[error]);
@@ -138,10 +135,8 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
         mg_error(nc, status);
         return;
     }
-
     assert(image_buffer != NULL);
 
-    // TODO : content type/length order
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
               "Content-Length: %d\r\n"
               "Content-Type: image/jpeg\r\n\r\n",
