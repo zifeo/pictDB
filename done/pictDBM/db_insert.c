@@ -51,6 +51,7 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
     // 2) Image de-duplication
     int status = do_name_and_content_dedup(db_file, index);
     if (status != 0) {
+        db_file->metadata[index].is_valid = EMPTY;
         return status;
     }
 
