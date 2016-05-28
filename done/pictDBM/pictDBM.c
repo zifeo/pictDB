@@ -49,7 +49,12 @@ static int do_list_cmd(int argc, char *argv[])
     int status = do_open(db_filename, "rb", &myfile);
 
     if (status == 0) {
-        do_list(&myfile, STDOUT);
+        char* listing = do_list(&myfile, STDOUT);
+        if (listing != NULL) {
+            free(listing);
+            listing = NULL;
+            status = ERR_DEBUG;
+        }
     }
 
     do_close(&myfile);
