@@ -83,6 +83,9 @@ static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
 
     char* resp = do_list(nc->mgr->user_data, JSON);
 
+    // TODO : check return
+    // TODO : comment
+
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
               "Content-Length: %d\r\n"
               "Content-Type: application/json\r\n\r\n%s",
