@@ -51,6 +51,7 @@ static int do_list_cmd(int argc, char *argv[])
     if (status == 0) {
         char* listing = do_list(&myfile, STDOUT);
         if (listing != NULL) {
+            // should never happen
             free(listing);
             listing = NULL;
             status = ERR_DEBUG;

@@ -27,7 +27,7 @@
 #define ARG_PICT_ID "pict_id"
 #define ARGNAME_MAX 16
 
-#define MAX_SPLIT_LEN (MAX_PIC_ID + 1) * MAX_QUERY_PARAM
+#define MAX_SPLIT_LEN ((MAX_PIC_ID + 1) * MAX_QUERY_PARAM)
 
 static int s_sig_received = 0;
 static const struct mg_serve_http_opts s_http_server_opts = {
@@ -36,6 +36,7 @@ static const struct mg_serve_http_opts s_http_server_opts = {
 
 /********************************************************************//**
  * Splits query_string in parts.
+ * tmp should always have MAX_SPLIT_LEN size.
  ********************************************************************** */
 static void split(char* result[], char* tmp, const char* src, const char* delim, size_t len)
 {
@@ -89,7 +90,6 @@ static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
         mg_error(nc, ERR_DEBUG);
         return;
     }
-    // TODO : comment
 
     mg_printf(nc,
               "HTTP/1.1 200 OK\r\n"
@@ -111,7 +111,6 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 {
     char* params[MAX_QUERY_PARAM];
     memset(params, 0, sizeof(params));
-
     char tmp[MAX_SPLIT_LEN] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
@@ -119,6 +118,7 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
     char *pict_id = NULL;
     int resolution_parsed = -1;
 
+    // hydrate arguments
     for (size_t i = 0; i + 1 < MAX_QUERY_PARAM; i += 2) {
 
         if (params[i] != NULL && params[i + 1] != NULL) {
@@ -136,7 +136,7 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
         return;
     }
 
-    uint32_t resolution = (uint32_t) resolution_parsed;
+    const uint32_t resolution = (uint32_t) resolution_parsed;
     char *image_buffer = NULL;
     uint32_t image_size = 0;
 
@@ -159,7 +159,6 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 
     free(image_buffer);
     image_buffer = NULL;
-
 }
 
 /********************************************************************//**
@@ -167,8 +166,8 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
  ********************************************************************** */
 static void handle_insert_call(struct mg_connection *nc, struct http_message *hm)
 {
-    char varname[100];
-    char filename[FILENAME_MAX];
+    char varname[100] = "";
+    char filename[FILENAME_MAX] = "";
     const char *data = NULL;
     size_t data_len = 0;
 
@@ -207,6 +206,7 @@ static void handle_delete_call(struct mg_connection *nc, struct http_message *hm
 
     char *pict_id = NULL;
 
+    // hydrate arguments
     for (size_t i = 0; i + 1 < MAX_QUERY_PARAM; i += 2) {
         if (params[i] != NULL && params[i + 1] != NULL && !strncmp(params[i], ARG_PICT_ID, ARGNAME_MAX)) {
             pict_id = params[i + 1];
