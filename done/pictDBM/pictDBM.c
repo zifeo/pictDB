@@ -156,18 +156,18 @@ static int create_name(char *filename, const char *pic_id, unsigned int res)
     strncat(filename, "_", FILENAME_MAX);
 
     switch (res) {
-        case RES_THUMB:
-            strncat(filename, NAME_RES_THUMB, FILENAME_MAX);
-            break;
-        case RES_SMALL:
-            strncat(filename, NAME_RES_SMALL, FILENAME_MAX);
-            break;
-        case RES_ORIG:
-            strncat(filename, NAME_RES_ORIG, FILENAME_MAX);
-            break;
-        default:
-            filename[0] = '\0';
-            return ERR_RESOLUTIONS;
+    case RES_THUMB:
+        strncat(filename, NAME_RES_THUMB, FILENAME_MAX);
+        break;
+    case RES_SMALL:
+        strncat(filename, NAME_RES_SMALL, FILENAME_MAX);
+        break;
+    case RES_ORIG:
+        strncat(filename, NAME_RES_ORIG, FILENAME_MAX);
+        break;
+    default:
+        filename[0] = '\0';
+        return ERR_RESOLUTIONS;
     }
 
     strncat(filename, IMG_EXT, FILENAME_MAX);
@@ -195,13 +195,13 @@ static int help(int argc, char *argv[])
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
     puts("  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
-                 NAME_RES_SMALL"]:");
+         NAME_RES_SMALL"]:");
     puts("      read an image from the pictDB and save it to a file.");
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     puts("  gc <dbfilename> <tmpfilename>: collect garbage over the given file,"
-                 " in case of error, the original file is not modified but only the temporary one.");
+         " in case of error, the original file is not modified but only the temporary one.");
     return 0;
 }
 
@@ -236,7 +236,8 @@ static int do_delete_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Reads image from disk into buffer.
  ********************************************************************** */
-static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename) {
+static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename)
+{
     M_REQUIRE_NON_NULL(image_buffer);
     M_REQUIRE_NON_NULL(image_size);
     M_REQUIRE_NON_NULL(filename);
@@ -292,7 +293,8 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
 /********************************************************************//**
  * Writes image from buffer to disk.
  ********************************************************************** */
-static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename) {
+static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename)
+{
     M_REQUIRE_NON_NULL(image_buffer);
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_VALID_FILENAME(filename);
@@ -413,7 +415,8 @@ static int do_read_cmd(int argc, char *argv[])
 /********************************************************************//**
  * Opens pictDB file and calls do_read command.
  ********************************************************************** */
-int do_gbcollect_cmd(int argc, char *argv[]) {
+int do_gbcollect_cmd(int argc, char *argv[])
+{
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -428,37 +431,7 @@ int do_gbcollect_cmd(int argc, char *argv[]) {
     int status = do_open(db_filename, "rb", &db_file);
 
     if (status == 0) {
-
-        struct pictdb_file tmp_db_file;
-        tmp_db_file.header.max_files = db_file.header.max_files;
-
-        tmp_db_file.header.res_resized[RES_THUMB] = db_file.header.res_resized[RES_THUMB];
-        tmp_db_file.header.res_resized[RES_THUMB + 1] = tmp_db_file.header.res_resized[RES_THUMB + 1];
-        tmp_db_file.header.res_resized[RES_SMALL << 1] = tmp_db_file.header.res_resized[RES_THUMB << 1];
-        tmp_db_file.header.res_resized[(RES_SMALL << 1) + 1] = tmp_db_file.header.res_resized[(RES_THUMB << 1) + 1];
-
-        status = do_create(tmp_db_filename, &tmp_db_file);
-
-        if (status == 0) {
-            status = do_open(tmp_db_filename, "r+b", &tmp_db_file);
-
-            if (status == 0) {
-                status = do_gbcollect(&db_file, &tmp_db_file);
-
-                if (status == 0) {
-                    status = fclose(db_file.fpdb) != 0 ? ERR_IO : 0;
-
-                    if (status == 0) {
-                        status = remove(db_filename);
-
-                        if (status == 0) {
-                            status = rename(tmp_db_filename, db_filename);
-                        }
-                    }
-                }
-            }
-            do_close(&tmp_db_file);
-        }
+        status = do_gbcollect(&db_file, db_filename, tmp_db_filename);
     }
     do_close(&db_file);
     return status;
@@ -467,19 +440,20 @@ int do_gbcollect_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * MAIN
  ********************************************************************** */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("unable to start VIPS");
     }
 
     struct command_mapping commands[] = {
-            {"list",   do_list_cmd},
-            {"create", do_create_cmd},
-            {"help",   help},
-            {"delete", do_delete_cmd},
-            {"insert", do_insert_cmd},
-            {"read",   do_read_cmd},
-            {"gc",     do_gbcollect_cmd}
+        {"list",   do_list_cmd},
+        {"create", do_create_cmd},
+        {"help",   help},
+        {"delete", do_delete_cmd},
+        {"insert", do_insert_cmd},
+        {"read",   do_read_cmd},
+        {"gc",     do_gbcollect_cmd}
     };
     const size_t NB_CMD = sizeof(commands) / sizeof(commands[0]);
 

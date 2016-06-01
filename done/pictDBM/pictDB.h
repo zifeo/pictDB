@@ -129,7 +129,7 @@ struct pictdb_file {
  */
 enum do_list_mode {
     STDOUT, /**< standard output */
-            JSON /**< json output */
+    JSON /**< json output */
 };
 
 /**
@@ -217,12 +217,11 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
 /**
  * @brief Garbage collector for pictDB files
  *
- * @param image_buffer Array of bytes of the image.
- * @param image_size Size of the image to be read.
- * @param pict_id Name of image to be read.
  * @param db_file In memory structure with header and metadata.
+ * @param db_filename Name of the original file to be opened.
+ * @param tmp_db_filename Name of the temporary file to be created.
  */
-int do_gbcollect(const struct pictdb_file* db_file, struct pictdb_file* tmp_db_file);
+int do_gbcollect(const struct pictdb_file *db_file, const char* db_filename,  const char* tmp_db_filename);
 
 
 #ifdef __cplusplus
