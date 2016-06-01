@@ -33,6 +33,7 @@
 #define MAX_MAX_FILES 100000 // max. db files
 #define MAX_THUMB_RES 128
 #define MAX_SMALL_RES 512
+#define MAX_CMD_ARGS 10
 
 #define DEFAULT_MAX_FILES 10
 #define DEFAULT_THUMB_RES 64
