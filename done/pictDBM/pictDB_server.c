@@ -12,8 +12,6 @@
 #include "libmongoose/mongoose.h"
 #include "pictDB.h"
 
-// TODO : check get method ?
-#define GET_METHOD "GET"
 #define POST_METHOD "POST"
 
 #define ROUTE_LIST "/pictDB/list"
@@ -29,7 +27,7 @@
 #define ARG_PICT_ID "pict_id"
 #define ARGNAME_MAX 16
 
-#define MAX_SPLIT_LEN (MAX_PIC_ID + 1) * MAX_QUERY_PARAM
+#define MAX_SPLIT_LEN ((MAX_PIC_ID + 1) * MAX_QUERY_PARAM)
 
 static int s_sig_received = 0;
 static const struct mg_serve_http_opts s_http_server_opts = {
@@ -38,6 +36,7 @@ static const struct mg_serve_http_opts s_http_server_opts = {
 
 /********************************************************************//**
  * Splits query_string in parts.
+ * tmp should always have MAX_SPLIT_LEN size.
  ********************************************************************** */
 static void split(char* result[], char* tmp, const char* src, const char* delim, size_t len)
 {
@@ -65,13 +64,14 @@ static void split(char* result[], char* tmp, const char* src, const char* delim,
  ********************************************************************** */
 static void mg_error(struct mg_connection* nc, int error)
 {
-    if (nc == NULL || error < 0 || error >= ERROR_COUNT) {
+    if (nc == NULL || error < 0 || error >= (int) ERROR_COUNT) {
         return;
     }
 
-    // TODO : content type ?
-    mg_printf(nc, "HTTP/1.1 500 %s\r\n"
-              "Content-Length: 0\r\n\r\n",
+    mg_printf(nc,
+              "HTTP/1.1 500 %s\r\n"
+              "Content-Length: 0\r\n"
+              "\r\n",
               ERROR_MESSAGES[error]);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
@@ -82,11 +82,21 @@ static void mg_error(struct mg_connection* nc, int error)
  ********************************************************************** */
 static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
 {
+    (void) hm;
+
     char* resp = do_list(nc->mgr->user_data, JSON);
 
-    mg_printf(nc, "HTTP/1.1 200 OK\r\n"
+    if (resp == NULL) {
+        mg_error(nc, ERR_DEBUG);
+        return;
+    }
+
+    mg_printf(nc,
+              "HTTP/1.1 200 OK\r\n"
+              "Content-Type: application/json\r\n"
               "Content-Length: %d\r\n"
-              "Content-Type: application/json\r\n\r\n%s",
+              "\r\n"
+              "%s",
               (int) strlen(resp), resp);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
@@ -99,9 +109,8 @@ static void handle_list_call(struct mg_connection *nc, struct http_message *hm)
  ********************************************************************** */
 static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
 {
-    char* params[MAX_QUERY_PARAM] = {};
-    // TODO : ensure this
-    memset(params, NULL, sizeof(params));
+    char* params[MAX_QUERY_PARAM];
+    memset(params, 0, sizeof(params));
     char tmp[MAX_SPLIT_LEN] = "";
 
     split(params, tmp, hm->query_string.p, ARG_DELIM, hm->query_string.len);
@@ -109,6 +118,7 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
     char *pict_id = NULL;
     int resolution_parsed = -1;
 
+    // hydrate arguments
     for (size_t i = 0; i + 1 < MAX_QUERY_PARAM; i += 2) {
 
         if (params[i] != NULL && params[i + 1] != NULL) {
@@ -126,7 +136,7 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
         return;
     }
 
-    uint32_t resolution = (uint32_t) resolution_parsed;
+    const uint32_t resolution = (uint32_t) resolution_parsed;
     char *image_buffer = NULL;
     uint32_t image_size = 0;
 
@@ -136,20 +146,19 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
         mg_error(nc, status);
         return;
     }
-
     assert(image_buffer != NULL);
 
-    // TODO : content type/length order
-    mg_printf(nc, "HTTP/1.1 200 OK\r\n"
+    mg_printf(nc,
+              "HTTP/1.1 200 OK\r\n"
+              "Content-Type: image/jpeg\r\n"
               "Content-Length: %d\r\n"
-              "Content-Type: image/jpeg\r\n\r\n",
+              "\r\n",
               image_size);
-    mg_send(nc, image_buffer, image_size);
+    mg_send(nc, image_buffer, (int) image_size);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
     free(image_buffer);
     image_buffer = NULL;
-
 }
 
 /********************************************************************//**
@@ -157,9 +166,9 @@ static void handle_read_call(struct mg_connection *nc, struct http_message *hm)
  ********************************************************************** */
 static void handle_insert_call(struct mg_connection *nc, struct http_message *hm)
 {
-    char varname[FILENAME_MAX];
-    char filename[FILENAME_MAX];
-    const char *data;
+    char varname[100] = "";
+    char filename[FILENAME_MAX] = "";
+    const char *data = NULL;
     size_t data_len = 0;
 
     if (mg_parse_multipart(hm->body.p, hm->body.len, varname, sizeof(varname), filename, sizeof(filename), &data,
@@ -175,9 +184,11 @@ static void handle_insert_call(struct mg_connection *nc, struct http_message *hm
         return;
     }
 
-    mg_printf(nc, "HTTP/1.1 302 Found\r\n"
-              "Location: http://localhost:%s/index.html",
-              PORT);
+    mg_printf(nc,
+              "HTTP/1.1 302 Found\r\n"
+              "Location: http://localhost:"PORT"/index.html\r\n"
+              "Content-Length: 0\r\n"
+              "\r\n");
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
 }
@@ -195,6 +206,7 @@ static void handle_delete_call(struct mg_connection *nc, struct http_message *hm
 
     char *pict_id = NULL;
 
+    // hydrate arguments
     for (size_t i = 0; i + 1 < MAX_QUERY_PARAM; i += 2) {
         if (params[i] != NULL && params[i + 1] != NULL && !strncmp(params[i], ARG_PICT_ID, ARGNAME_MAX)) {
             pict_id = params[i + 1];
@@ -212,9 +224,11 @@ static void handle_delete_call(struct mg_connection *nc, struct http_message *hm
         return;
     }
 
-    mg_printf(nc, "HTTP/1.1 302 Found\r\n"
-              "Location: http://localhost:%s/index.html",
-              PORT);
+    mg_printf(nc,
+              "HTTP/1.1 302 Found\r\n"
+              "Location: http://localhost:"PORT"/index.html\r\n"
+              "Content-Length: 0\r\n"
+              "\r\n");
     nc->flags |= MG_F_SEND_AND_CLOSE;
 
 }
@@ -233,10 +247,10 @@ static void signal_handler(int sig_num)
  ********************************************************************** */
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 {
-    struct http_message *hm = (struct http_message *) ev_data;
-
     switch (ev) {
-    case MG_EV_HTTP_REQUEST:
+    case MG_EV_HTTP_REQUEST: {
+        struct http_message *hm = (struct http_message *) ev_data;
+
         if (!mg_vcmp(&hm->uri, ROUTE_LIST)) {
             handle_list_call(nc, hm);
         } else if (!mg_vcmp(&hm->uri, ROUTE_READ)) {
@@ -249,10 +263,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
             mg_serve_http(nc, hm, s_http_server_opts);
         }
         break;
+    }
     default:
         break;
     }
-
 }
 
 /********************************************************************//**

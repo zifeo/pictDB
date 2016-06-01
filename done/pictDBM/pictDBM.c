@@ -35,7 +35,8 @@ struct command_mapping {
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd(int argc, char *argv[]) {
+static int do_list_cmd(int argc, char *argv[])
+{
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -49,7 +50,13 @@ int do_list_cmd(int argc, char *argv[]) {
     int status = do_open(db_filename, "rb", &myfile);
 
     if (status == 0) {
-        do_list(&myfile, STDOUT);
+        char* listing = do_list(&myfile, STDOUT);
+        if (listing != NULL) {
+            // should never happen
+            free(listing);
+            listing = NULL;
+            status = ERR_DEBUG;
+        }
     }
 
     do_close(&myfile);
@@ -59,7 +66,8 @@ int do_list_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Prepares and calls do_create command.
  ********************************************************************** */
-int do_create_cmd(int argc, char *argv[]) {
+static int do_create_cmd(int argc, char *argv[])
+{
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -138,7 +146,8 @@ int do_create_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Create filename from resolution.
  ********************************************************************** */
-int create_name(char *filename, const char *pic_id, unsigned int res) {
+static int create_name(char *filename, const char *pic_id, unsigned int res)
+{
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_NON_NULL(pic_id);
 
@@ -168,7 +177,8 @@ int create_name(char *filename, const char *pic_id, unsigned int res) {
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help(int argc, char *argv[]) {
+static int help(int argc, char *argv[])
+{
     (void) argc, (void) argv;
     puts("pictDBM [COMMAND] [ARGUMENTS]");
     puts("  help: displays this help.");
@@ -198,7 +208,8 @@ int help(int argc, char *argv[]) {
 /********************************************************************//**
  * Deletes a picture from the database.
  ********************************************************************** */
-int do_delete_cmd(int argc, char *argv[]) {
+static int do_delete_cmd(int argc, char *argv[])
+{
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -305,7 +316,8 @@ static int write_disk_image(char image_buffer[], uint32_t image_size, const char
 /********************************************************************//**
  * Opens pictDB file and calls do_insert command.
  ********************************************************************** */
-int do_insert_cmd(int argc, char *argv[]) {
+static int do_insert_cmd(int argc, char *argv[])
+{
     if (argc < 4) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -350,7 +362,8 @@ int do_insert_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Opens pictDB file and calls do_read command.
  ********************************************************************** */
-int do_read_cmd(int argc, char *argv[]) {
+static int do_read_cmd(int argc, char *argv[])
+{
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
