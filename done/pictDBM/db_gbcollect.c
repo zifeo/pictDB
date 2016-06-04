@@ -9,13 +9,29 @@
 #include "pictDB.h"
 #include "image_content.h"
 
-int do_gbcollect(const struct pictdb_file *db_file, const char *db_filename, const char *tmp_db_filename)
-{
+int db_contains_holes(const struct pictdb_file *db_file) {
+    uint32_t num_files = db_file->header.num_files;
+    if (num_files > 0) {
+        for (size_t i = 0; i < db_file->header.max_files; ++i) {
+            if (db_file->metadata[i].is_valid == EMPTY) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+int do_gbcollect(const struct pictdb_file *db_file, const char *db_filename, const char *tmp_db_filename) {
 
     M_REQUIRE_NON_NULL(db_file);
     M_REQUIRE_NON_NULL(db_filename);
     M_REQUIRE_NON_NULL(tmp_db_filename);
 
+    /*
+    if (!db_contains_holes(db_file)) {
+        return 0;
+    }
+    */
     struct pictdb_file tmp_db_file;
 
     // copy the optional argument of the header (the ones usually specified at creation)
