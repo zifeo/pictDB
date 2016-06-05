@@ -354,11 +354,12 @@ static int do_insert_cmd(int argc, char *argv[])
             if (status == 0) {
                 assert(image_buffer != NULL);
                 status = do_insert(image_buffer, image_size, pic_id, &myfile);
+            }
+
+            if (image_buffer != NULL) {
                 free(image_buffer);
                 image_buffer = NULL;
             }
-
-            assert(image_buffer == NULL);
         }
     }
 
@@ -406,7 +407,9 @@ static int do_read_cmd(int argc, char *argv[])
             if (status == 0) {
                 status = write_disk_image(image_buffer, image_size, filename);
             }
+        }
 
+        if (image_buffer != NULL) {
             free(image_buffer);
             image_buffer = NULL;
         }
@@ -428,6 +431,8 @@ int do_gbcollect_cmd(int argc, char *argv[])
 
     M_REQUIRE_NON_NULL(argv[1]);
     M_REQUIRE_NON_NULL(argv[2]);
+    M_REQUIRE_VALID_FILENAME(argv[1]);
+    M_REQUIRE_VALID_FILENAME(argv[2]);
 
     const char *db_filename = argv[1];
     const char *tmp_db_filename = argv[2];
@@ -438,6 +443,7 @@ int do_gbcollect_cmd(int argc, char *argv[])
     if (status == 0) {
         status = do_gbcollect(&db_file, db_filename, tmp_db_filename);
     }
+
     do_close(&db_file);
     return status;
 }
@@ -560,8 +566,7 @@ int do_interpretor_cmd(int argc, char *argv[])
     int exit = 0;
     char *str = (char *) malloc(INPUT_LENGTH + 1);
 
-    puts("PictDBM 1.0.01 (default, June 03 2016, 09:23:16) \n"
-         "[GCC 4.2.1 Compatible Apple LLVM 7.0.2 (clang-700.1.81)] on darwin\n"
+    puts("PictDBM interpretor\n"
          "Type \"help\" for more information.");
 
     do {
@@ -587,6 +592,7 @@ int do_interpretor_cmd(int argc, char *argv[])
     } while (exit);
 
     free(str);
+    str = NULL;
     return status;
 }
 
