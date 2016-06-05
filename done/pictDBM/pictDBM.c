@@ -465,8 +465,7 @@ static int interpretor_help(int argc, char *argv[])
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <pictID> <filename>: insert a new image in the pictDB.");
     puts("  delete <pictID>: delete picture pictID from pictDB.");
-    puts("  gc <dbfilename> <tmp dbfilename>: performs garbage collecting on pictDB. "
-         "Requires a temporary filename for copying the pictDB.");
+    puts("  quit: leaves the interpretor.");
     return 0;
 }
 
@@ -489,34 +488,34 @@ command get_cmd(const struct command_mapping *commands, size_t size, const char 
  * Tokenize the input string, by separating on space, and add the
  * name of the db_file at the second position
  ********************************************************************** */
-int tokenize_input(char *buffer[], char *input, const char *filename)
+int tokenize_input(char *buffer[], char *input, char *filename)
 {
     M_REQUIRE_NON_NULL(buffer);
     M_REQUIRE_NON_NULL(input);
     M_REQUIRE_VALID_FILENAME(filename);
 
-    int argv = 0;
+    int argc = 0;
     char *token = NULL;
     // remove end of line
     input[strcspn(input, "\n")] = '\0';
 
     // check for space first (strtok does not handle this corner case correctly
     if (strstr(input, TOKEN_SEPARATOR) == NULL) {
-        buffer[argv] = input;
-        argv++;
+        buffer[argc] = input;
+        argc++;
     } else {
         token = strtok(input, TOKEN_SEPARATOR);
-        while (token != NULL) {
-            buffer[argv++] = token;
-            if (argv == CMD_NAME_POSITION) {
-                argv++;
+        while (token != NULL && argc < MAX_CMD_ARGS) {
+            buffer[argc++] = token;
+            if (argc == CMD_NAME_POSITION) {
+                argc++;
             }
             token = strtok(NULL, TOKEN_SEPARATOR);
         }
     }
 
-    strncpy(buffer[CMD_NAME_POSITION], filename, strlen(filename) + 1);
-    return argv;
+    buffer[CMD_NAME_POSITION] = filename;
+    return argc;
 }
 
 /********************************************************************//**
@@ -529,8 +528,7 @@ int do_interpretor_cmd(int argc, char *argv[])
     }
 
     M_REQUIRE_NON_NULL(argv[1]);
-
-    const char *db_filename = argv[1];
+    char *db_filename = argv[1];
 
     // this is a fast but dirty way to check whether or not the given db is on disk
     struct pictdb_file db_file;
@@ -547,8 +545,7 @@ int do_interpretor_cmd(int argc, char *argv[])
         {"help",   interpretor_help},
         {"delete", do_delete_cmd},
         {"insert", do_insert_cmd},
-        {"read",   do_read_cmd},
-        {"gc",     do_gbcollect_cmd}
+        {"read",   do_read_cmd}
     };
 
     const size_t cmd_count = sizeof(commands) / sizeof(commands[0]);
@@ -571,13 +568,17 @@ int do_interpretor_cmd(int argc, char *argv[])
 
             if (cmd_argc > 0) {
                 char *cmd_name = cmd_argv[0];
-                exit = strcmp(cmd_name, INTERPRETOR_EXIT);
-                command selected_cmd = get_cmd(commands, cmd_count, cmd_name);
 
-                if (selected_cmd != NULL) {
-                    ret = selected_cmd(cmd_argc + 1, cmd_argv);
+                if (!strncmp(cmd_name, INTERPRETOR_EXIT, CMDNAME_MAX)) {
+                    exit = 1;
                 } else {
-                    ret = ERR_INVALID_COMMAND;
+                    command selected_cmd = get_cmd(commands, cmd_count, cmd_name);
+
+                    if (selected_cmd != NULL) {
+                        ret = selected_cmd(cmd_argc + 1, cmd_argv);
+                    } else {
+                        ret = ERR_INVALID_COMMAND;
+                    }
                 }
             }
             if (ret) {
@@ -585,7 +586,7 @@ int do_interpretor_cmd(int argc, char *argv[])
                 interpretor_help(argc, argv);
             }
         }
-    } while (exit);
+    } while (!exit);
 
     free(str);
     str = NULL;
