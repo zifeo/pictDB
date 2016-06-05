@@ -1,112 +1,70 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" class="ui" href="semantic.css">
-    <style media="screen" type="text/css">
+    <title>PictDB Pictures</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.js"></script>
+    <link rel="stylesheet prefetch" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/components/icon.min.css'>
+    <style>
         input[type="file"] {
             display: none;
         }
+        #content {
+            margin-top: 55px;
+        }
     </style>
-    <title>PictDB Pictures</title>
+    <script>
+        $(function() {
+            $.getJSON('pictDB/list', function (data) {
+                console.log(data);
+                $("#db_name").html(data.Header.db_name);
+                $("#db_version").html("Version " + data.Header.db_version);
+                $("#db_num_files").html("Contient " + data.Header.num_files + " image" + (data.Header.num_files > 1 ? "s" : ""));
+                $("#db_max_files").html("Max " + data.Header.max_files + " image" + (data.Header.max_files > 1 ? "s" : ""));
+                $.each(data.Pictures, function (_, image) {
+                    $("#images").append('<tr class="center aligned">' +
+                            '<td><a href="pictDB/read?res=orig&pict_id=' + image.id + '" >' +
+                            '<img alt="NoPic" src="pictDB/read?res=thumb&pict_id=' + image.id + '"></a></td>' +
+                            '<td>' + image.id + '</td>' +
+                            '<td>' + image.res + '</td>' +
+                            '<td><a href="pictDB/delete?pict_id=' + image.id + '" >' +
+                            '<i class="remove icon"></i></a></td>' +
+                            '</tr>');
+                });
+            });
+        });
+    </script>
 </head>
-
 <body>
 <div class="ui fixed menu">
     <div class="ui container">
-        <a class="header item" id="db_name">
-        </a>
-        <a class="item" id="db_version">
-        </a>
-        <a class="item" id="db_num_files">
-        </a>
-        <a class="item" id="db_max_files">
-        </a>
-        <div class="ui search item">
-            <div class="ui transparent icon input">
-                <input class="prompt" type="text" placeholder="Search ...">
-            </div>
-        </div>
+        <span class="header item" id="db_name"></span>
+        <span class="item" id="db_version"></span>
+        <span class="item" id="db_num_files"></span>
+        <span class="item" id="db_max_files"></span>
     </div>
 </div>
-
-<div class="ui container" style="margin-top:50px">
-    <table border="0" cellspacing="20">
-    </table>
+<div class="ui container" id="content">
     <table class="ui compact celled definition three column table">
         <thead class="full-width">
         <tr class="center aligned">
             <th>Thumbnail</th>
             <th>Nom</th>
-            <th>Taille</th>
-            <th class="one wide">Suppression</th>
+            <th>Taille original</th>
+            <th class="one wide">Options</th>
         </tr>
         </thead>
-        <tbody>
-        </tbody>
-        <tfoot class="full-width">
-        <tr>
-            <th></th>
-            <th colspan="4">
-                <div class="ui right floated small primary labeled icon button">
-                    <form class="ui center form" action='http://localhost:8000/pictDB/insert' method='POST'
-                          enctype="multipart/form-data">
-                        <label class="ui button">
-                            <input type='file' name='up_file' id='up_file'/>
-                            Ajouter une image
-                        </label>
-                        <button class="ui button" type="submit">Envoyer</button>
-                        <button class="ui button" type="reset">Réinitialiser</button>
-                    </form>
-                </div>
-            </th>
-        </tr>
-        </tfoot>
+        <tbody id="images"></tbody>
     </table>
-
+    <form class="ui form align-left" action="pictDB/insert" method="POST" enctype="multipart/form-data">
+        <label class="ui button">
+            <input type="file" name="up_file" id="up_file">
+            Choisir une image
+        </label>
+        <button class="ui button" type="submit">Envoyer</button>
+        <button class="ui button" type="reset">Réinitialiser</button>
+    </form>
 </div>
 </body>
-
-<script>
-    var getJSON = function (url) {
-        return new Promise(function (resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('get', url, true);
-            xhr.responseType = 'json';
-            xhr.onload = function () {
-                var status = xhr.status;
-                if (status == 200) {
-                    resolve(xhr.response);
-                } else {
-                    reject(status);
-                }
-            };
-            xhr.send();
-        });
-    };
-
-    getJSON('http://localhost:8000/pictDB/list').then(function (data) {
-        $(document).ready(function () {
-            console.log(data);
-            document.getElementById("db_name").textContent = data.Header.db_name;
-            document.getElementById("db_version").textContent = "v. "+data.Header.db_version;
-            document.getElementById("db_num_files").textContent = data.Header.num_files + " image" + (data.Header.num_files > 1 ? "s" : "") + " dans la base";
-            document.getElementById("db_max_files").textContent = "Taille maximale de " + data.Header.max_files + " image" + (data.Header.max_files > 1 ? "s" : "");
-            for (var i = 0; i < data.Pictures.length; i++) {
-                var pic = data.Pictures[i].id;
-                $("tbody").append('<tr class="center aligned">' +
-                        '<td> <a href="http://localhost:8000/pictDB/read?res=orig&pict_id=' + pic + '" >' +
-                        '<img border="0" alt="NoPic" src="http://localhost:8000/pictDB/read?res=thumb&pict_id=' + pic + '" ></a></td>' +
-                        '<td>' + pic + '</td>' +
-                        '<td>' + data.Pictures[i].res + '</td>' +
-                        '<td> <a href="http://localhost:8000/pictDB/delete?pict_id=' + pic + '" >' +
-                        '<i class="remove icon"></i></a></td>' +
-                        '</tr>');
-            }
-        })
-    }, function (status) {
-        alert('Something went wrong.');
-    });
-
-</script>
 </html>

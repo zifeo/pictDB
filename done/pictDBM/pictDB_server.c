@@ -68,7 +68,7 @@ static void mg_error(struct mg_connection* nc, int error)
         return;
     }
 
-    printf("ERROR %d : %s\n", error, ERROR_MESSAGES[error]);
+    fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[error]);
 
     mg_printf(nc,
               "HTTP/1.1 500 %s\r\n"
@@ -182,7 +182,6 @@ static void handle_insert_call(struct mg_connection *nc, struct http_message *hm
 
     int status = do_insert(data, data_len, filename, nc->mgr->user_data);
     if (status != 0) {
-        printf("Status = %d\n", status);
         mg_error(nc, status);
         return;
     }
