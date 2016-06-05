@@ -68,6 +68,8 @@ static void mg_error(struct mg_connection* nc, int error)
         return;
     }
 
+    fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[error]);
+
     mg_printf(nc,
               "HTTP/1.1 500 %s\r\n"
               "Content-Length: 0\r\n"
@@ -250,7 +252,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
     switch (ev) {
     case MG_EV_HTTP_REQUEST: {
         struct http_message *hm = (struct http_message *) ev_data;
-
         if (!mg_vcmp(&hm->uri, ROUTE_LIST)) {
             handle_list_call(nc, hm);
         } else if (!mg_vcmp(&hm->uri, ROUTE_READ)) {
@@ -285,11 +286,11 @@ int main(int argc, char *argv[])
     M_REQUIRE_VALID_FILENAME(argv[1]);
 
     const char *db_filename = argv[1];
-    struct pictdb_file myfile;
-    int status = do_open(db_filename, "r+b", &myfile);
+    struct pictdb_file db_file;
+    int status = do_open(db_filename, "r+b", &db_file);
 
     if (status == 0) {
-        print_header(&myfile.header);
+        print_header(&db_file.header);
 
         struct mg_mgr mgr;
         struct mg_connection *nc;
@@ -297,7 +298,7 @@ int main(int argc, char *argv[])
         signal(SIGTERM, signal_handler);
         signal(SIGINT, signal_handler);
 
-        mg_mgr_init(&mgr, &myfile);
+        mg_mgr_init(&mgr, &db_file);
         nc = mg_bind(&mgr, PORT, ev_handler);
         if (nc == NULL) {
             return -1;
@@ -312,7 +313,7 @@ int main(int argc, char *argv[])
         mg_mgr_free(&mgr);
     }
 
-    do_close(&myfile);
+    do_close(&db_file);
     vips_shutdown();
 
     return 0;

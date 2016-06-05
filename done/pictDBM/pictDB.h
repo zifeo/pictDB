@@ -33,6 +33,7 @@
 #define MAX_MAX_FILES 100000 // max. db files
 #define MAX_THUMB_RES 128
 #define MAX_SMALL_RES 512
+#define MAX_CMD_ARGS 10
 
 #define DEFAULT_MAX_FILES 10
 #define DEFAULT_THUMB_RES 64
@@ -137,7 +138,7 @@ void print_metadata(const struct pict_metadata *metadata);
  *
  * @param db_file In memory structure with header and metadata.
  */
-char* do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
+char *do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
@@ -199,6 +200,15 @@ int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_
  * @param db_file In memory structure with header and metadata.
  */
 int do_insert(const char image_buffer[], size_t image_size, const char *pict_id, struct pictdb_file *db_file);
+
+/**
+ * @brief Garbage collector for pictDB files
+ *
+ * @param db_file In memory structure with header and metadata.
+ * @param db_filename Name of the original file to be opened.
+ * @param tmp_db_filename Name of the temporary file to be created.
+ */
+int do_gbcollect(struct pictdb_file *db_file, const char* db_filename,  const char* tmp_db_filename);
 
 #ifdef __cplusplus
 }

@@ -25,7 +25,6 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
     if (db_file->header.num_files >= db_file->header.max_files) {
         return ERR_FULL_DATABASE;
     }
-
     // We assume the file is already opened from the outside so we don't do it here
     // 1) Find a free position at the index
     uint32_t index = db_file->header.max_files;
@@ -48,6 +47,7 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
             sha = NULL;
         }
     }
+
     // 2) Image de-duplication
     int status = do_name_and_content_dedup(db_file, index);
     if (status != 0) {
@@ -85,12 +85,10 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
     // 4) Update database
     db_file->header.db_version += 1;
     db_file->header.num_files += 1;
-
     if (fseek(db_file->fpdb, 0, SEEK_SET) != 0 ||
         fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1 ||
         fseek(db_file->fpdb, index * sizeof(struct pict_metadata), SEEK_CUR) != 0 ||
         fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
-
         return ERR_IO;
     };
 

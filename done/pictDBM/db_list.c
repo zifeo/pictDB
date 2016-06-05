@@ -12,7 +12,17 @@
 #include <assert.h>
 #include <string.h>
 
-#define PICS_JSON_LABEL "Pictures"
+#define DB_JSON_LABEL_LEN 16
+
+#define DB_JSON_PICTURES "pictures"
+#define DB_JSON_PIC_ID "id"
+#define DB_JSON_PIC_RES "res"
+
+#define DB_JSON_HEADER "header"
+#define DB_JSON_DB_NAME "db_name"
+#define DB_JSON_VERSION "db_version"
+#define DB_JSON_NUM_FILES "num_files"
+#define DB_JSON_MAX_FILES "max_files"
 
 static const char unknown_mode[] = "unimplemented do_list mode";
 
@@ -44,19 +54,49 @@ char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
         return NULL;
     }
     case JSON: {
+
+        char buffer[DB_JSON_LABEL_LEN];
+
         struct json_object *obj = json_object_new_object();
         struct json_object *arr = json_object_new_array();
 
         for (size_t i = 0; i < db_file->header.max_files; ++i) {
             if (db_file->metadata[i].is_valid == NON_EMPTY) {
-
+                struct json_object *img = json_object_new_object();
                 struct json_object *id = json_object_new_string(db_file->metadata[i].pict_id);
-                int status = json_object_array_add(arr, id);
+
+                sprintf(buffer, "%" PRIu32 " x %" PRIu32,
+                        db_file->metadata->res_orig[0], db_file->metadata->res_orig[1]);
+                struct json_object *size = json_object_new_string(buffer);
+
+                json_object_object_add(img, DB_JSON_PIC_ID, id);
+                json_object_object_add(img, DB_JSON_PIC_RES, size);
+
+                int status = json_object_array_add(arr, img);
                 assert(status == 0);
             }
         }
+        json_object_object_add(obj, DB_JSON_PICTURES, arr);
 
-        json_object_object_add(obj, PICS_JSON_LABEL, arr);
+        struct json_object *header = json_object_new_object();
+        {
+            struct json_object *db_name = json_object_new_string(db_file->header.db_name);
+            json_object_object_add(header, DB_JSON_DB_NAME, db_name);
+
+            sprintf(buffer, "%" PRIu32, db_file->header.num_files);
+            struct json_object *num_files = json_object_new_string(buffer);
+            json_object_object_add(header, DB_JSON_NUM_FILES, num_files);
+
+            sprintf(buffer, "%" PRIu32, db_file->header.max_files);
+            struct json_object *max_files = json_object_new_string(buffer);
+            json_object_object_add(header, DB_JSON_MAX_FILES, max_files);
+
+            sprintf(buffer, "%" PRIu32, db_file->header.db_version);
+            struct json_object *db_version = json_object_new_string(buffer);
+            json_object_object_add(header, DB_JSON_VERSION, db_version);
+        }
+        json_object_object_add(obj, DB_JSON_HEADER, header);
+
         const char *json = json_object_to_json_string(obj);
 
         size_t ret_size = strlen(json);

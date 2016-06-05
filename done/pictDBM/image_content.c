@@ -107,8 +107,7 @@ int lazy_resize(unsigned int res, struct pictdb_file *db_file, size_t index)
                        fwrite(&db_file->metadata[index], sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
 
                 status = ERR_IO;
-
-            };
+            }
         }
 
         g_free(image_out);
