@@ -72,7 +72,8 @@ int do_gbcollect(struct pictdb_file *db_file, const char *db_filename, const cha
         // keep same version
         tmp_db_file.header.db_version = db_file->header.db_version;
 
-        if (fwrite(&tmp_db_file.header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
+        if (fseek(db_file->fpdb, 0, SEEK_SET) != 0 &&
+            fwrite(&tmp_db_file.header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
             status = ERR_IO;
         }
     }
