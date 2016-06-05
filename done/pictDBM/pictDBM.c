@@ -540,9 +540,9 @@ int do_interpretor_cmd(int argc, char *argv[]) {
     int exit = 0;
     char *str = (char *) malloc(INPUT_LENGTH + 1);
 
-    printf("PictDBM 1.0.01 (default, June 03 2016, 09:23:16) \n"
+    puts("PictDBM 1.0.01 (default, June 03 2016, 09:23:16) \n"
                    "[GCC 4.2.1 Compatible Apple LLVM 7.0.2 (clang-700.1.81)] on darwin\n"
-                   "Type \"help\" for more information.\n");
+                   "Type \"help\" for more information.");
 
     do {
         printf(">>> ");

@@ -7,16 +7,21 @@ make
 rm *.o
 cp pictDBM ../../pictDBM
 cd ../..
+clear
 ./pictDBM insert testdb.pictdb pic3 ./provided/week09/foret.jpg
 ./pictDBM read testdb.pictdb pic1 small
-./pictDBM list testdb.pictdb
+#./pictDBM list testdb.pictdb
 #./pictDBM delete testdb.pictdb pic1
 #./pictDBM delete testdb.pictdb pic2
-#./pictDBM delete testdb.pictdb pic3
-#ls -l testdb.pictdb
+./pictDBM delete testdb.pictdb pic3
+ls -l testdb.pictdb
+#./pictDBM list testdb.pictdb
+#echo
+#echo
+#echo
 ./pictDBM gc testdb.pictdb tmp.pictdb
-./pictDBM list testdb.pictdb
-#ls -l testdb.pictdb
+#./pictDBM list testdb.pictdb
+ls -l testdb.pictdb
 
 #remove size of removed   new size
 #   	    -          	 562'570.00

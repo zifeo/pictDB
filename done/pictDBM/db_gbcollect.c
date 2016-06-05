@@ -42,49 +42,52 @@ int do_gbcollect(const struct pictdb_file *db_file, const char *db_filename, con
     tmp_db_file.header.res_resized[(RES_SMALL << 1) + 1] = db_file->header.res_resized[(RES_THUMB << 1) + 1];
 
     int status = do_create(tmp_db_filename, &tmp_db_file);
+    if (status != 0) {
+        return status;
+    }
 
-    if (status == 0) {
-        status = do_open(tmp_db_filename, "r+b", &tmp_db_file);
+    status = do_open(tmp_db_filename, "r+b", &tmp_db_file);
+    if (status != 0) {
+        return status;
+    }
 
-        if (status == 0) {
-
-            if (db_file->header.num_files > 0) {
-                for (size_t i = 0; i < db_file->header.max_files && status == 0; ++i) {
-                    if (db_file->metadata[i].is_valid == NON_EMPTY) {
-                        size_t offset, size;
-                        for (unsigned int res = 0; res < NB_RES; ++res) {
-                            if ((offset = db_file->metadata[i].offset[res]) != 0 &&
-                                (size = db_file->metadata[i].size[res]) != 0) {
-                                if (res == RES_ORIG) {
-                                    char buffer[size];
-                                    if (fseek(db_file->fpdb, offset, SEEK_SET) != 0 ||
-                                        fread(buffer, size, 1, db_file->fpdb) != 1) {
-                                        status = ERR_IO;
-                                    }
-                                    status = do_insert(buffer, size, db_file->metadata[i].pict_id, &tmp_db_file);
-                                } else {
-                                    status = lazy_resize(res, &tmp_db_file, i);
-                                };
+    if (db_file->header.num_files > 0) {
+        for (size_t i = 0; i < db_file->header.max_files && status == 0; ++i) {
+            if (db_file->metadata[i].is_valid == NON_EMPTY) {
+                // starts by RES_ORIG to insert it and then resize, otherwise resizing may failed
+                // as the original image is not yet there
+                for (int res = RES_ORIG; res >= 0; --res) {
+                    uint64_t offset, size;
+                    if ((offset = db_file->metadata[i].offset[res]) != 0 &&
+                        (size = db_file->metadata[i].size[res]) != 0) {
+                        if (res == RES_ORIG) {
+                            char buffer[size];
+                            if (fseek(db_file->fpdb, (long) offset, SEEK_SET) != 0 ||
+                                fread(buffer, size, 1, db_file->fpdb) != 1) {
+                                status = ERR_IO;
                             }
+                            status = do_insert(buffer, size, db_file->metadata[i].pict_id, &tmp_db_file);
+                        } else {
+                            status = lazy_resize((unsigned int) res, &tmp_db_file, i);
                         }
                     }
                 }
             }
-            // Now remove and rename the tmp file in case of success
-            if (status == 0) {
-                status = fclose(db_file->fpdb) != 0 ? ERR_IO : 0;
-
-                if (status == 0) {
-                    status = remove(db_filename);
-
-                    if (status == 0) {
-                        status = rename(tmp_db_filename, db_filename);
-                    }
-                }
-            }
-            do_close(&tmp_db_file);
         }
     }
+
+    // Now remove and rename the tmp file in case of success
+    if (status == 0) {
+        status = fclose(db_file->fpdb) != 0 ? ERR_IO : 0;
+        if (status == 0) {
+            status = remove(db_filename);
+
+            if (status == 0) {
+                status = rename(tmp_db_filename, db_filename);
+            }
+        }
+    }
+    do_close(&tmp_db_file);
 
     return status;
 }
