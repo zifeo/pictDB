@@ -141,9 +141,11 @@ static int do_create_cmd(int argc, char *argv[])
 
     int status = do_create(db_filename, &db_file);
     if (status == 0) {
+        printf("%d item(s) written\n", 1 + db_file.header.max_files);
         print_header(&db_file.header);
     }
 
+    do_close(&db_file);
     return status;
 }
 

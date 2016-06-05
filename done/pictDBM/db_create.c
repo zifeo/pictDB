@@ -38,7 +38,7 @@ int do_create (const char* filename, struct pictdb_file* db_file)
     }
 
     int status = 0;
-    db_file->fpdb = fopen(filename, "wb");
+    db_file->fpdb = fopen(filename, "w+b");
 
     if (db_file->fpdb == NULL) {
         status = ERR_IO;
@@ -48,18 +48,6 @@ int do_create (const char* filename, struct pictdb_file* db_file)
             != db_file->header.max_files) {
             status = ERR_IO;
         }
-    }
-
-    free(db_file->metadata);
-    db_file->metadata = NULL;
-
-    if (fclose(db_file->fpdb) != 0 && status == 0) {
-        return ERR_IO;
-    }
-
-    // The stream is closed, we don't want to print anything in case of an error
-    if (status == 0) {
-        printf("%d item(s) written\n", 1 + db_file->header.max_files);
     }
 
     return status;

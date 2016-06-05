@@ -31,11 +31,6 @@ int do_gbcollect(const struct pictdb_file *db_file, const char *db_filename, con
         return status;
     }
 
-    status = do_open(tmp_db_filename, "r+b", &tmp_db_file);
-    if (status != 0) {
-        return status;
-    }
-
     if (db_file->header.num_files > 0) {
         for (size_t i = 0; i < db_file->header.max_files && status == 0; ++i) {
             if (db_file->metadata[i].is_valid == NON_EMPTY) {
