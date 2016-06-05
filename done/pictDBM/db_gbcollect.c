@@ -68,6 +68,15 @@ int do_gbcollect(const struct pictdb_file *db_file, const char *db_filename, con
         }
     }
 
+    if (status == 0) {
+        // keep same version
+        tmp_db_file.header.db_version = db_file->header.db_version;
+
+        if (fwrite(&tmp_db_file.header, sizeof(struct pictdb_header), 1, db_file->fpdb) != 1) {
+            status = ERR_IO;
+        }
+    }
+
     do_close(&tmp_db_file);
 
     // Now remove and rename the tmp file in case of success
