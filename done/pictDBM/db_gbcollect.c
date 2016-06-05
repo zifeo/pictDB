@@ -83,8 +83,7 @@ int do_gbcollect(struct pictdb_file *db_file, const char *db_filename, const cha
     // Now remove and rename the tmp file in case of success
     if (status == 0) {
 
-        if (fclose(db_file->fpdb) != 0) {
-        } else if (modification_count == 0) {
+        if (modification_count == 0) {
             status = remove(tmp_db_filename);
         } else {
             status = remove(db_filename);

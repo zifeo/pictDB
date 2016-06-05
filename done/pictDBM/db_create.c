@@ -8,7 +8,6 @@
 
 #include "pictDB.h"
 
-#include <stdlib.h>
 #include <string.h>  // for strncpy
 
 /********************************************************************//**
