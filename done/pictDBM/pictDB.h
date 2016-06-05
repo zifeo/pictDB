@@ -138,7 +138,7 @@ void print_metadata(const struct pict_metadata *metadata);
  *
  * @param db_file In memory structure with header and metadata.
  */
-char* do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
+char *do_list(const struct pictdb_file *db_file, enum do_list_mode mode);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
@@ -189,7 +189,7 @@ int resolution_atoi(const char *resolution);
  * @param db_file In memory structure with header and metadata.
  */
 int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_t *image_size,
-            const struct pictdb_file *db_file);
+            struct pictdb_file *db_file);
 
 /**
  * @brief Inserts an image.
@@ -208,7 +208,7 @@ int do_insert(const char image_buffer[], size_t image_size, const char *pict_id,
  * @param db_filename Name of the original file to be opened.
  * @param tmp_db_filename Name of the temporary file to be created.
  */
-int do_gbcollect(const struct pictdb_file *db_file, const char* db_filename,  const char* tmp_db_filename);
+int do_gbcollect(struct pictdb_file *db_file, const char* db_filename,  const char* tmp_db_filename);
 
 #ifdef __cplusplus
 }

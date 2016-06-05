@@ -10,7 +10,7 @@
 #include "pictDB.h"
 #include "image_content.h"
 
-int do_gbcollect(const struct pictdb_file *db_file, const char *db_filename, const char *tmp_db_filename)
+int do_gbcollect(struct pictdb_file *db_file, const char *db_filename, const char *tmp_db_filename)
 {
     M_REQUIRE_NON_NULL(db_file);
     M_REQUIRE_NON_NULL(db_filename);

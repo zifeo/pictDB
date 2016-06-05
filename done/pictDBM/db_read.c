@@ -13,7 +13,7 @@
 #include "image_content.h"
 
 int do_read(const char *pict_id, unsigned int res, char *image_buffer[], uint32_t *image_size,
-            const struct pictdb_file *db_file)
+            struct pictdb_file *db_file)
 {
     M_REQUIRE_NON_NULL(image_buffer);
     M_REQUIRE_NON_NULL(pict_id);
