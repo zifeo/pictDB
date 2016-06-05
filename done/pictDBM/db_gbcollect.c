@@ -9,7 +9,8 @@
 #include "pictDB.h"
 #include "image_content.h"
 
-int db_contains_holes(const struct pictdb_file *db_file) {
+int db_contains_holes(const struct pictdb_file *db_file)
+{
     uint32_t num_files = db_file->header.num_files;
     if (num_files > 0) {
         for (size_t i = 0; i < db_file->header.max_files; ++i) {
@@ -21,7 +22,8 @@ int db_contains_holes(const struct pictdb_file *db_file) {
     return 0;
 }
 
-int do_gbcollect(const struct pictdb_file *db_file, const char *db_filename, const char *tmp_db_filename) {
+int do_gbcollect(const struct pictdb_file *db_file, const char *db_filename, const char *tmp_db_filename)
+{
 
     M_REQUIRE_NON_NULL(db_file);
     M_REQUIRE_NON_NULL(db_filename);

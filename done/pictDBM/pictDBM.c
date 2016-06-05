@@ -40,7 +40,8 @@ struct command_mapping {
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-static int do_list_cmd(int argc, char *argv[]) {
+static int do_list_cmd(int argc, char *argv[])
+{
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -70,7 +71,8 @@ static int do_list_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Prepares and calls do_create command.
  ********************************************************************** */
-static int do_create_cmd(int argc, char *argv[]) {
+static int do_create_cmd(int argc, char *argv[])
+{
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -149,7 +151,8 @@ static int do_create_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Create filename from resolution.
  ********************************************************************** */
-static int create_name(char *filename, const char *pic_id, unsigned int res) {
+static int create_name(char *filename, const char *pic_id, unsigned int res)
+{
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_NON_NULL(pic_id);
 
@@ -158,18 +161,18 @@ static int create_name(char *filename, const char *pic_id, unsigned int res) {
     strncat(filename, "_", FILENAME_MAX);
 
     switch (res) {
-        case RES_THUMB:
-            strncat(filename, NAME_RES_THUMB, FILENAME_MAX);
-            break;
-        case RES_SMALL:
-            strncat(filename, NAME_RES_SMALL, FILENAME_MAX);
-            break;
-        case RES_ORIG:
-            strncat(filename, NAME_RES_ORIG, FILENAME_MAX);
-            break;
-        default:
-            filename[0] = '\0';
-            return ERR_RESOLUTIONS;
+    case RES_THUMB:
+        strncat(filename, NAME_RES_THUMB, FILENAME_MAX);
+        break;
+    case RES_SMALL:
+        strncat(filename, NAME_RES_SMALL, FILENAME_MAX);
+        break;
+    case RES_ORIG:
+        strncat(filename, NAME_RES_ORIG, FILENAME_MAX);
+        break;
+    default:
+        filename[0] = '\0';
+        return ERR_RESOLUTIONS;
     }
 
     strncat(filename, IMG_EXT, FILENAME_MAX);
@@ -179,7 +182,8 @@ static int create_name(char *filename, const char *pic_id, unsigned int res) {
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-static int help(int argc, char *argv[]) {
+static int help(int argc, char *argv[])
+{
     (void) argc, (void) argv;
     puts("pictDBM [COMMAND] [ARGUMENTS]");
     puts("  help: displays this help.");
@@ -196,13 +200,13 @@ static int help(int argc, char *argv[]) {
     printf("                                  default value is %dx%d\n", DEFAULT_SMALL_RES, DEFAULT_SMALL_RES);
     printf("                                  maximum value is %dx%d\n", MAX_SMALL_RES, MAX_SMALL_RES);
     puts("  read   <dbfilename> <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
-                 NAME_RES_SMALL"]:");
+         NAME_RES_SMALL"]:");
     puts("      read an image from the pictDB and save it to a file.");
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     puts("  gc <dbfilename> <tmpfilename>: collect garbage over the given file,"
-                 " in case of error, the original file is not modified but only the temporary one.");
+         " in case of error, the original file is not modified but only the temporary one.");
     puts("  interpretor <dbfilename>: run an interpretor to perform above operations on a pictDB file.");
     return 0;
 }
@@ -210,7 +214,8 @@ static int help(int argc, char *argv[]) {
 /********************************************************************//**
  * Deletes a picture from the database.
  ********************************************************************** */
-static int do_delete_cmd(int argc, char *argv[]) {
+static int do_delete_cmd(int argc, char *argv[])
+{
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -237,7 +242,8 @@ static int do_delete_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Reads image from disk into buffer.
  ********************************************************************** */
-static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename) {
+static int read_disk_image(char *image_buffer[], uint32_t *image_size, const char *filename)
+{
     M_REQUIRE_NON_NULL(image_buffer);
     M_REQUIRE_NON_NULL(image_size);
     M_REQUIRE_NON_NULL(filename);
@@ -293,7 +299,8 @@ static int read_disk_image(char *image_buffer[], uint32_t *image_size, const cha
 /********************************************************************//**
  * Writes image from buffer to disk.
  ********************************************************************** */
-static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename) {
+static int write_disk_image(char image_buffer[], uint32_t image_size, const char *filename)
+{
     M_REQUIRE_NON_NULL(image_buffer);
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_VALID_FILENAME(filename);
@@ -317,7 +324,8 @@ static int write_disk_image(char image_buffer[], uint32_t image_size, const char
 /********************************************************************//**
  * Opens pictDB file and calls do_insert command.
  ********************************************************************** */
-static int do_insert_cmd(int argc, char *argv[]) {
+static int do_insert_cmd(int argc, char *argv[])
+{
     if (argc < 4) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -362,7 +370,8 @@ static int do_insert_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Opens pictDB file and calls do_read command.
  ********************************************************************** */
-static int do_read_cmd(int argc, char *argv[]) {
+static int do_read_cmd(int argc, char *argv[])
+{
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -412,7 +421,8 @@ static int do_read_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Opens pictDB file and calls do_read command.
  ********************************************************************** */
-int do_gbcollect_cmd(int argc, char *argv[]) {
+int do_gbcollect_cmd(int argc, char *argv[])
+{
     if (argc < 3) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -436,26 +446,28 @@ int do_gbcollect_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-static int interpretor_help(int argc, char *argv[]) {
+static int interpretor_help(int argc, char *argv[])
+{
     (void) argc, (void) argv;
     puts("[COMMAND] [ARGUMENTS]");
     puts("  help: displays this help.");
     puts("  list: list pictDB content.");
     puts("  read <pictID> ["NAME_RES_ORIGINAL"|"NAME_RES_ORIG"|"NAME_RES_THUMBNAIL"|"NAME_RES_THUMB"|"
-                 NAME_RES_SMALL"]:");
+         NAME_RES_SMALL"]:");
     puts("      read an image from the pictDB and save it to a file.");
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <pictID> <filename>: insert a new image in the pictDB.");
     puts("  delete <pictID>: delete picture pictID from pictDB.");
     puts("  gc <tmpfilename>: collect garbage over the given file,"
-                 " in case of error, the original file is not modified but only the temporary one.");
+         " in case of error, the original file is not modified but only the temporary one.");
     return 0;
 }
 
 /********************************************************************//**
  * Return the command associated to the given name, NULL if not found
  ********************************************************************** */
-command get_cmd(struct command_mapping commands[], size_t size, const char *cmd_name) {
+command get_cmd(struct command_mapping commands[], size_t size, const char *cmd_name)
+{
     for (size_t cmd_no = 0; cmd_no < size; ++cmd_no) {
         if (!strncmp(commands[cmd_no].name, cmd_name, CMDNAME_MAX)) {
             return commands[cmd_no].function;
@@ -468,7 +480,8 @@ command get_cmd(struct command_mapping commands[], size_t size, const char *cmd_
  * Tokenize the input string, by separating on space, and add the
  * name of the db_file at the second position
  ********************************************************************** */
-int tokenize_input(char *buffer[], char *input, const char *filename) {
+int tokenize_input(char *buffer[], char *input, const char *filename)
+{
     int argv = 0;
     char *token;
     // remove end of line
@@ -496,7 +509,8 @@ int tokenize_input(char *buffer[], char *input, const char *filename) {
 /********************************************************************//**
  * Deal the given command with the given arguments
  ********************************************************************** */
-int deal_with_cmd(command cmd, int argc, char *argv[]) {
+int deal_with_cmd(command cmd, int argc, char *argv[])
+{
     if (cmd == NULL) {
         return ERR_INVALID_COMMAND;
     }
@@ -506,7 +520,8 @@ int deal_with_cmd(command cmd, int argc, char *argv[]) {
 /********************************************************************//**
  * Run the interpretor on the given file
  ********************************************************************** */
-int do_interpretor_cmd(int argc, char *argv[]) {
+int do_interpretor_cmd(int argc, char *argv[])
+{
     if (argc < 2) {
         return ERR_NOT_ENOUGH_ARGUMENTS;
     }
@@ -526,12 +541,12 @@ int do_interpretor_cmd(int argc, char *argv[]) {
 
     // we need new commands as we can't do all the original ones (no creation, no interpretor inside it etc ...)
     struct command_mapping commands[] = {
-            {"list",   do_list_cmd},
-            {"help",   interpretor_help},
-            {"delete", do_delete_cmd},
-            {"insert", do_insert_cmd},
-            {"read",   do_read_cmd},
-            {"gc",     do_gbcollect_cmd}
+        {"list",   do_list_cmd},
+        {"help",   interpretor_help},
+        {"delete", do_delete_cmd},
+        {"insert", do_insert_cmd},
+        {"read",   do_read_cmd},
+        {"gc",     do_gbcollect_cmd}
     };
 
     const size_t nb_cmd = sizeof(commands) / sizeof(commands[0]);
@@ -541,8 +556,8 @@ int do_interpretor_cmd(int argc, char *argv[]) {
     char *str = (char *) malloc(INPUT_LENGTH + 1);
 
     puts("PictDBM 1.0.01 (default, June 03 2016, 09:23:16) \n"
-                   "[GCC 4.2.1 Compatible Apple LLVM 7.0.2 (clang-700.1.81)] on darwin\n"
-                   "Type \"help\" for more information.");
+         "[GCC 4.2.1 Compatible Apple LLVM 7.0.2 (clang-700.1.81)] on darwin\n"
+         "Type \"help\" for more information.");
 
     do {
         printf(">>> ");
@@ -574,20 +589,21 @@ int do_interpretor_cmd(int argc, char *argv[]) {
 /********************************************************************//**
  * MAIN
  ********************************************************************** */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("unable to start VIPS");
     }
 
     struct command_mapping commands[] = {
-            {"list",        do_list_cmd},
-            {"create",      do_create_cmd},
-            {"help",        help},
-            {"delete",      do_delete_cmd},
-            {"insert",      do_insert_cmd},
-            {"read",        do_read_cmd},
-            {"gc",          do_gbcollect_cmd},
-            {"interpretor", do_interpretor_cmd},
+        {"list",        do_list_cmd},
+        {"create",      do_create_cmd},
+        {"help",        help},
+        {"delete",      do_delete_cmd},
+        {"insert",      do_insert_cmd},
+        {"read",        do_read_cmd},
+        {"gc",          do_gbcollect_cmd},
+        {"interpretor", do_interpretor_cmd},
     };
     const size_t nb_cmd = sizeof(commands) / sizeof(commands[0]);
 
