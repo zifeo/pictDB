@@ -473,7 +473,7 @@ static int interpretor_help(int argc, char *argv[])
 /********************************************************************//**
  * Return the command associated to the given name, NULL if not found
  ********************************************************************** */
-command get_cmd(struct command_mapping *commands, size_t size, const char *cmd_name)
+command get_cmd(const struct command_mapping *commands, size_t size, const char *cmd_name)
 {
     if (commands != NULL && cmd_name != NULL) {
         for (size_t cmd_no = 0; cmd_no < size; ++cmd_no) {
@@ -520,17 +520,6 @@ int tokenize_input(char *buffer[], char *input, const char *filename)
 }
 
 /********************************************************************//**
- * Deal the given command with the given arguments
- ********************************************************************** */
-int deal_with_cmd(command cmd, int argc, char *argv[])
-{
-    if (cmd == NULL) {
-        return ERR_INVALID_COMMAND;
-    }
-    return cmd(argc + 1, argv);
-}
-
-/********************************************************************//**
  * Run the interpretor on the given file
  ********************************************************************** */
 int do_interpretor_cmd(int argc, char *argv[])
@@ -553,7 +542,7 @@ int do_interpretor_cmd(int argc, char *argv[])
     do_close(&db_file);
 
     // we need new commands as we can't do all the original ones (no creation, no interpretor inside it etc ...)
-    struct command_mapping commands[] = {
+    const struct command_mapping commands[] = {
         {"list",   do_list_cmd},
         {"help",   interpretor_help},
         {"delete", do_delete_cmd},
@@ -562,7 +551,7 @@ int do_interpretor_cmd(int argc, char *argv[])
         {"gc",     do_gbcollect_cmd}
     };
 
-    const size_t nb_cmd = sizeof(commands) / sizeof(commands[0]);
+    const size_t cmd_count = sizeof(commands) / sizeof(commands[0]);
 
     char *cmd_argv[MAX_CMD_ARGS];
     int exit = 0;
@@ -583,8 +572,13 @@ int do_interpretor_cmd(int argc, char *argv[])
             if (cmd_argc > 0) {
                 char *cmd_name = cmd_argv[0];
                 exit = strcmp(cmd_name, INTERPRETOR_EXIT);
-                command selected_cmd = get_cmd(commands, nb_cmd, cmd_name);
-                ret = deal_with_cmd(selected_cmd, cmd_argc + 1, cmd_argv);
+                command selected_cmd = get_cmd(commands, cmd_count, cmd_name);
+
+                if (selected_cmd != NULL) {
+                    ret = selected_cmd(cmd_argc + 1, cmd_argv);
+                } else {
+                    ret = ERR_INVALID_COMMAND;
+                }
             }
             if (ret) {
                 fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[ret]);
@@ -607,7 +601,7 @@ int main(int argc, char *argv[])
         vips_error_exit("unable to start VIPS");
     }
 
-    struct command_mapping commands[] = {
+    const struct command_mapping commands[] = {
         {"list",        do_list_cmd},
         {"create",      do_create_cmd},
         {"help",        help},
@@ -617,7 +611,7 @@ int main(int argc, char *argv[])
         {"gc",          do_gbcollect_cmd},
         {"interpretor", do_interpretor_cmd},
     };
-    const size_t nb_cmd = sizeof(commands) / sizeof(commands[0]);
+    const size_t cmd_count = sizeof(commands) / sizeof(commands[0]);
 
     int ret = 0;
     if (argc < 2) {
@@ -626,8 +620,13 @@ int main(int argc, char *argv[])
         argc--;
         argv++; // skips command call name
 
-        command selected_cmd = get_cmd(commands, nb_cmd, argv[0]);
-        ret = deal_with_cmd(selected_cmd, argc, argv);
+        command selected_cmd = get_cmd(commands, cmd_count, argv[0]);
+
+        if (selected_cmd != NULL) {
+            ret = selected_cmd(argc, argv);
+        } else {
+            ret = ERR_INVALID_COMMAND;
+        }
     }
 
     if (ret) {
