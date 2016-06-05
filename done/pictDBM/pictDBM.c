@@ -32,8 +32,7 @@
 typedef int (*command)(int args, char *argv[]);
 
 struct command_mapping {
-    const char name[CMDNAME_MAX];
-    /**< command name */
+    const char name[CMDNAME_MAX]; /**< command name */
     command function; /**< command pointer function */
 };
 
@@ -466,11 +465,13 @@ static int interpretor_help(int argc, char *argv[])
 /********************************************************************//**
  * Return the command associated to the given name, NULL if not found
  ********************************************************************** */
-command get_cmd(struct command_mapping commands[], size_t size, const char *cmd_name)
+command get_cmd(struct command_mapping *commands, size_t size, const char *cmd_name)
 {
-    for (size_t cmd_no = 0; cmd_no < size; ++cmd_no) {
-        if (!strncmp(commands[cmd_no].name, cmd_name, CMDNAME_MAX)) {
-            return commands[cmd_no].function;
+    if (commands != NULL && cmd_name != NULL) {
+        for (size_t cmd_no = 0; cmd_no < size; ++cmd_no) {
+            if (!strncmp(commands[cmd_no].name, cmd_name, CMDNAME_MAX)) {
+                return commands[cmd_no].function;
+            }
         }
     }
     return NULL;
@@ -482,8 +483,12 @@ command get_cmd(struct command_mapping commands[], size_t size, const char *cmd_
  ********************************************************************** */
 int tokenize_input(char *buffer[], char *input, const char *filename)
 {
+    M_REQUIRE_NON_NULL(buffer);
+    M_REQUIRE_NON_NULL(input);
+    M_REQUIRE_VALID_FILENAME(filename);
+
     int argv = 0;
-    char *token;
+    char *token = NULL;
     // remove end of line
     input[strcspn(input, "\n")] = '\0';
 
@@ -502,7 +507,7 @@ int tokenize_input(char *buffer[], char *input, const char *filename)
         }
     }
 
-    buffer[CMD_NAME_POSITION] = (char *) filename;
+    strncpy(buffer[CMD_NAME_POSITION], filename, strlen(filename) + 1);
     return argv;
 }
 
@@ -530,7 +535,7 @@ int do_interpretor_cmd(int argc, char *argv[])
 
     const char *db_filename = argv[1];
 
-    // this is a fast but dirty way to check wether or not the given db is on disk
+    // this is a fast but dirty way to check whether or not the given db is on disk
     struct pictdb_file db_file;
     int status = do_open(db_filename, "r+b", &db_file);
 
@@ -576,13 +581,12 @@ int do_interpretor_cmd(int argc, char *argv[])
             }
             if (ret) {
                 fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[ret]);
-                (void) interpretor_help(argc, argv);
+                interpretor_help(argc, argv);
             }
         }
     } while (exit);
 
     free(str);
-
     return status;
 }
 
@@ -616,14 +620,13 @@ int main(int argc, char *argv[])
 
         command selected_cmd = get_cmd(commands, nb_cmd, argv[0]);
         ret = deal_with_cmd(selected_cmd, argc, argv);
-
     }
+
     if (ret) {
         fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[ret]);
         (void) help(argc, argv);
     }
 
     vips_shutdown();
-
     return ret;
 }

@@ -16,13 +16,13 @@
     </style>
     <script>
         $(function() {
-            $.getJSON('pictDB/list', function (data) {
+            $.getJSON('pictDB/list', function(data) {
                 console.log(data);
-                $("#db_name").html(data.Header.db_name);
-                $("#db_version").html("Version " + data.Header.db_version);
-                $("#db_num_files").html("Contient " + data.Header.num_files + " image" + (data.Header.num_files > 1 ? "s" : ""));
-                $("#db_max_files").html("Max " + data.Header.max_files + " image" + (data.Header.max_files > 1 ? "s" : ""));
-                $.each(data.Pictures, function (_, image) {
+                $("#db_name").html(data.header.db_name);
+                $("#db_version").html("Version " + data.header.db_version);
+                $("#db_num_files").html("Contient " + data.header.num_files + " image" + (data.header.num_files > 1 ? "s" : ""));
+                $("#db_max_files").html("Max " + data.header.max_files + " image" + (data.header.max_files > 1 ? "s" : ""));
+                $.each(data.pictures, function (_, image) {
                     $("#images").append('<tr class="center aligned">' +
                             '<td><a href="pictDB/read?res=orig&pict_id=' + image.id + '" >' +
                             '<img alt="NoPic" src="pictDB/read?res=thumb&pict_id=' + image.id + '"></a></td>' +

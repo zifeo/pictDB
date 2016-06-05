@@ -14,11 +14,11 @@
 
 #define DB_JSON_LABEL_LEN 16
 
-#define DB_JSON_PICTURES "Pictures"
+#define DB_JSON_PICTURES "pictures"
 #define DB_JSON_PIC_ID "id"
 #define DB_JSON_PIC_RES "res"
 
-#define DB_JSON_HEADER "Header"
+#define DB_JSON_HEADER "header"
 #define DB_JSON_DB_NAME "db_name"
 #define DB_JSON_VERSION "db_version"
 #define DB_JSON_NUM_FILES "num_files"
@@ -65,7 +65,8 @@ char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
                 struct json_object *img = json_object_new_object();
                 struct json_object *id = json_object_new_string(db_file->metadata[i].pict_id);
 
-                sprintf(buffer, "%" PRIu32 " x %" PRIu32, db_file->metadata->res_orig[0], db_file->metadata->res_orig[1]);
+                sprintf(buffer, "%" PRIu32 " x %" PRIu32,
+                        db_file->metadata->res_orig[0], db_file->metadata->res_orig[1]);
                 struct json_object *size = json_object_new_string(buffer);
 
                 json_object_object_add(img, DB_JSON_PIC_ID, id);
