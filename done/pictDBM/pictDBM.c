@@ -206,8 +206,8 @@ static int help(int argc, char *argv[])
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.");
     puts("  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
-    puts("  gc <dbfilename> <tmpfilename>: collect garbage over the given file,"
-         " in case of error, the original file is not modified but only the temporary one.");
+    puts("  gc <dbfilename> <tmp dbfilename>: performs garbage collecting on pictDB. "
+         "Requires a temporary filename for copying the pictDB.");
     puts("  interpretor <dbfilename>: run an interpretor to perform above operations on a pictDB file.");
     return 0;
 }
@@ -465,8 +465,8 @@ static int interpretor_help(int argc, char *argv[])
     puts("      default resolution is \""NAME_RES_ORIGINAL"\".");
     puts("  insert <pictID> <filename>: insert a new image in the pictDB.");
     puts("  delete <pictID>: delete picture pictID from pictDB.");
-    puts("  gc <tmpfilename>: collect garbage over the given file,"
-         " in case of error, the original file is not modified but only the temporary one.");
+    puts("  gc <dbfilename> <tmp dbfilename>: performs garbage collecting on pictDB. "
+         "Requires a temporary filename for copying the pictDB.");
     return 0;
 }
 
