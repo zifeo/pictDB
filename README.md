@@ -11,6 +11,8 @@ brew tap homebrew/science; brew install json-c vips openssl libtool
 sudo apt install libssl-dev libvips-dev libjson-c
 ```
 
+Download [Mongoose](https://github.com/cesanta/mongoose) `.c` and `.h` files and place them unider `pictDBM/libmongoose`.
+
 Use basic Makefile:
 ```shell
 make pictDBM
