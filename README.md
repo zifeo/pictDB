@@ -13,7 +13,7 @@ sudo apt install libssl-dev libvips-dev libjson-c
 
 Use basic Makefile:
 ```shell
-make src
+make pictDBM
 ```
 
 Or use CMake:
