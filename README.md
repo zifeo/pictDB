@@ -1,4 +1,4 @@
-## pictDBM
+## pictDB
  
 This is a part of the EPFL's System programming project 2016 course. 
 It aims to create a simple image store based on Facebook haystack model.
