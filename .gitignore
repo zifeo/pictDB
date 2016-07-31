@@ -136,7 +136,7 @@ install_manifest.txt
 
 # Created by .ignore support plugin (hsz.mobi)
 
-done/pictDBM/pictDBM
-done/pictDBM/pictDB_server
+pictDBM/pictDBM
+pictDBM/pictDB_server
 *.orig
 test*
