@@ -1,3 +1,5 @@
+// Provided file © EPFL
+
 #include "error.h"
 
 const char * const ERROR_MESSAGES[] = {

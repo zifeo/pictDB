@@ -1,3 +1,4 @@
+// Provided file © EPFL
 
 #include <stdlib.h>
 
