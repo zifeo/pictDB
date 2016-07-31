@@ -1,9 +1,3 @@
-/* ** NOTE: undocumented in Doxygen
- * @file db_utils.c
- * @brief implementation of several tool functions for pictDB
- *
- * @date 2 Nov 2015
- */
 
 #include "pictDB.h"
 
